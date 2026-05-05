@@ -86,14 +86,27 @@ const App = () => {
       }
     });
 
+    const authUrl = `http://localhost:3000/cli/auth?port=${port}`;
+    const startCmd =
+      process.platform === "win32"
+        ? "start"
+        : process.platform === "darwin"
+          ? "open"
+          : "xdg-open";
+
+    server.on("error", (e: NodeJS.ErrnoException) => {
+      if (e.code === "EADDRINUSE") {
+        setOutput((prev) => [
+          ...prev,
+          "Server already running, opening browser...",
+        ]);
+        exec(`${startCmd} "${authUrl}"`);
+      } else {
+        setOutput((prev) => [...prev, `Server error: ${e.message}`]);
+      }
+    });
+
     server.listen(port, () => {
-      const authUrl = `http://localhost:3000/cli/auth?port=${port}`;
-      const startCmd =
-        process.platform === "win32"
-          ? "start"
-          : process.platform === "darwin"
-            ? "open"
-            : "xdg-open";
       exec(`${startCmd} "${authUrl}"`);
       setOutput((prev) => [
         ...prev,
@@ -105,7 +118,7 @@ const App = () => {
   useInput(async (char, key) => {
     if (key.return) {
       setOutput((prev) => [...prev, `> ${input}`]);
-      if (input === "/auth") {
+      if (input === "/auth" || input === "auth") {
         handleAuth();
       } else if (input === "/logout" || input === "logout") {
         saveConfig({ ...config, token: undefined }).then(() => {
