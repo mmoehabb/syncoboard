@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
 import http from "node:http";
-import { exec } from "node:child_process";
+import { spawn } from "node:child_process";
 import { setGlobalApiToken, directoryApi } from "@syncoboard/api";
 import { executeTabCompletion } from "@syncoboard/shared";
 import { COMMAND_REGISTRY } from "./command-registry";
@@ -12,6 +12,29 @@ import { AppMode } from "./types";
 
 const CONFIG_DIR = path.join(os.homedir(), ".config", "syncoboard");
 const CONFIG_FILE = path.join(CONFIG_DIR, "config.json");
+
+/**
+ * Safely opens a URL in the default browser using platform-specific commands.
+ * Uses spawn with argument arrays to prevent command injection.
+ */
+const openUrl = (url: string) => {
+  const platform = process.platform;
+  try {
+    if (platform === "win32") {
+      // On Windows, 'start' is a shell builtin, so we use cmd /c.
+      // The empty string as the second argument is for the title parameter of 'start'.
+      spawn("cmd", ["/c", "start", "", url], { stdio: "ignore" }).unref();
+    } else if (platform === "darwin") {
+      spawn("open", [url], { stdio: "ignore" }).unref();
+    } else {
+      spawn("xdg-open", [url], { stdio: "ignore" }).unref();
+    }
+  } catch (err) {
+    // Silently fail if we can't open the browser, the user can still see the URL in some cases
+    // though here it's hardcoded to localhost.
+    console.error("Failed to open browser:", err);
+  }
+};
 
 interface Config {
   token?: string;
@@ -87,12 +110,6 @@ const App = () => {
     });
 
     const authUrl = `http://localhost:3000/cli/auth?port=${port}`;
-    const startCmd =
-      process.platform === "win32"
-        ? "start"
-        : process.platform === "darwin"
-          ? "open"
-          : "xdg-open";
 
     server.on("error", (e: NodeJS.ErrnoException) => {
       if (e.code === "EADDRINUSE") {
@@ -100,14 +117,14 @@ const App = () => {
           ...prev,
           "Server already running, opening browser...",
         ]);
-        exec(`${startCmd} "${authUrl}"`);
+        openUrl(authUrl);
       } else {
         setOutput((prev) => [...prev, `Server error: ${e.message}`]);
       }
     });
 
     server.listen(port, () => {
-      exec(`${startCmd} "${authUrl}"`);
+      openUrl(authUrl);
       setOutput((prev) => [
         ...prev,
         `Waiting for authentication callback on port ${port}...`,
