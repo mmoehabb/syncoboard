@@ -1,4 +1,12 @@
-import { describe, it, expect, mock, beforeEach, afterEach, setSystemTime } from "bun:test";
+import {
+  describe,
+  it,
+  expect,
+  mock,
+  beforeEach,
+  afterEach,
+  setSystemTime,
+} from "bun:test";
 
 const mockPrisma = {
   subscription: {
@@ -61,7 +69,9 @@ describe("hasValidSubscription", () => {
 
   it("should propagate error if prisma query fails", async () => {
     const userId = "user-789";
-    mockPrisma.subscription.findFirst.mockRejectedValueOnce(new Error("DB Error"));
+    mockPrisma.subscription.findFirst.mockRejectedValueOnce(
+      new Error("DB Error"),
+    );
 
     await expect(hasValidSubscription(userId)).rejects.toThrow("DB Error");
   });
