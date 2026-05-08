@@ -8,8 +8,9 @@ import {
   verifyWebhookSignature,
 } from "./api";
 import { prisma } from "@syncoboard/db";
+import { PayPalWebhookEvent } from "./types";
 
-export class PayPalProvider implements PaymentProvider {
+export class PayPalProvider implements PaymentProvider<PayPalWebhookEvent> {
   async syncPlans(plans: (Plan & { prices: Price[] })[]): Promise<void> {
     for (const plan of plans) {
       try {
@@ -95,7 +96,7 @@ export class PayPalProvider implements PaymentProvider {
   async handleWebhook(
     rawBody: string,
     headers: Record<string, string>,
-  ): Promise<any> {
+  ): Promise<PayPalWebhookEvent> {
     const webhookId = process.env.PAYPAL_WEBHOOK_ID;
     if (!webhookId) {
       throw new Error("Missing PAYPAL_WEBHOOK_ID");
@@ -137,6 +138,6 @@ export class PayPalProvider implements PaymentProvider {
       throw new Error("Invalid PayPal webhook signature");
     }
 
-    return parsedBody;
+    return parsedBody as PayPalWebhookEvent;
   }
 }

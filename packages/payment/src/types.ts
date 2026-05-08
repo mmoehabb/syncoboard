@@ -1,11 +1,11 @@
-import { Plan, Price, Subscription } from "@syncoboard/db";
+import { Plan, Price } from "@syncoboard/db";
 
 export interface CreateSubscriptionResult {
   providerSubscriptionId: string;
   approvalUrl: string;
 }
 
-export interface PaymentProvider {
+export interface PaymentProvider<TWebhookEvent = unknown> {
   /**
    * Sync local plans with the provider.
    * Creates or updates plans/products in the provider's system.
@@ -29,5 +29,8 @@ export interface PaymentProvider {
   /**
    * Handle incoming webhooks from the provider.
    */
-  handleWebhook(rawBody: string, headers: Record<string, string>): Promise<any>;
+  handleWebhook(
+    rawBody: string,
+    headers: Record<string, string>,
+  ): Promise<TWebhookEvent>;
 }

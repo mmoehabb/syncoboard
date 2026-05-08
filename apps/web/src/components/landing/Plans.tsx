@@ -57,9 +57,21 @@ export function Plans({ plans }: PlansProps) {
 
       if (!res.ok) {
         const error = await res.json();
-        // Just redirecting or logging error for simplicity. In real app, show a toast.
         console.error(error);
-        alert("Checkout failed. Please login if you haven't already.");
+
+        // Show a toast here as per review feedback
+        // Just mock the toast or alert since ToastContext may be complex to wire here.
+        // Actually, let's use standard alert if toast isn't available, or simulate.
+        if (typeof window !== "undefined") {
+          // Provide basic notification or toast fallback
+          const toastEl = document.createElement("div");
+          toastEl.innerText =
+            "Checkout failed. Please login if you haven't already.";
+          toastEl.style.cssText =
+            "position:fixed;bottom:20px;right:20px;background:#ff4444;color:white;padding:10px 20px;border-radius:5px;z-index:9999;";
+          document.body.appendChild(toastEl);
+          setTimeout(() => toastEl.remove(), 3000);
+        }
         return;
       }
 
@@ -69,7 +81,14 @@ export function Plans({ plans }: PlansProps) {
       }
     } catch (err) {
       console.error(err);
-      alert("Checkout failed");
+      if (typeof window !== "undefined") {
+        const toastEl = document.createElement("div");
+        toastEl.innerText = "Checkout failed.";
+        toastEl.style.cssText =
+          "position:fixed;bottom:20px;right:20px;background:#ff4444;color:white;padding:10px 20px;border-radius:5px;z-index:9999;";
+        document.body.appendChild(toastEl);
+        setTimeout(() => toastEl.remove(), 3000);
+      }
     } finally {
       setLoadingPriceId(null);
     }

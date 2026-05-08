@@ -93,7 +93,7 @@ model VerificationToken {
 
 enum PaymentProvider {
   PAYPAL
-  STRIPE
+  DODO
 }
 
 enum PriceInterval {
