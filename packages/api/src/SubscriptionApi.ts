@@ -17,6 +17,18 @@ export class SubscriptionApi extends ApiClient {
     );
     return response.data.subscription;
   }
+
+  public async checkout(
+    priceId: string,
+    config?: AxiosRequestConfig,
+  ): Promise<{ approvalUrl: string }> {
+    const response = await this.post<{ approvalUrl: string }>(
+      "/checkout",
+      { priceId },
+      config,
+    );
+    return response.data;
+  }
 }
 
 export const subscriptionApi = new SubscriptionApi();

@@ -91,6 +91,11 @@ model VerificationToken {
 // Billing & Subscriptions
 // -----------------------------------------------------------------------------
 
+enum PaymentProvider {
+  PAYPAL
+  DODO
+}
+
 enum PriceInterval {
   WEEK
   MONTH
@@ -127,6 +132,7 @@ model Price {
   currency      String        @default("usd")
   interval      PriceInterval
   intervalCount Int           @default(1)
+  providerPlanId String?
   isActive      Boolean       @default(true)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
@@ -139,6 +145,8 @@ model Subscription {
   id                 String             @id @default(uuid(7))
   userId             String
   priceId            String
+  provider           PaymentProvider?
+  providerSubscriptionId String?
   status             SubscriptionStatus @default(ACTIVE)
   currentPeriodStart DateTime
   currentPeriodEnd   DateTime
