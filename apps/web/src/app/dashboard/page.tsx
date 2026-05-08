@@ -216,12 +216,13 @@ export default async function DashboardPage() {
                 )}
 
                 {requiresPayment && (
-                  // TODO: This shall be modified when the payment provider will get integrated into the app
                   <button
-                    disabled
-                    className="w-full bg-void-grey border border-white/10 rounded py-2.5 text-syntax-grey font-mono text-sm cursor-not-allowed mt-auto"
+                    onClick={() => {
+                      window.location.href = "/#pricing";
+                    }}
+                    className="w-full bg-void-grey border border-white/10 hover:border-white/20 rounded py-2.5 text-white hover:text-neon-pulse font-mono text-sm mt-auto transition-colors"
                   >
-                    Subscribe (soon)
+                    Subscribe
                   </button>
                 )}
               </div>

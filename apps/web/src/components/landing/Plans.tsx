@@ -40,8 +40,39 @@ export function Plans({ plans }: PlansProps) {
     return match;
   };
 
+  const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
+
   const formatPrice = (amount: number) => {
     return (amount / 100).toString();
+  };
+
+  const handleSubscribe = async (priceId: string) => {
+    try {
+      setLoadingPriceId(priceId);
+      const res = await fetch("/api/subscriptions/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ priceId }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        // Just redirecting or logging error for simplicity. In real app, show a toast.
+        console.error(error);
+        alert("Checkout failed. Please login if you haven't already.");
+        return;
+      }
+
+      const data = await res.json();
+      if (data.approvalUrl) {
+        window.location.href = data.approvalUrl;
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Checkout failed");
+    } finally {
+      setLoadingPriceId(null);
+    }
   };
 
   return (
@@ -194,17 +225,19 @@ export function Plans({ plans }: PlansProps) {
                   </>
                 )}
               </ul>
-              {/* TODO: This shall be modified when the payment provider will get integrated into the app */}
               {!isFree && !isTrial ? (
                 <button
-                  disabled
-                  className={`w-full py-2 text-center rounded font-mono transition-colors opacity-50 cursor-not-allowed ${
+                  onClick={() => price && handleSubscribe(price.id)}
+                  disabled={!price || loadingPriceId === price.id}
+                  className={`w-full py-2 text-center rounded font-mono transition-colors ${
+                    loadingPriceId === price?.id ? "opacity-50 cursor-wait" : ""
+                  } ${
                     isStandard
-                      ? "bg-neon-pulse text-obsidian-night font-bold"
-                      : "border border-white/20 text-white"
+                      ? "bg-neon-pulse text-obsidian-night font-bold hover:bg-neon-pulse/90"
+                      : "border border-white/20 text-white hover:bg-white/5"
                   }`}
                 >
-                  Subscribe (soon)
+                  {loadingPriceId === price?.id ? "Loading..." : "Subscribe"}
                 </button>
               ) : (
                 <Link

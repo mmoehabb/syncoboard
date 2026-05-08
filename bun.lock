@@ -100,6 +100,18 @@
         "typescript": "^5.0.0",
       },
     },
+    "packages/payment": {
+      "name": "@syncoboard/payment",
+      "version": "0.0.0",
+      "dependencies": {
+        "@syncoboard/db": "workspace:*",
+        "@syncoboard/types": "workspace:*",
+        "axios": "^1.16.0",
+      },
+      "devDependencies": {
+        "typescript": "^5.4.5",
+      },
+    },
     "packages/shared": {
       "name": "@syncoboard/shared",
       "version": "1.0.0",
@@ -465,6 +477,8 @@
     "@syncoboard/cron": ["@syncoboard/cron@workspace:services/cron"],
 
     "@syncoboard/db": ["@syncoboard/db@workspace:packages/db"],
+
+    "@syncoboard/payment": ["@syncoboard/payment@workspace:packages/payment"],
 
     "@syncoboard/shared": ["@syncoboard/shared@workspace:packages/shared"],
 

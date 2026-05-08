@@ -14,6 +14,7 @@
     "@syncoboard/types": "workspace:*",
     "@syncoboard/shared": "workspace:*",
     "@syncoboard/api": "workspace:*",
+    "@syncoboard/payment": "workspace:*",
     "axios": "^1.15.0",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.38.0",
