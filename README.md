@@ -20,10 +20,11 @@ Syncoboard is a powerful, unified productivity application and toolset built spe
 - [Getting Started](./docs/get-started.md)
 - [Entity Relationship Diagram (ERD)](./docs/ERD.md)
 - [PayPal Integration](./docs/PAYPAL_INTEGRATION.md)
+- [For Contributors](./docs/for-contributors.md)
 
 ## License
 
-This project is licensed under the MIT License. It is entirely vibe coded via Jules. Anyone is welcome to fork the project or contribute to it!
+This project is licensed under the MIT License. It is entirely vibe coded via Jules. Anyone is welcome to fork the project or [contribute to it!](./docs/for-contributors.md)
 
 ## Support
 
