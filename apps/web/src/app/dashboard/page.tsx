@@ -8,6 +8,7 @@ import {
 } from "./actions";
 import { DashboardClient } from "./components/DashboardClient";
 import { SessionProvider } from "next-auth/react";
+import type { DashboardWorkspace } from "./components/types";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -34,7 +35,7 @@ export default async function DashboardPage() {
     userWithSubscriptions?.subscriptions &&
     userWithSubscriptions.subscriptions.length > 0;
 
-  let workspaces: any[] = [];
+  let workspaces: DashboardWorkspace[] = [];
 
   // Check if any of the user's workspaces have a GitHub App installation
   // We only redirect if they have an active subscription
