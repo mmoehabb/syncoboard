@@ -14,6 +14,7 @@
     "start": "bun run --filter \"*\" start",
     "start:pm2": "pm2 start ecosystem.config.js",
     "start:web": "bun run --filter web start",
+    "start:dashboard": "bun run --filter dashboard start",
     "start:cron": "bun run --filter @syncoboard/cron start",
     "build": "bun run --filter \"*\" generate && bun run --filter \"*\" build",
     "lint": "bun run --filter \"*\" lint",
