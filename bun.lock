@@ -48,6 +48,7 @@
         "@auth/prisma-adapter": "^2.11.1",
         "@syncoboard/api": "workspace:*",
         "@syncoboard/db": "workspace:*",
+        "@syncoboard/payment": "workspace:*",
         "@syncoboard/shared": "workspace:*",
         "@syncoboard/types": "workspace:*",
         "axios": "^1.15.0",
