@@ -58,19 +58,23 @@ export async function GET(req: Request) {
 
     const workspaceName = parts[0];
 
-    // Get all workspaces for the user to find the matching one case-insensitively
-    const workspaces = await prisma.workspace.findMany({
+    // Find the matching workspace case-insensitively, handling legacy spaces as hyphens
+    const workspace = await prisma.workspace.findFirst({
       where: {
+        OR: [
+          { name: { equals: workspaceName, mode: "insensitive" } },
+          {
+            name: {
+              equals: workspaceName.replace(/-/g, " "),
+              mode: "insensitive",
+            },
+          },
+        ],
         members: {
           some: { userId: userId },
         },
       },
     });
-
-    const workspace = workspaces.find(
-      (w) =>
-        w.name.toLowerCase().replace(/ /g, "-") === workspaceName.toLowerCase(),
-    );
 
     if (!workspace) {
       return apiError(
@@ -127,17 +131,21 @@ export async function GET(req: Request) {
 
     const boardName = parts[1];
 
-    // Get all boards in the workspace to find the matching one case-insensitively
-    const boards = await prisma.board.findMany({
+    // Find the matching board case-insensitively, handling legacy spaces as hyphens
+    const board = await prisma.board.findFirst({
       where: {
         workspaceId: workspace.id,
+        OR: [
+          { name: { equals: boardName, mode: "insensitive" } },
+          {
+            name: {
+              equals: boardName.replace(/-/g, " "),
+              mode: "insensitive",
+            },
+          },
+        ],
       },
     });
-
-    const board = boards.find(
-      (b) =>
-        b.name.toLowerCase().replace(/ /g, "-") === boardName.toLowerCase(),
-    );
 
     if (!board) {
       return apiError(
