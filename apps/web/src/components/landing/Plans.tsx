@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Plan, Price } from "@syncoboard/db";
+import { subscriptionApi } from "@syncoboard/api";
 
 export type PlanWithPrices = Plan & { prices: Price[] };
 
@@ -49,33 +50,8 @@ export function Plans({ plans }: PlansProps) {
   const handleSubscribe = async (priceId: string) => {
     try {
       setLoadingPriceId(priceId);
-      const res = await fetch("/api/subscriptions/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceId }),
-      });
+      const data = await subscriptionApi.checkout(priceId);
 
-      if (!res.ok) {
-        const error = await res.json();
-        console.error(error);
-
-        // Show a toast here as per review feedback
-        // Just mock the toast or alert since ToastContext may be complex to wire here.
-        // Actually, let's use standard alert if toast isn't available, or simulate.
-        if (typeof window !== "undefined") {
-          // Provide basic notification or toast fallback
-          const toastEl = document.createElement("div");
-          toastEl.innerText =
-            "Checkout failed. Please login if you haven't already.";
-          toastEl.style.cssText =
-            "position:fixed;bottom:20px;right:20px;background:#ff4444;color:white;padding:10px 20px;border-radius:5px;z-index:9999;";
-          document.body.appendChild(toastEl);
-          setTimeout(() => toastEl.remove(), 3000);
-        }
-        return;
-      }
-
-      const data = await res.json();
       if (data.approvalUrl) {
         window.location.href = data.approvalUrl;
       }
@@ -83,7 +59,8 @@ export function Plans({ plans }: PlansProps) {
       console.error(err);
       if (typeof window !== "undefined") {
         const toastEl = document.createElement("div");
-        toastEl.innerText = "Checkout failed.";
+        toastEl.innerText =
+          "Checkout failed. Please login if you haven't already.";
         toastEl.style.cssText =
           "position:fixed;bottom:20px;right:20px;background:#ff4444;color:white;padding:10px 20px;border-radius:5px;z-index:9999;";
         document.body.appendChild(toastEl);
