@@ -8,3 +8,4 @@ export * from "./DirectoryApi";
 export * from "./BugApi";
 export * from "./error";
 export { setGlobalApiToken } from "./ApiClient";
+export * from "./AdminApi";

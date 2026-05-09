@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --color-obsidian-night: #0a0a0c;
+  --color-void-grey: #1a1a1d;
+  --color-electric-blue: #00d2ff;
+  --color-neon-pulse: #3a86ff;
+  --color-matrix-green: #00ff66;
+  --color-warning-flare: #ff3366;
+  --color-cyber-purple: #8a2be2;
+  --color-glass-dark: rgba(10, 10, 12, 0.7);
+  --color-glass-light: rgba(255, 255, 255, 0.05);
+
+  --font-inter: "Inter", sans-serif;
+  --font-space: "Space Grotesk", sans-serif;
+  --font-fira: "Fira Code", monospace;
+}
+
+@layer base {
+  body {
+    @apply bg-obsidian-night text-gray-200 font-inter antialiased min-h-screen selection:bg-neon-pulse selection:text-white;
+  }
+}

@@ -322,3 +322,16 @@ model BugReport {
   url       String?
   createdAt DateTime @default(now())
 }
+
+// -----------------------------------------------------------------------------
+// Admin Models
+// -----------------------------------------------------------------------------
+
+model Admin {
+  id          String   @id @default(uuid(7))
+  username    String   @unique
+  password    String   // Hashed password
+  accessToken String?  @unique // Bearer token for API access
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
