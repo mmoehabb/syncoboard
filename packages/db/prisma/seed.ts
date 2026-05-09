@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import { prisma } from "../index";
 
 async function main() {
@@ -5,6 +6,19 @@ async function main() {
   if (existingPlansCount > 0) {
     console.log("Data already seeded. Skipping...");
     return;
+  }
+
+  const existingAdminCount = await prisma.admin.count();
+  if (existingAdminCount === 0) {
+    console.log("Seeding initial admin user...");
+    const hashedPassword = await bcrypt.hash("admin", 10);
+    await prisma.admin.create({
+      data: {
+        username: "admin",
+        password: hashedPassword,
+      },
+    });
+    console.log("Created initial admin user.");
   }
 
   console.log("Seeding plans...");

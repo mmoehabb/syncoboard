@@ -4,7 +4,13 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { setGlobalApiToken } from "@syncoboard/api";
-import { Users, CreditCard, LogOut, LayoutDashboard } from "lucide-react";
+import {
+  Users,
+  CreditCard,
+  LogOut,
+  LayoutDashboard,
+  Settings,
+} from "lucide-react";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -32,6 +38,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const navItems = [
     { href: "/users", label: "Users", icon: Users },
     { href: "/plans", label: "Plans", icon: CreditCard },
+    { href: "/settings", label: "Settings", icon: Settings },
   ];
 
   return (
