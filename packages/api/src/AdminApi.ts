@@ -31,6 +31,15 @@ export interface AdminPlanCreateRequest {
 
 export interface AdminPlanUpdateRequest extends Partial<AdminPlanCreateRequest> {}
 
+export interface AdminChangePasswordRequest {
+  currentPassword?: string;
+  newPassword?: string;
+}
+
+export interface AdminChangePasswordResponse {
+  success: boolean;
+}
+
 export class AdminApi extends ApiClient {
   constructor(baseURL = "/api/admin") {
     super(baseURL);
@@ -61,6 +70,16 @@ export class AdminApi extends ApiClient {
     data: AdminPlanUpdateRequest,
   ): Promise<Plan> {
     const response = await this.put<Plan>(`/plans/${id}`, data);
+    return response.data;
+  }
+
+  public async changePassword(
+    data: AdminChangePasswordRequest,
+  ): Promise<AdminChangePasswordResponse> {
+    const response = await this.post<AdminChangePasswordResponse>(
+      "/auth/password",
+      data,
+    );
     return response.data;
   }
 }
