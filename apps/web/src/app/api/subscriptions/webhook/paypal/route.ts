@@ -34,10 +34,6 @@ export async function POST(req: Request) {
     });
 
     if (!subscription) {
-      console.log(
-        "Webhook received for unknown subscription:",
-        providerSubscriptionId,
-      );
       return NextResponse.json({ received: true });
     }
 
@@ -52,7 +48,6 @@ export async function POST(req: Request) {
           ),
         },
       });
-      console.log(`Subscription ${subscription.id} activated`);
     } else if (event_type === "BILLING.SUBSCRIPTION.CANCELLED") {
       await prisma.subscription.update({
         where: { id: subscription.id },
@@ -61,7 +56,6 @@ export async function POST(req: Request) {
           cancelAtPeriodEnd: true,
         },
       });
-      console.log(`Subscription ${subscription.id} cancelled`);
     } else if (event_type === "BILLING.SUBSCRIPTION.EXPIRED") {
       await prisma.subscription.update({
         where: { id: subscription.id },
@@ -69,7 +63,6 @@ export async function POST(req: Request) {
           status: "EXPIRED",
         },
       });
-      console.log(`Subscription ${subscription.id} expired`);
     } else if (event_type === "BILLING.SUBSCRIPTION.PAYMENT.FAILED") {
       await prisma.subscription.update({
         where: { id: subscription.id },
@@ -77,7 +70,6 @@ export async function POST(req: Request) {
           status: "PAST_DUE",
         },
       });
-      console.log(`Subscription ${subscription.id} payment failed`);
     }
 
     return NextResponse.json({ received: true });
