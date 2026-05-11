@@ -9,6 +9,8 @@ import { VoiceCallPanel } from "./VoiceCallPanel";
 import { FocusedLabel } from "@/components/ui/FocusedLabel";
 import { useCommand } from "@/context/CommandContext";
 import type { MainBoardData, MainBoardTask, UnregisteredUser } from "./types";
+import { useSocket } from "@/context/SocketContext";
+import { WEBSOCKET_EVENTS } from "@syncoboard/shared";
 
 export function MainBoard({ board }: { board?: MainBoardData | null }) {
   const router = useRouter();
@@ -16,6 +18,7 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
   const searchParams = useSearchParams();
   const taskIdParam = searchParams.get("taskId");
   const { isVoiceCallActive } = useCommand();
+  const { socket, isConnected } = useSocket();
 
   const searchQueryParam = searchParams.get("search") || "";
 
@@ -30,6 +33,28 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
   useEffect(() => {
     setSearchValue(searchQueryParam);
   }, [searchQueryParam]);
+
+  // Socket.io integration for real-time updates
+  useEffect(() => {
+    if (!socket || !board?.id || !isConnected) return;
+
+    // Join the board room
+    socket.emit(WEBSOCKET_EVENTS.JOIN_BOARD, board.id);
+
+    // Refresh the router when a relevant event happens
+    const handleUpdate = () => {
+      router.refresh();
+    };
+
+    socket.on(WEBSOCKET_EVENTS.TASK_UPDATED, handleUpdate);
+    socket.on(WEBSOCKET_EVENTS.BOARD_UPDATED, handleUpdate);
+
+    return () => {
+      socket.emit(WEBSOCKET_EVENTS.LEAVE_BOARD, board.id);
+      socket.off(WEBSOCKET_EVENTS.TASK_UPDATED, handleUpdate);
+      socket.off(WEBSOCKET_EVENTS.BOARD_UPDATED, handleUpdate);
+    };
+  }, [socket, board?.id, isConnected, router]);
 
   const loadMore = (status: string) => {
     setVisibleCounts((prev) => ({

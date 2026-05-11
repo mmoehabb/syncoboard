@@ -4,6 +4,8 @@ import { prisma } from "@syncoboard/db";
 import { API_ERRORS, apiError } from "@/lib/api/error";
 import { TaskStatus } from "@prisma/client";
 import { hasValidSubscription } from "@/lib/api/with-subscription";
+import { emitWebSocketEvent } from "@/lib/api/websocket";
+import { WEBSOCKET_EVENTS, encodeBoardRoomName } from "@syncoboard/shared";
 
 export async function PATCH(
   req: Request,
@@ -87,6 +89,15 @@ export async function PATCH(
       });
     }
 
+    // Emit event
+    await emitWebSocketEvent(
+      encodeBoardRoomName(existingTask.boardId),
+      WEBSOCKET_EVENTS.TASK_UPDATED,
+      {
+        taskId,
+      },
+    );
+
     return NextResponse.json(
       { task: { ...task, id: task.id.toString() } },
       { status: 200 },
@@ -144,6 +155,16 @@ export async function DELETE(
     await prisma.task.delete({
       where: { id: BigInt(taskId) },
     });
+
+    // Emit event
+    await emitWebSocketEvent(
+      encodeBoardRoomName(task.boardId),
+      WEBSOCKET_EVENTS.TASK_UPDATED,
+      {
+        taskId,
+        deleted: true,
+      },
+    );
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {

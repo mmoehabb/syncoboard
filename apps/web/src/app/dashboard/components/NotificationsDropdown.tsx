@@ -3,8 +3,11 @@
 import { useState, useEffect, useRef } from "react";
 import { Bell, Check, X, Info } from "lucide-react";
 import { formatRelativeOrAbsoluteDate } from "@/lib/utils/date";
+import { useSocket } from "@/context/SocketContext";
+import { WEBSOCKET_EVENTS } from "@syncoboard/shared";
 
 export function NotificationsDropdown() {
+  const { socket, isConnected } = useSocket();
   const [open, setOpen] = useState(false);
   const [logs, setLogs] = useState<any[]>([]);
   const [lastRead, setLastRead] = useState<Date | null>(null);
@@ -42,6 +45,20 @@ export function NotificationsDropdown() {
     const interval = setInterval(fetchNotifications, 30000); // Poll every 30s
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (!socket || !isConnected) return;
+
+    const handleNewNotification = () => {
+      fetchNotifications();
+    };
+
+    socket.on(WEBSOCKET_EVENTS.NOTIFICATION_RECEIVED, handleNewNotification);
+
+    return () => {
+      socket.off(WEBSOCKET_EVENTS.NOTIFICATION_RECEIVED, handleNewNotification);
+    };
+  }, [socket, isConnected]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

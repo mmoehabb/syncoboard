@@ -3,6 +3,8 @@ import { getSessionOrPat } from "@/lib/auth";
 import { prisma } from "@syncoboard/db";
 import { API_ERRORS, apiError } from "@/lib/api/error";
 import { hasValidSubscription } from "@/lib/api/with-subscription";
+import { emitWebSocketEvent } from "@/lib/api/websocket";
+import { WEBSOCKET_EVENTS, encodeBoardRoomName } from "@syncoboard/shared";
 
 export async function DELETE(req: Request) {
   const userId = await getSessionOrPat();
@@ -113,6 +115,15 @@ export async function DELETE(req: Request) {
         },
       }),
     ]);
+
+    // Emit event
+    await emitWebSocketEvent(
+      encodeBoardRoomName(board.id),
+      WEBSOCKET_EVENTS.BOARD_UPDATED,
+      {
+        boardId: board.id,
+      },
+    );
 
     return NextResponse.json({ message: "Successfully left the board" });
   } catch (error) {

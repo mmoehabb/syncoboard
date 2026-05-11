@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getSessionOrPat } from "@/lib/auth";
 import { prisma } from "@syncoboard/db";
 import { API_ERRORS, apiError } from "@/lib/api/error";
+import { emitWebSocketEvent } from "@/lib/api/websocket";
+import { WEBSOCKET_EVENTS, encodeBoardRoomName } from "@syncoboard/shared";
 
 export async function GET(req: Request) {
   const userId = await getSessionOrPat();
@@ -98,6 +100,16 @@ export async function POST(req: Request) {
         where: { id: logId },
         data: { status: "DECLINED" },
       });
+    }
+
+    if (action === "ACCEPT") {
+      await emitWebSocketEvent(
+        encodeBoardRoomName(log.boardId),
+        WEBSOCKET_EVENTS.BOARD_UPDATED,
+        {
+          boardId: log.boardId,
+        },
+      );
     }
 
     return NextResponse.json({ success: true });
