@@ -11,11 +11,11 @@
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
     "@syncoboard/api": "workspace:*",
-    "@syncoboard/payment": "workspace:*",
     "@syncoboard/db": "workspace:*",
+    "@syncoboard/payment": "workspace:*",
     "@syncoboard/shared": "workspace:*",
     "@syncoboard/types": "workspace:*",
-    "axios": "^1.15.0",
+    "axios": "^1.16.0",
     "bcryptjs": "^3.0.3",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.38.0",
