@@ -1,3 +1,0 @@
-$ bun run src/index.ts
-WebSocket service listening on port 3002
-error: script "start" was terminated by signal SIGTERM (Polite quit request)
