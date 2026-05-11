@@ -5,6 +5,7 @@ import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { MainBoard } from "./MainBoard";
 import type { DashboardWorkspace, MainBoardData } from "./types";
+import { SocketProvider } from "@/context/SocketContext";
 
 export function DashboardClient({
   workspaces,
@@ -18,14 +19,16 @@ export function DashboardClient({
   board?: MainBoardData | null;
 }) {
   return (
-    <div className="w-full h-screen flex flex-col bg-obsidian-night overflow-hidden">
-      <Header />
+    <SocketProvider>
+      <div className="w-full h-screen flex flex-col bg-obsidian-night overflow-hidden">
+        <Header />
 
-      <div className="flex-1 flex overflow-hidden relative">
-        <Sidebar workspaces={workspaces} activeBoardId={board?.id} />
-        <MainBoard board={board} />
-        {!hasActiveSubscription && modalComponent}
+        <div className="flex-1 flex overflow-hidden relative">
+          <Sidebar workspaces={workspaces} activeBoardId={board?.id} />
+          <MainBoard board={board} />
+          {!hasActiveSubscription && modalComponent}
+        </div>
       </div>
-    </div>
+    </SocketProvider>
   );
 }

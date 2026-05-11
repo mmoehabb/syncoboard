@@ -3,6 +3,7 @@ import { getSessionOrPat } from "@/lib/auth";
 import { prisma } from "@syncoboard/db";
 import { API_ERRORS, apiError } from "@/lib/api/error";
 import { hasValidSubscription } from "@/lib/api/with-subscription";
+import { emitWebSocketEvent } from "@/lib/api/websocket";
 
 export async function POST(req: Request) {
   const userId = await getSessionOrPat();
@@ -161,6 +162,11 @@ export async function POST(req: Request) {
       },
     });
 
+    // Notify the user
+    await emitWebSocketEvent(`user_${targetUser.id}`, "notification_received", {
+      logId: invitationLog.id,
+    });
+
     return NextResponse.json(
       {
         invitation: {
@@ -302,6 +308,11 @@ export async function DELETE(req: Request) {
           userId: targetUser.id,
         },
       },
+    });
+
+    // Emit event
+    await emitWebSocketEvent(`board_${board.id}`, "board_updated", {
+      boardId: board.id,
     });
 
     return NextResponse.json({ message: "Member removed successfully" });

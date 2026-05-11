@@ -3,6 +3,7 @@ import { getSessionOrPat } from "@/lib/auth";
 import { prisma } from "@syncoboard/db";
 import { API_ERRORS, apiError } from "@/lib/api/error";
 import { hasValidSubscription } from "@/lib/api/with-subscription";
+import { emitWebSocketEvent } from "@/lib/api/websocket";
 
 export async function POST(req: Request) {
   const userId = await getSessionOrPat();
@@ -69,6 +70,11 @@ export async function POST(req: Request) {
         title,
         status: "TODO",
       },
+    });
+
+    // Emit event
+    await emitWebSocketEvent(`board_${boardId}`, "task_updated", {
+      taskId: task.id.toString(),
     });
 
     // Make bigints serializable

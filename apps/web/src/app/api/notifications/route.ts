@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSessionOrPat } from "@/lib/auth";
 import { prisma } from "@syncoboard/db";
 import { API_ERRORS, apiError } from "@/lib/api/error";
+import { emitWebSocketEvent } from "@/lib/api/websocket";
 
 export async function GET(req: Request) {
   const userId = await getSessionOrPat();
@@ -97,6 +98,12 @@ export async function POST(req: Request) {
       await prisma.boardActivityLog.update({
         where: { id: logId },
         data: { status: "DECLINED" },
+      });
+    }
+
+    if (action === "ACCEPT") {
+      await emitWebSocketEvent(`board_${log.boardId}`, "board_updated", {
+        boardId: log.boardId,
       });
     }
 

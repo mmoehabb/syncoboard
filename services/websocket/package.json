@@ -1,0 +1,17 @@
+{
+  "name": "websocket",
+  "version": "1.0.0",
+  "description": "WebSocket service for Syncoboard",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "dev": "bun run --watch src/index.ts"
+  },
+  "dependencies": {
+    "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "typescript": "^5"
+  }
+}

@@ -11,8 +11,8 @@
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
     "@syncoboard/api": "workspace:*",
-    "@syncoboard/payment": "workspace:*",
     "@syncoboard/db": "workspace:*",
+    "@syncoboard/payment": "workspace:*",
     "@syncoboard/shared": "workspace:*",
     "@syncoboard/types": "workspace:*",
     "axios": "^1.15.0",
@@ -24,7 +24,8 @@
     "next-auth": "5.0.0-beta.30",
     "peerjs": "^1.5.5",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "socket.io-client": "^4.8.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

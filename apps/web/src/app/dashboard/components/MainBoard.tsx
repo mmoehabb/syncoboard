@@ -9,6 +9,7 @@ import { VoiceCallPanel } from "./VoiceCallPanel";
 import { FocusedLabel } from "@/components/ui/FocusedLabel";
 import { useCommand } from "@/context/CommandContext";
 import type { MainBoardData, MainBoardTask, UnregisteredUser } from "./types";
+import { useSocket } from "@/context/SocketContext";
 
 export function MainBoard({ board }: { board?: MainBoardData | null }) {
   const router = useRouter();
@@ -16,6 +17,7 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
   const searchParams = useSearchParams();
   const taskIdParam = searchParams.get("taskId");
   const { isVoiceCallActive } = useCommand();
+  const { socket, isConnected } = useSocket();
 
   const searchQueryParam = searchParams.get("search") || "";
 
@@ -30,6 +32,28 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
   useEffect(() => {
     setSearchValue(searchQueryParam);
   }, [searchQueryParam]);
+
+  // Socket.io integration for real-time updates
+  useEffect(() => {
+    if (!socket || !board?.id || !isConnected) return;
+
+    // Join the board room
+    socket.emit("join_board", board.id);
+
+    // Refresh the router when a relevant event happens
+    const handleUpdate = () => {
+      router.refresh();
+    };
+
+    socket.on("task_updated", handleUpdate);
+    socket.on("board_updated", handleUpdate);
+
+    return () => {
+      socket.emit("leave_board", board.id);
+      socket.off("task_updated", handleUpdate);
+      socket.off("board_updated", handleUpdate);
+    };
+  }, [socket, board?.id, isConnected, router]);
 
   const loadMore = (status: string) => {
     setVisibleCounts((prev) => ({
