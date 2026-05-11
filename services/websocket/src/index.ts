@@ -67,21 +67,21 @@ io.on("connection", (socket) => {
   console.log(`Socket connected: ${socket.id}`);
 
   // Client requests to join a specific board room
-  socket.on("join_board", (boardId) => {
+  socket.on(WEBSOCKET_EVENTS.JOIN_BOARD, (boardId) => {
     console.log(`Socket ${socket.id} joining board ${boardId}`);
-    socket.join(`board_${boardId}`);
+    socket.join(encodeBoardRoomName(boardId));
   });
 
   // Client requests to leave a specific board room
-  socket.on("leave_board", (boardId) => {
+  socket.on(WEBSOCKET_EVENTS.LEAVE_BOARD, (boardId) => {
     console.log(`Socket ${socket.id} leaving board ${boardId}`);
-    socket.leave(`board_${boardId}`);
+    socket.leave(encodeBoardRoomName(boardId));
   });
 
   // Client requests to join their personal user room for notifications
-  socket.on("join_user", (userId) => {
+  socket.on(WEBSOCKET_EVENTS.JOIN_USER, (userId) => {
     console.log(`Socket ${socket.id} joining user ${userId}`);
-    socket.join(`user_${userId}`);
+    socket.join(encodeUserRoomName(userId));
   });
 
   socket.on("disconnect", () => {
