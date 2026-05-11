@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import { prisma } from "../index";
 
 async function main() {
@@ -11,14 +12,32 @@ async function main() {
   const existingAdminCount = await prisma.admin.count();
   if (existingAdminCount === 0) {
     console.log("Seeding initial admin user...");
-    const hashedPassword = await bcrypt.hash("admin", 10);
+    const adminUsername = process.env.ADMIN_USERNAME || "admin";
+    let adminPassword = process.env.ADMIN_PASSWORD;
+
+    if (!adminPassword) {
+      adminPassword = crypto.randomBytes(16).toString("hex");
+      console.log(
+        "--------------------------------------------------------------------------------",
+      );
+      console.log(`INITIAL ADMIN USERNAME: ${adminUsername}`);
+      console.log(`INITIAL ADMIN PASSWORD: ${adminPassword}`);
+      console.log(
+        "PLEASE SAVE THESE CREDENTIALS. YOU CAN ALSO SET THEM VIA ADMIN_USERNAME AND ADMIN_PASSWORD ENV VARS.",
+      );
+      console.log(
+        "--------------------------------------------------------------------------------",
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(adminPassword, 10);
     await prisma.admin.create({
       data: {
-        username: "admin",
+        username: adminUsername,
         password: hashedPassword,
       },
     });
-    console.log("Created initial admin user.");
+    console.log(`Created initial admin user: ${adminUsername}`);
   }
 
   console.log("Seeding plans...");
