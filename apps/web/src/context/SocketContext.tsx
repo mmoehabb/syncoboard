@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useSession } from "next-auth/react";
+import { WEBSOCKET_EVENTS } from "@syncoboard/shared";
 
 interface SocketContextType {
   socket: Socket | null;
@@ -37,7 +38,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     socketInstance.on("connect", () => {
       setIsConnected(true);
       // Join a personal room for targeted notifications
-      socketInstance.emit("join_user", session.user?.id);
+      socketInstance.emit(WEBSOCKET_EVENTS.JOIN_USER, session.user?.id);
     });
 
     socketInstance.on("disconnect", () => {

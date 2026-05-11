@@ -10,6 +10,7 @@ import { FocusedLabel } from "@/components/ui/FocusedLabel";
 import { useCommand } from "@/context/CommandContext";
 import type { MainBoardData, MainBoardTask, UnregisteredUser } from "./types";
 import { useSocket } from "@/context/SocketContext";
+import { WEBSOCKET_EVENTS } from "@syncoboard/shared";
 
 export function MainBoard({ board }: { board?: MainBoardData | null }) {
   const router = useRouter();
@@ -38,20 +39,20 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
     if (!socket || !board?.id || !isConnected) return;
 
     // Join the board room
-    socket.emit("join_board", board.id);
+    socket.emit(WEBSOCKET_EVENTS.JOIN_BOARD, board.id);
 
     // Refresh the router when a relevant event happens
     const handleUpdate = () => {
       router.refresh();
     };
 
-    socket.on("task_updated", handleUpdate);
-    socket.on("board_updated", handleUpdate);
+    socket.on(WEBSOCKET_EVENTS.TASK_UPDATED, handleUpdate);
+    socket.on(WEBSOCKET_EVENTS.BOARD_UPDATED, handleUpdate);
 
     return () => {
-      socket.emit("leave_board", board.id);
-      socket.off("task_updated", handleUpdate);
-      socket.off("board_updated", handleUpdate);
+      socket.emit(WEBSOCKET_EVENTS.LEAVE_BOARD, board.id);
+      socket.off(WEBSOCKET_EVENTS.TASK_UPDATED, handleUpdate);
+      socket.off(WEBSOCKET_EVENTS.BOARD_UPDATED, handleUpdate);
     };
   }, [socket, board?.id, isConnected, router]);
 

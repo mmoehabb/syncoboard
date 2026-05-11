@@ -5,6 +5,7 @@ import { API_ERRORS, apiError } from "@/lib/api/error";
 import { TaskStatus } from "@prisma/client";
 import { hasValidSubscription } from "@/lib/api/with-subscription";
 import { emitWebSocketEvent } from "@/lib/api/websocket";
+import { WEBSOCKET_EVENTS, encodeBoardRoomName } from "@syncoboard/shared";
 
 export async function PATCH(
   req: Request,
@@ -89,9 +90,13 @@ export async function PATCH(
     }
 
     // Emit event
-    await emitWebSocketEvent(`board_${existingTask.boardId}`, "task_updated", {
-      taskId,
-    });
+    await emitWebSocketEvent(
+      encodeBoardRoomName(existingTask.boardId),
+      WEBSOCKET_EVENTS.TASK_UPDATED,
+      {
+        taskId,
+      },
+    );
 
     return NextResponse.json(
       { task: { ...task, id: task.id.toString() } },
@@ -152,10 +157,14 @@ export async function DELETE(
     });
 
     // Emit event
-    await emitWebSocketEvent(`board_${task.boardId}`, "task_updated", {
-      taskId,
-      deleted: true,
-    });
+    await emitWebSocketEvent(
+      encodeBoardRoomName(task.boardId),
+      WEBSOCKET_EVENTS.TASK_UPDATED,
+      {
+        taskId,
+        deleted: true,
+      },
+    );
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Bell, Check, X, Info } from "lucide-react";
 import { formatRelativeOrAbsoluteDate } from "@/lib/utils/date";
 import { useSocket } from "@/context/SocketContext";
+import { WEBSOCKET_EVENTS } from "@syncoboard/shared";
 
 export function NotificationsDropdown() {
   const { socket, isConnected } = useSocket();
@@ -52,10 +53,10 @@ export function NotificationsDropdown() {
       fetchNotifications();
     };
 
-    socket.on("notification_received", handleNewNotification);
+    socket.on(WEBSOCKET_EVENTS.NOTIFICATION_RECEIVED, handleNewNotification);
 
     return () => {
-      socket.off("notification_received", handleNewNotification);
+      socket.off(WEBSOCKET_EVENTS.NOTIFICATION_RECEIVED, handleNewNotification);
     };
   }, [socket, isConnected]);
 

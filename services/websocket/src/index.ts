@@ -1,5 +1,10 @@
 import { Server } from "socket.io";
 import { createServer } from "http";
+import {
+  WEBSOCKET_EVENTS,
+  encodeBoardRoomName,
+  encodeUserRoomName,
+} from "@syncoboard/shared";
 
 const HTTP_PORT = process.env.PORT || 3002;
 
