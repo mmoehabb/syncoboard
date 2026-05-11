@@ -194,25 +194,29 @@ export async function GET(req: Request) {
       });
 
       const hasMoreByStatus: Record<string, boolean> = {};
-      const groupedTasks: Record<string, typeof allTasks> = {};
+      const tasksToReturn: typeof allTasks = [];
+      const tasksByStatus: Record<string, typeof allTasks> = {};
+      const statusCounts: Record<string, number> = {};
+      const statusOrder: string[] = [];
 
       allTasks.forEach((t) => {
-        if (!groupedTasks[t.status]) {
-          groupedTasks[t.status] = [];
+        const status = t.status;
+        const count = statusCounts[status] || 0;
+        if (count < 5) {
+          if (!tasksByStatus[status]) {
+            tasksByStatus[status] = [];
+            statusOrder.push(status);
+          }
+          tasksByStatus[status].push(t);
+          statusCounts[status] = count + 1;
+          hasMoreByStatus[status] = false;
+        } else {
+          hasMoreByStatus[status] = true;
         }
-        groupedTasks[t.status].push(t);
       });
 
-      const tasksToReturn: typeof allTasks = [];
-
-      Object.entries(groupedTasks).forEach(([status, tasksInStatus]) => {
-        if (tasksInStatus.length > 5) {
-          hasMoreByStatus[status] = true;
-          tasksToReturn.push(...tasksInStatus.slice(0, 5));
-        } else {
-          hasMoreByStatus[status] = false;
-          tasksToReturn.push(...tasksInStatus);
-        }
+      statusOrder.forEach((status) => {
+        tasksToReturn.push(...tasksByStatus[status]);
       });
 
       const response: DirectoryResponse = {
