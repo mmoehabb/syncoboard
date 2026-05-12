@@ -23,7 +23,7 @@ describe("PayPal API", () => {
     process.env.PAYPAL_CLIENT_ID = "test-client-id";
     process.env.PAYPAL_CLIENT_SECRET = "test-client-secret";
     process.env.PAYPAL_ENV = "sandbox";
-    (axios.post as any).mockReset();
+    (axios.post as any).mockClear();
 
     // Default mock implementation to handle token requests and other API calls
     (axios.post as any).mockImplementation((url: string) => {
