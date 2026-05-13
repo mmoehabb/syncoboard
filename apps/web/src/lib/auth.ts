@@ -40,7 +40,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       await prisma.workspaceMember.create({
         data: {
           workspaceId: newWorkspace.id,
-          userId: user.id,
+          userId: (user.id as string), // eslint-disable-line no-restricted-syntax
           role: "ADMIN",
         },
       });

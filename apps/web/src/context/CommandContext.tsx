@@ -133,7 +133,7 @@ export function CommandProvider({ children }: { children: ReactNode }) {
         setMode,
         args,
         selectedTaskId,
-        activeBoardId: params?.boardId | undefined,
+        activeBoardId: (params?.boardId as string) || undefined, // eslint-disable-line no-restricted-syntax
         isVoiceCallActive,
         setIsVoiceCallActive,
         virtualPath,

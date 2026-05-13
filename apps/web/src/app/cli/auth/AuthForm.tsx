@@ -38,7 +38,7 @@ export function AuthForm() {
       setStatus("success");
     } catch (error: unknown) {
       console.error(error);
-      setErrorMsg(error.message);
+      setErrorMsg((error instanceof Error ? error.message : "Unknown error"));
       setStatus("error");
     }
   };

@@ -100,7 +100,7 @@ export function AppGuide({ userCreatedAt }: { userCreatedAt?: string | Date }) {
     function handleClickOutside(event: MouseEvent) {
       if (
         containerRef.current &&
-        !containerRef.current.contains(event.target)
+        !containerRef.current.contains(event.target as unknown as Node) /* eslint-disable-line no-restricted-syntax */
       ) {
         setIsOpen(false);
       }

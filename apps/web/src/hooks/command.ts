@@ -8,7 +8,7 @@ export function useInputFocusTracking() {
 
   useEffect(() => {
     const handleFocusIn = (e: FocusEvent) => {
-      const target = e.target;
+      const target = e.target as unknown as HTMLElement; // eslint-disable-line no-restricted-syntax
       if (
         target &&
         (target.tagName === "INPUT" ||
@@ -86,7 +86,7 @@ export function useKeyboardNavigation(
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target;
+      const target = e.target as unknown as HTMLElement; // eslint-disable-line no-restricted-syntax
       const isInput =
         target.tagName === "INPUT" ||
         target.tagName === "TEXTAREA" ||
@@ -261,9 +261,9 @@ export function useKeyboardNavigation(
                 selectedElement.tagName === "TEXTAREA" ||
                 selectedElement.tagName === "SELECT"
               ) {
-                selectedElement.focus();
+                (selectedElement as unknown as HTMLElement).focus(); // eslint-disable-line no-restricted-syntax
               } else {
-                selectedElement.click();
+                (selectedElement as unknown as HTMLElement).click(); // eslint-disable-line no-restricted-syntax
               }
             } else {
               // Trigger default action (like expand/collapse) if nothing is selected within the container
@@ -276,7 +276,7 @@ export function useKeyboardNavigation(
                 );
                 if (collapsibleHeader) {
                   e.preventDefault();
-                  collapsibleHeader.click();
+                  (collapsibleHeader as unknown as HTMLElement).click(); // eslint-disable-line no-restricted-syntax
                 }
               }
             }

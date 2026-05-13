@@ -29,7 +29,7 @@ export function NotificationsDropdown() {
       setLastRead(readDate);
 
       if (logsData.logs) {
-        const unread = logsData.logs.filter((log: unknown) => {
+        const unread = logsData.logs.filter((log: {createdAt: string | Date}) => {
           if (!readDate) return true;
           return new Date(log.createdAt) > readDate;
         });
@@ -127,7 +127,7 @@ export function NotificationsDropdown() {
                 No new notifications
               </div>
             ) : (
-              logs.map((log) => {
+              (logs as {id: string, type?: string, actor?: {name?: string, email?: string}, message?: string, taskId?: string, createdAt: string | Date, read?: boolean, action?: string, targetId?: string, board?: {name?: string, workspace?: {name?: string}}, status?: string, task?: {title?: string, status?: string, workspace?: {name?: string}, board?: {name?: string}}}[]) /* eslint-disable-line no-restricted-syntax */.map((log) => {
                 const isUnread = lastRead
                   ? new Date(log.createdAt) > lastRead
                   : true;

@@ -67,9 +67,8 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
           })
           .catch((err: unknown) => {
             const errorMessage =
-              err.response
-                ?.data?.error ||
-              (err).message ||
+              (err && typeof err === "object" && "response" in err ? (err as {response?:{data?:{error?:string}}}).response?.data?.error : undefined) ||
+               (err instanceof Error ? (err instanceof Error ? err.message : "") : "") ||
               "Failed to list directory.";
             printOutput([`Error: ${errorMessage}`]);
           });
@@ -132,9 +131,8 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
           })
           .catch((err: unknown) => {
             const errorMessage =
-              err.response
-                ?.data?.error ||
-              (err).message ||
+              (err && typeof err === "object" && "response" in err ? (err as {response?:{data?:{error?:string}}}).response?.data?.error : undefined) ||
+               (err instanceof Error ? (err instanceof Error ? err.message : "") : "") ||
               "Failed to change directory.";
             printOutput([`Error: ${errorMessage}`]);
           });
@@ -308,9 +306,8 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
               }, 1000);
             } catch (err: unknown) {
               const errorMessage =
-                err.response
-                  ?.data?.error ||
-                (err).message ||
+                (err && typeof err === "object" && "response" in err ? (err as {response?:{data?:{error?:string}}}).response?.data?.error : undefined) ||
+               (err instanceof Error ? (err instanceof Error ? err.message : "") : "") ||
                 "Failed to delete workspace.";
               printOutput([`Error: ${errorMessage}`]);
             }
@@ -356,9 +353,8 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
           })
           .catch((err: unknown) => {
             const errorMessage =
-              err.response
-                ?.data?.error ||
-              (err).message ||
+              (err && typeof err === "object" && "response" in err ? (err as {response?:{data?:{error?:string}}}).response?.data?.error : undefined) ||
+               (err instanceof Error ? (err instanceof Error ? err.message : "") : "") ||
               "Failed to restore board.";
             printOutput([`Error: ${errorMessage}`]);
           });
@@ -389,9 +385,8 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
           })
           .catch((err: unknown) => {
             const errorMessage =
-              err.response
-                ?.data?.error ||
-              (err).message ||
+              (err && typeof err === "object" && "response" in err ? (err as {response?:{data?:{error?:string}}}).response?.data?.error : undefined) ||
+               (err instanceof Error ? (err instanceof Error ? err.message : "") : "") ||
               "Failed to list deleted boards.";
             printOutput([`Error: ${errorMessage}`]);
           });
@@ -441,9 +436,8 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
               }, 1000);
             } catch (err: unknown) {
               const errorMessage =
-                err.response
-                  ?.data?.error ||
-                (err).message ||
+                (err && typeof err === "object" && "response" in err ? (err as {response?:{data?:{error?:string}}}).response?.data?.error : undefined) ||
+               (err instanceof Error ? (err instanceof Error ? err.message : "") : "") ||
                 "Failed to delete board.";
               printOutput([`Error: ${errorMessage}`]);
             }
@@ -479,9 +473,8 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
           })
           .catch((err: unknown) => {
             const errorMessage =
-              err.response
-                ?.data?.error ||
-              (err).message ||
+              (err && typeof err === "object" && "response" in err ? (err as {response?:{data?:{error?:string}}}).response?.data?.error : undefined) ||
+               (err instanceof Error ? (err instanceof Error ? err.message : "") : "") ||
               "Failed to activate workspace.";
             printOutput([`Error: ${errorMessage}`]);
           });
@@ -515,9 +508,8 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
           })
           .catch((err: unknown) => {
             const errorMessage =
-              err.response
-                ?.data?.error ||
-              (err).message ||
+              (err && typeof err === "object" && "response" in err ? (err as {response?:{data?:{error?:string}}}).response?.data?.error : undefined) ||
+               (err instanceof Error ? (err instanceof Error ? err.message : "") : "") ||
               "Failed to deactivate workspace.";
             printOutput([`Error: ${errorMessage}`]);
           });
@@ -561,9 +553,8 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
           })
           .catch((err: unknown) => {
             const errorMessage =
-              err.response
-                ?.data?.error ||
-              (err).message ||
+              (err && typeof err === "object" && "response" in err ? (err as {response?:{data?:{error?:string}}}).response?.data?.error : undefined) ||
+               (err instanceof Error ? (err instanceof Error ? err.message : "") : "") ||
               "Failed to activate board.";
             printOutput([`Error: ${errorMessage}`]);
             if (showToast) {
@@ -610,9 +601,8 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
           })
           .catch((err: unknown) => {
             const errorMessage =
-              err.response
-                ?.data?.error ||
-              (err).message ||
+              (err && typeof err === "object" && "response" in err ? (err as {response?:{data?:{error?:string}}}).response?.data?.error : undefined) ||
+               (err instanceof Error ? (err instanceof Error ? err.message : "") : "") ||
               "Failed to deactivate board.";
             printOutput([`Error: ${errorMessage}`]);
           });
@@ -658,9 +648,8 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
           })
           .catch((err: unknown) => {
             const errorMessage =
-              err.response
-                ?.data?.error ||
-              (err).message ||
+              (err && typeof err === "object" && "response" in err ? (err as {response?:{data?:{error?:string}}}).response?.data?.error : undefined) ||
+               (err instanceof Error ? (err instanceof Error ? err.message : "") : "") ||
               "Failed to add member.";
             printOutput([`Error: ${errorMessage}`]);
           });
@@ -706,9 +695,8 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
           })
           .catch((err: unknown) => {
             const errorMessage =
-              err.response
-                ?.data?.error ||
-              (err).message ||
+              (err && typeof err === "object" && "response" in err ? (err as {response?:{data?:{error?:string}}}).response?.data?.error : undefined) ||
+               (err instanceof Error ? (err instanceof Error ? err.message : "") : "") ||
               "Failed to remove member.";
             printOutput([`Error: ${errorMessage}`]);
           });
@@ -744,7 +732,7 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
           })
           .catch((err: unknown) => {
             const errorMessage =
-              (err).message || "Failed to add task.";
+              (err instanceof Error ? (err instanceof Error ? err.message : "") : "") || "Failed to add task.";
             printOutput([`Error: ${errorMessage}`]);
           });
       });
@@ -791,7 +779,7 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
           })
           .catch((err: unknown) => {
             const errorMessage =
-              (err).message || "Failed to update task status.";
+              (err instanceof Error ? (err instanceof Error ? err.message : "") : "") || "Failed to update task status.";
             printOutput([`Error: ${errorMessage}`]);
           });
       });
@@ -814,7 +802,7 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
           })
           .catch((err: unknown) => {
             const errorMessage =
-              (err).message || "Failed to delete task.";
+              (err instanceof Error ? (err instanceof Error ? err.message : "") : "") || "Failed to delete task.";
             printOutput([`Error: ${errorMessage}`]);
           });
       });

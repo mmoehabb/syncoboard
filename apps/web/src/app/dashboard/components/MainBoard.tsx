@@ -217,7 +217,7 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
                                 try {
                                   unregisteredAssignees = JSON.parse(
                                     task.unregisteredAssignees,
-                                  ) /* @ts-expect-error type override */ ;
+                                  ) /* eslint-disable-next-line no-restricted-syntax */ as UnregisteredUser[];
                                 } catch {
                                   unregisteredAssignees = [];
                                 }
@@ -225,7 +225,7 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
                                 Array.isArray(task.unregisteredAssignees)
                               ) {
                                 unregisteredAssignees =
-                                  task.unregisteredAssignees; // @ts-expect-error type
+                                  task.unregisteredAssignees as UnregisteredUser[]; // eslint-disable-line no-restricted-syntax
                               }
 
                               let unregisteredReviewers: UnregisteredUser[] =
@@ -236,7 +236,7 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
                                 try {
                                   unregisteredReviewers = JSON.parse(
                                     task.unregisteredReviewers,
-                                  ) /* @ts-expect-error type override */ ;
+                                  ) /* eslint-disable-next-line no-restricted-syntax */ as UnregisteredUser[];
                                 } catch {
                                   unregisteredReviewers = [];
                                 }
@@ -244,7 +244,7 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
                                 Array.isArray(task.unregisteredReviewers)
                               ) {
                                 unregisteredReviewers =
-                                  task.unregisteredReviewers; // @ts-expect-error type
+                                  task.unregisteredReviewers as UnregisteredUser[]; // eslint-disable-line no-restricted-syntax
                               }
 
                               const hasPeople =

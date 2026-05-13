@@ -22,7 +22,7 @@ export function Header() {
 
       {session?.user && (
         <div className="flex items-center gap-2">
-          <AppGuide userCreatedAt={session.user.createdAt} />
+          <AppGuide userCreatedAt={session.user.createdAt || undefined} />
           <NotificationsDropdown />
           <div className="relative">
             <button

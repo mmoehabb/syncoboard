@@ -16,10 +16,10 @@ export class PayPalProvider implements PaymentProvider<PayPalWebhookEvent> {
       try {
         await createPayPalProduct(plan.id, plan.name);
       } catch (err: unknown) {
-        if (err.response?.status !== 400) {
+        if ((err && typeof err === "object" && "response" in err ? (err as {response?:{status?:number}}).response?.status : undefined) !== 400) {
           console.error(
             `Error creating PayPal product for plan ${plan.id}`,
-            err.response?.data || err.message,
+            (err && typeof err === "object" && "response" in err ? (err as {response?:{data?:unknown}}).response?.data : undefined) || (err && typeof err === "object" && "message" in err ? (err as {message?:string}).message : "Unknown error"),
           );
         }
       }
@@ -45,7 +45,7 @@ export class PayPalProvider implements PaymentProvider<PayPalWebhookEvent> {
           } catch (err: unknown) {
             console.error(
               `Error creating PayPal plan for price ${price.id}`,
-              err.response?.data || err.message,
+              (err && typeof err === "object" && "response" in err ? (err as {response?:{data?:unknown}}).response?.data : undefined) || (err && typeof err === "object" && "message" in err ? (err as {message?:string}).message : "Unknown error"),
             );
           }
         }
@@ -77,7 +77,7 @@ export class PayPalProvider implements PaymentProvider<PayPalWebhookEvent> {
       cancelUrl,
     );
 
-    const approvalLink = sub.links.find((link: unknown) => link.rel === "approve");
+    const approvalLink = sub.links.find((link: unknown) => (link && typeof link === "object" && "rel" in link ? (link as {rel?:string}).rel : undefined) === "approve");
 
     if (!approvalLink) {
       throw new Error("Could not find approval link in PayPal response");

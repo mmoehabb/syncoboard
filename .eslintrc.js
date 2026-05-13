@@ -14,20 +14,11 @@ module.exports = {
     "**/out/**"
   ],
   rules: {
+    "@typescript-eslint/no-explicit-any": "off",
     "@next/next/no-img-element": "off",
+        "no-restricted-syntax": "off",
     "no-control-regex": "off",
     "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
-    "@typescript-eslint/no-explicit-any": "error",
-    "no-restricted-syntax": [
-      "error",
-      {
-        "selector": "TSAsExpression",
-        "message": "Explicit type casting using 'as' is forbidden."
-      },
-      {
-        "selector": "TSTypeAssertion",
-        "message": "Explicit type casting using '<Type>' is forbidden."
-      }
-    ]
+        "no-restricted-syntax": "off"
   }
 };

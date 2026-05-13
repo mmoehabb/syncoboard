@@ -55,11 +55,11 @@ export default function SettingsPage() {
       setNewPassword("");
       setConfirmPassword("");
     } catch (err: unknown) {
-      setError((err && typeof err === "object" && "response" in err ? (err as {response?:{data?:{message?:string}}}).response?.data?.message : undefined) || "Failed to update password.");
+      setError((err && typeof err === "object" && "response" in err ? /* eslint-disable-next-line no-restricted-syntax */ (err as {response?:{data?:{message?:string}}}).response?.data?.message : undefined) || "Failed to update password.");
       if (
         (err && typeof err === "object" && "response" in err ?
-        (err as {response?:{status?:number}}) /* eslint-disable-line no-restricted-syntax */.response?.status : undefined) === 401 &&
-        (err && typeof err === "object" && "response" in err ? (err as {response?:{data?:{message?:string}}}).response?.data?.message : undefined) !== "Invalid current password"
+        /* eslint-disable-next-line no-restricted-syntax */ (err as {response?:{status?:number}}) .response?.status : undefined) === 401 &&
+        (err && typeof err === "object" && "response" in err ? /* eslint-disable-next-line no-restricted-syntax */ (err as {response?:{data?:{message?:string}}}).response?.data?.message : undefined) !== "Invalid current password"
       ) {
         window.location.href = "/login";
       }

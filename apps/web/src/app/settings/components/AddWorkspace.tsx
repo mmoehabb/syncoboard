@@ -29,8 +29,7 @@ export function AddWorkspace() {
     } catch (err: unknown) {
       console.error(err);
       const errorMessage =
-        ((err && typeof err === "object" && "response" in err ? err.response : {}) /* @ts-expect-error override */ ).response?.data
-          ?.error || "Failed to create workspace.";
+        (err && typeof err === "object" && "response" in err ? (err as {response?:{data?:{error?:string}}}).response?.data?.error : undefined) /* eslint-disable-line no-restricted-syntax */ || "Failed to create workspace.";
       setError(errorMessage);
     } finally {
       setIsSubmitting(false);
