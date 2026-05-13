@@ -39,8 +39,10 @@ describe("cleanupDeletedEntities", () => {
   beforeEach(() => {
     setSystemTime(mockNow);
     // Reset mocks
-    (prisma.board.deleteMany as any).mockReset();
-    (prisma.workspace.deleteMany as any).mockReset();
+    // @ts-expect-error mocking prisma for tests
+    (prisma.board.deleteMany).mockReset();
+    // @ts-expect-error mocking prisma for tests
+    (prisma.workspace.deleteMany).mockReset();
   });
 
   afterEach(() => {
@@ -50,8 +52,10 @@ describe("cleanupDeletedEntities", () => {
   test("should delete boards and workspaces older than 3 months", async () => {
     const threeMonthsAgo = new Date("2024-01-01T12:00:00Z");
 
-    (prisma.board.deleteMany as any).mockResolvedValue({ count: 5 });
-    (prisma.workspace.deleteMany as any).mockResolvedValue({ count: 2 });
+    // @ts-expect-error mocking prisma for tests
+    (prisma.board.deleteMany).mockResolvedValue({ count: 5 });
+    // @ts-expect-error mocking prisma for tests
+    (prisma.workspace.deleteMany).mockResolvedValue({ count: 2 });
 
     const result = await cleanupDeletedEntities();
 
@@ -79,8 +83,10 @@ describe("cleanupDeletedEntities", () => {
   });
 
   test("should return zero counts when nothing to delete", async () => {
-    (prisma.board.deleteMany as any).mockResolvedValue({ count: 0 });
-    (prisma.workspace.deleteMany as any).mockResolvedValue({ count: 0 });
+    // @ts-expect-error mocking prisma for tests
+    (prisma.board.deleteMany).mockResolvedValue({ count: 0 });
+    // @ts-expect-error mocking prisma for tests
+    (prisma.workspace.deleteMany).mockResolvedValue({ count: 0 });
 
     const result = await cleanupDeletedEntities();
 
@@ -89,12 +95,14 @@ describe("cleanupDeletedEntities", () => {
 
   test("should rethrow error and log it when prisma fails", async () => {
     const error = new Error("Database error");
-    (prisma.board.deleteMany as any).mockRejectedValue(error);
+    // @ts-expect-error mocking prisma for tests
+    (prisma.board.deleteMany).mockRejectedValue(error);
 
     // Spy on console.error
     const consoleSpy = mock(() => {});
     const originalConsoleError = console.error;
-    console.error = consoleSpy as any;
+    // @ts-expect-error mock console error
+    console.error = consoleSpy;
 
     await expect(cleanupDeletedEntities()).rejects.toThrow("Database error");
 

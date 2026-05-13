@@ -24,7 +24,7 @@ mock.module("@/lib/auth", () => ({
 
 mock.module("next/server", () => ({
   NextResponse: {
-    json: (body: any, init?: { status?: number }) => ({
+    json: (body: unknown, init?: { status?: number }) => ({
       status: init?.status ?? 200,
       json: async () => body,
       __isMock: true,
@@ -49,8 +49,8 @@ mock.module("@syncoboard/db", () => ({
 }));
 
 // We must import the module dynamically to make sure the mocks above are applied
-let POST: any;
-let originalConsoleError: any;
+let POST: unknown;
+let originalConsoleError: unknown;
 
 describe("POST /api/subscriptions", () => {
   beforeEach(async () => {

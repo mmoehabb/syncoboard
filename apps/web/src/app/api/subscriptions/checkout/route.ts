@@ -88,10 +88,10 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ approvalUrl });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Checkout Error:", error);
     return NextResponse.json(
-      { error: "Internal Server Error", details: error.message },
+      { error: "Internal Server Error", details: (error instanceof Error ? error.message : "Unknown error") },
       { status: 500 },
     );
   }

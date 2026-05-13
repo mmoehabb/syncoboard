@@ -36,11 +36,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
       });
 
-      // Assign the user as an ADMIN of the new workspace
+      // Assign the user ADMIN of the new workspace
       await prisma.workspaceMember.create({
         data: {
           workspaceId: newWorkspace.id,
-          userId: user.id as string,
+          userId: user.id,
           role: "ADMIN",
         },
       });

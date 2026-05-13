@@ -1,7 +1,7 @@
 export async function emitWebSocketEvent(
   room: string,
   event: string,
-  data: any,
+  data: unknown,
 ) {
   try {
     const webhookUrl =

@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 interface AccountSettingsProps {
   userId: string;
   isActive: boolean;
-  subscription: any;
+  subscription: unknown;
 }
 
 export function AccountSettings({

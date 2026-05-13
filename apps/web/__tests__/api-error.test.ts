@@ -3,7 +3,7 @@ import { describe, it, expect, mock } from "bun:test";
 // Mock next/server BEFORE importing anything that might use it
 mock.module("next/server", () => ({
   NextResponse: {
-    json: (body: any, init?: { status?: number }) => ({
+    json: (body: unknown, init?: { status?: number }) => ({
       status: init?.status ?? 200,
       json: async () => body,
       __isMock: true,
@@ -130,11 +130,8 @@ describe("API Error Utilities", () => {
   describe("apiError function", () => {
     it("should return a NextResponse with correct body and status", async () => {
       const errorDef = { error: "Test error", status: 418 };
-      const response = apiError(errorDef) as unknown as {
-        status: number;
-        json: () => Promise<any>;
-        __isMock: boolean;
-      };
+      // @ts-expect-error mocking response
+      const response = apiError(errorDef) ;
 
       expect(response.__isMock).toBe(true);
       expect(response.status).toBe(418);

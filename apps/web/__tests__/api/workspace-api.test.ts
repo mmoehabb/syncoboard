@@ -10,7 +10,8 @@ describe("WorkspaceApi", () => {
 
     const { WorkspaceApi: WorkspaceApiClass } = await import("@syncoboard/api");
     workspaceApi = new WorkspaceApiClass();
-    workspaceApi["client"] = mockAxiosInstance as unknown as AxiosInstance;
+    // @ts-expect-error mocking axios
+    workspaceApi["client"] = mockAxiosInstance;
   });
 
   afterEach(() => {

@@ -24,7 +24,7 @@ mock.module("@/lib/auth", () => ({
 
 mock.module("next/server", () => ({
   NextResponse: {
-    json: (body: any, init?: { status?: number }) => ({
+    json: (body: unknown, init?: { status?: number }) => ({
       status: init?.status ?? 200,
       json: async () => body,
       __isMock: true,
@@ -43,9 +43,9 @@ mock.module("@syncoboard/db", () => ({
 }));
 
 // We must import the module dynamically to make sure the mocks above are applied
-let POST: any;
-let originalConsoleLog: any;
-let originalConsoleError: any;
+let POST: unknown;
+let originalConsoleLog: unknown;
+let originalConsoleError: unknown;
 
 describe("POST /api/bugs", () => {
   beforeEach(async () => {
@@ -92,7 +92,8 @@ describe("POST /api/bugs", () => {
       },
     };
 
-    const response = await POST(req as any);
+    // @ts-expect-error mock req
+    const response = await POST(req);
     const data = await response.json();
 
     expect(response.status).toBe(201);
@@ -135,7 +136,8 @@ describe("POST /api/bugs", () => {
       },
     };
 
-    const response = await POST(req as any);
+    // @ts-expect-error mock req
+    const response = await POST(req);
     expect(response.status).toBe(201);
 
     expect(mockPrisma.bugReport.create).toHaveBeenCalledWith({
@@ -159,7 +161,8 @@ describe("POST /api/bugs", () => {
       },
     };
 
-    const response = await POST(req as any);
+    // @ts-expect-error mock req
+    const response = await POST(req);
     const data = await response.json();
 
     expect(response.status).toBe(400);
@@ -181,7 +184,8 @@ describe("POST /api/bugs", () => {
       },
     };
 
-    const response = await POST(req as any);
+    // @ts-expect-error mock req
+    const response = await POST(req);
     const data = await response.json();
 
     expect(response.status).toBe(500);
@@ -201,7 +205,8 @@ it("should return bad request if message is too long", async () => {
     },
   };
 
-  const response = await POST(req as any);
+    // @ts-expect-error mock req
+  const response = await POST(req);
   const data = await response.json();
 
   expect(response.status).toBe(400);
@@ -219,7 +224,8 @@ it("should return bad request if stack trace is too long", async () => {
     },
   };
 
-  const response = await POST(req as any);
+    // @ts-expect-error mock req
+  const response = await POST(req);
   const data = await response.json();
 
   expect(response.status).toBe(400);
@@ -237,7 +243,8 @@ it("should return bad request if url is too long", async () => {
     },
   };
 
-  const response = await POST(req as any);
+    // @ts-expect-error mock req
+  const response = await POST(req);
   const data = await response.json();
 
   expect(response.status).toBe(400);
@@ -252,7 +259,8 @@ it("should return bad request if message is not a string", async () => {
       get: (key: string) => "127.0.0.5",
     },
   };
-  const response = await POST(req as any);
+    // @ts-expect-error mock req
+  const response = await POST(req);
   const data = await response.json();
   expect(response.status).toBe(400);
   expect(data.error).toBe("Message must be a string");
@@ -266,7 +274,8 @@ it("should return bad request if stack is not a string", async () => {
       get: (key: string) => "127.0.0.6",
     },
   };
-  const response = await POST(req as any);
+    // @ts-expect-error mock req
+  const response = await POST(req);
   const data = await response.json();
   expect(response.status).toBe(400);
   expect(data.error).toBe("Stack must be a string");
@@ -280,7 +289,8 @@ it("should return bad request if url is not a string", async () => {
       get: (key: string) => "127.0.0.7",
     },
   };
-  const response = await POST(req as any);
+    // @ts-expect-error mock req
+  const response = await POST(req);
   const data = await response.json();
   expect(response.status).toBe(400);
   expect(data.error).toBe("URL must be a string");

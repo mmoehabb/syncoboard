@@ -13,7 +13,8 @@ describe("TaskApi", () => {
 
     const { TaskApi: TaskApiClass } = await import("@syncoboard/api");
     taskApi = new TaskApiClass();
-    taskApi["client"] = mockAxiosInstance as unknown as AxiosInstance;
+    // @ts-expect-error mocking axios
+    taskApi["client"] = mockAxiosInstance;
   });
 
   afterEach(() => {

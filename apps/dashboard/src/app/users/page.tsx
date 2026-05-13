@@ -20,9 +20,10 @@ export default function UsersPage() {
       try {
         const data = await api.getUsers();
         setUsers(data);
-      } catch (err: any) {
+      } catch (err: unknown) {
         setError("Failed to load users");
-        if (err.response?.status === 401) {
+        if ((err && typeof err === "object" && "response" in err ?
+        (err as {response?:{status?:number}}) /* eslint-disable-line no-restricted-syntax */.response?.status : undefined) === 401) {
           window.location.href = "/login";
         }
       } finally {

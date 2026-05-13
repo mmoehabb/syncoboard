@@ -1,18 +1,18 @@
 import type { ApiErrorDefinition } from "@syncoboard/types";
 
 export const API_ERRORS = {
-  UNAUTHORIZED: { error: "Unauthorized", status: 401 } as ApiErrorDefinition,
-  FORBIDDEN: { error: "Forbidden", status: 403 } as ApiErrorDefinition,
-  BAD_REQUEST: { error: "Bad Request", status: 400 } as ApiErrorDefinition,
-  NOT_FOUND: { error: "Not Found", status: 404 } as ApiErrorDefinition,
+  UNAUTHORIZED: { error: "Unauthorized", status: 401 },
+  FORBIDDEN: { error: "Forbidden", status: 403 },
+  BAD_REQUEST: { error: "Bad Request", status: 400 },
+  NOT_FOUND: { error: "Not Found", status: 404 },
   INTERNAL_SERVER_ERROR: {
     error: "Internal Server Error",
     status: 500,
-  } as ApiErrorDefinition,
+  },
   TOO_MANY_REQUESTS: {
     error: "Too Many Requests",
     status: 429,
-  } as ApiErrorDefinition,
+  },
 
   // Custom helpers
   customNotFound: (entity: string): ApiErrorDefinition => ({

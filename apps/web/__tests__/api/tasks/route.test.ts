@@ -32,7 +32,8 @@ mock.module("@/lib/auth", () => ({
     return "test-user-id";
   }),
   auth: mock().mockImplementation(async () => {
-    return { user: { id: (global as any).testUserId } };
+    // @ts-expect-error mock global var
+    return { user: { id: (global).testUserId } };
   }),
 }));
 
@@ -51,7 +52,7 @@ mock.module("@/lib/api/error", () => ({
     }),
     customInternal: (msg: string) => ({ error: msg, status: 500 }),
   },
-  apiError: (err: any) => {
+  apiError: (err: unknown) => {
     return Response.json({ error: err.error }, { status: err.status });
   },
 }));
@@ -60,7 +61,8 @@ describe("POST /api/tasks (IDOR Fix)", () => {
   beforeEach(() => {
     mockPrisma.workspaceMember.findUnique.mockClear();
     mockPrisma.boardMember.findUnique.mockClear();
-    (global as any).testUserId = "user-123";
+    // @ts-expect-error mock global var
+    (global).testUserId = "user-123";
   });
 
   it("should deny task creation for a non-admin workspace member who is not on the board", async () => {

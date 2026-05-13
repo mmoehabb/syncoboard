@@ -20,7 +20,7 @@ export async function updateTaskStatus(taskId: string, status: string) {
     "CLOSED",
   ];
 
-  if (!validStatuses.includes(status as TaskStatus)) {
+  if (!validStatuses.includes(status )) {
     throw new Error(`Invalid task status: ${status}`);
   }
 
@@ -64,7 +64,7 @@ export async function updateTaskStatus(taskId: string, status: string) {
 
   const task = await prisma.task.update({
     where: { id: BigInt(taskId) },
-    data: { status: status as TaskStatus },
+    data: { status: status  },
   });
 
   revalidatePath(`/dashboard/b/${existingTask.boardId}`, "page");

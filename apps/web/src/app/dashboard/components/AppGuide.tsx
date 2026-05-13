@@ -100,7 +100,7 @@ export function AppGuide({ userCreatedAt }: { userCreatedAt?: string | Date }) {
     function handleClickOutside(event: MouseEvent) {
       if (
         containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
+        !containerRef.current.contains(event.target)
       ) {
         setIsOpen(false);
       }

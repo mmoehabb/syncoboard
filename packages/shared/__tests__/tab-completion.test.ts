@@ -20,8 +20,8 @@ describe("executeTabCompletion", () => {
 
     // Using an object that overrides split to return an empty array to simulate this exact edge case
     const mockInputValue = {
-      split: () => [] as any,
-    } as any as string;
+      split: () => [] ,
+    } ;
 
     await executeTabCompletion({
       inputValue: mockInputValue,

@@ -38,7 +38,7 @@ export async function getPayPalAccessToken(): Promise<string> {
   // Expire 5 minutes before actual expiration
   tokenExpiresAt = Date.now() + (response.data.expires_in - 300) * 1000;
 
-  return accessToken as string;
+  return String(accessToken);
 }
 
 export async function createPayPalProduct(id: string, name: string) {
@@ -188,7 +188,7 @@ export async function verifyWebhookSignature(
   authAlgo: string,
   transmissionSig: string,
   webhookId: string,
-  webhookEvent: any,
+  webhookEvent: unknown,
 ) {
   const token = await getPayPalAccessToken();
 

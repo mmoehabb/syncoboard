@@ -11,7 +11,8 @@ describe("SubscriptionApi", () => {
     const { SubscriptionApi: SubscriptionApiClass } =
       await import("@syncoboard/api");
     subscriptionApi = new SubscriptionApiClass();
-    subscriptionApi["client"] = mockAxiosInstance as unknown as AxiosInstance;
+    // @ts-expect-error mocking axios
+    subscriptionApi["client"] = mockAxiosInstance;
   });
 
   afterEach(() => {

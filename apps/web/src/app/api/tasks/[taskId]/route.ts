@@ -46,7 +46,7 @@ export async function PATCH(
       "CLOSED",
     ];
 
-    if (!validStatuses.includes(status as TaskStatus)) {
+    if (!validStatuses.includes(status)) {
       return apiError(
         API_ERRORS.customBadRequest(`Invalid task status: ${status}`),
       );
@@ -75,7 +75,7 @@ export async function PATCH(
 
     const task = await prisma.task.update({
       where: { id: BigInt(taskId) },
-      data: { status: status as TaskStatus },
+      data: { status: status },
     });
 
     if (existingTask.status !== status) {

@@ -1,0 +1,148 @@
+
+/app/apps/dashboard/src/app/plans/page.tsx
+  45:14  error  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/apps/tui/src/index.tsx
+  65:10  error  'mode' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/app/apps/web/__tests__/api/api-client.test.ts
+  35:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  35:49  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/apps/web/__tests__/api/board-api.test.ts
+  3:15  error  'AxiosInstance' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/apps/web/__tests__/api/bug-api.test.ts
+  3:15  error  'AxiosInstance' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/apps/web/__tests__/api/bugs-route.test.ts
+   27:18  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   46:11  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   47:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   48:27  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   89:15  error  'key' is defined but never used           @typescript-eslint/no-unused-vars
+  133:15  error  'key' is defined but never used           @typescript-eslint/no-unused-vars
+  158:15  error  'key' is defined but never used           @typescript-eslint/no-unused-vars
+  181:15  error  'key' is defined but never used           @typescript-eslint/no-unused-vars
+  202:13  error  'key' is defined but never used           @typescript-eslint/no-unused-vars
+  221:13  error  'key' is defined but never used           @typescript-eslint/no-unused-vars
+  240:13  error  'key' is defined but never used           @typescript-eslint/no-unused-vars
+  259:13  error  'key' is defined but never used           @typescript-eslint/no-unused-vars
+  274:13  error  'key' is defined but never used           @typescript-eslint/no-unused-vars
+  289:13  error  'key' is defined but never used           @typescript-eslint/no-unused-vars
+
+/app/apps/web/__tests__/api/directory-api.test.ts
+  3:15  error  'AxiosInstance' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/apps/web/__tests__/api/github-api.test.ts
+  3:15  error  'AxiosInstance' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/apps/web/__tests__/api/subscription-api.test.ts
+  3:15  error  'AxiosInstance' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/apps/web/__tests__/api/subscriptions-route.test.ts
+  27:18  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  52:11  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  53:27  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/apps/web/__tests__/api/task-api.test.ts
+  3:15  error  'AxiosInstance' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/apps/web/__tests__/api/tasks/[taskId]/route.test.ts
+  51:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/apps/web/__tests__/api/tasks/route.test.ts
+   1:44  error  'afterAll' is defined but never used      @typescript-eslint/no-unused-vars
+  55:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/apps/web/__tests__/api/workspace-api.test.ts
+  3:15  error  'AxiosInstance' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/apps/web/src/app/api/auth/cli/route.ts
+  7:28  error  'req' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/apps/web/src/app/api/boards/deleted/route.ts
+  7:27  error  'req' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/apps/web/src/app/api/bugs/route.ts
+  44:31  error  Unexpected control character(s) in regular expression: \x00, \x1f  no-control-regex
+  53:29  error  Unexpected control character(s) in regular expression: \x00, \x1f  no-control-regex
+  63:25  error  Unexpected control character(s) in regular expression: \x00, \x1f  no-control-regex
+
+/app/apps/web/src/app/api/notifications/read/route.ts
+   6:28  error  'req' is defined but never used  @typescript-eslint/no-unused-vars
+  27:27  error  'req' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/apps/web/src/app/api/notifications/route.ts
+  8:27  error  'req' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/apps/web/src/app/api/subscriptions/checkout/route.ts
+  91:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/apps/web/src/app/api/subscriptions/webhook/paypal/route.ts
+  15:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  76:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/apps/web/src/app/api/tasks/route.ts
+  7:10  error  'WEBSOCKET_EVENTS' is defined but never used     @typescript-eslint/no-unused-vars
+  7:28  error  'encodeBoardRoomName' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/apps/web/src/app/cli/auth/AuthForm.tsx
+  39:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/apps/web/src/app/dashboard/components/MainBoard.tsx
+  303:53  error  Definition for rule '@next/next/no-img-element' was not found  @next/next/no-img-element
+  330:55  error  Definition for rule '@next/next/no-img-element' was not found  @next/next/no-img-element
+  363:55  error  Definition for rule '@next/next/no-img-element' was not found  @next/next/no-img-element
+  390:57  error  Definition for rule '@next/next/no-img-element' was not found  @next/next/no-img-element
+
+/app/apps/web/src/app/dashboard/components/NotificationsDropdown.tsx
+  12:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  32:51  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/apps/web/src/app/dashboard/components/TaskDetailsPanel.tsx
+   84:29  error  Definition for rule '@next/next/no-img-element' was not found  @next/next/no-img-element
+  114:29  error  Definition for rule '@next/next/no-img-element' was not found  @next/next/no-img-element
+  155:29  error  Definition for rule '@next/next/no-img-element' was not found  @next/next/no-img-element
+  185:29  error  Definition for rule '@next/next/no-img-element' was not found  @next/next/no-img-element
+
+/app/apps/web/src/app/settings/components/AccountSettings.tsx
+  14:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/apps/web/src/app/settings/components/SettingsTabs.tsx
+  13:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/apps/web/src/lib/api/websocket.ts
+  4:9  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/apps/web/src/lib/command-registry.ts
+  88:7  error  'setMode' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/apps/web/src/types/next-auth.d.ts
+  1:8  error  'NextAuth' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/packages/api/src/AdminApi.ts
+  32:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+/app/packages/api/src/TaskApi.ts
+  7:3  error  'UpdateTaskStatusPayload' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/packages/payment/src/providers/paypal/api.ts
+  191:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/packages/payment/src/providers/paypal/index.ts
+  18:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  45:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  80:48  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/packages/shared/src/tab-completion.ts
+  86:12  error  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/packages/utils/__tests__/subscription-limits.test.ts
+  1:52  error  'afterEach' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/scripts/benchmark-optimization.ts
+   1:10  error  'PrismaClient' is defined but never used     @typescript-eslint/no-unused-vars
+  18:9   error  'userId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 70 problems (70 errors, 0 warnings)

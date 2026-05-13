@@ -11,7 +11,8 @@ describe("GithubApi", () => {
   beforeEach(() => {
     mockAxiosInstance.get.mockClear();
     githubApi = new GithubApi();
-    githubApi["client"] = mockAxiosInstance as unknown as AxiosInstance;
+    // @ts-expect-error mocking axios
+    githubApi["client"] = mockAxiosInstance;
   });
 
   describe("getRepos", () => {

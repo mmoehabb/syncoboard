@@ -28,7 +28,8 @@ mock.module("@/lib/auth", () => ({
     return "test-user-id";
   }),
   auth: mock().mockImplementation(async () => {
-    return { user: { id: (global as any).testUserId } };
+    // @ts-expect-error mock global var
+    return { user: { id: (global).testUserId } };
   }),
 }));
 
@@ -47,7 +48,7 @@ mock.module("@/lib/api/error", () => ({
     }),
     customInternal: (msg: string) => ({ error: msg, status: 500 }),
   },
-  apiError: (err: any) => {
+  apiError: (err: unknown) => {
     return Response.json({ error: err.error }, { status: err.status });
   },
 }));
@@ -55,7 +56,8 @@ mock.module("@/lib/api/error", () => ({
 describe("PATCH/DELETE /api/tasks/[taskId] (IDOR Fix)", () => {
   beforeEach(() => {
     mockPrisma.task.findFirst.mockClear();
-    (global as any).testUserId = "user-123";
+    // @ts-expect-error mock global var
+    (global).testUserId = "user-123";
   });
 
   describe("PATCH /api/tasks/[taskId]", () => {

@@ -10,7 +10,8 @@ describe("DirectoryApi", () => {
   beforeEach(() => {
     mockAxiosInstance.get.mockClear();
     directoryApi = new DirectoryApi();
-    directoryApi["client"] = mockAxiosInstance as unknown as AxiosInstance;
+    // @ts-expect-error mocking axios
+    directoryApi["client"] = mockAxiosInstance;
   });
 
   describe("getDirectory", () => {

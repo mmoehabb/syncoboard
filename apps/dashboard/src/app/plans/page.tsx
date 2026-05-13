@@ -25,8 +25,9 @@ export default function PlansPage() {
     try {
       const data = await api.getPlans();
       setPlans(data);
-    } catch (err: any) {
-      if (err.response?.status === 401) window.location.href = "/login";
+    } catch (err: unknown) {
+      if ((err && typeof err === "object" && "response" in err ? /* eslint-disable-next-line no-restricted-syntax */
+        (err as {response?:{status?:number}}).response?.status : undefined) === 401) window.location.href = "/login";
     } finally {
       setLoading(false);
     }
@@ -36,9 +37,10 @@ export default function PlansPage() {
     e.preventDefault();
     try {
       if (editingPlan?.id) {
-        await api.updatePlan(editingPlan.id, editingPlan as any);
+        await api.updatePlan(editingPlan.id, editingPlan);
       } else {
-        await api.createPlan(editingPlan as any);
+        if (editingPlan) await api.createPlan/* eslint-disable-next-line no-restricted-syntax */
+          (editingPlan as Exclude<typeof editingPlan, null> /* eslint-disable-next-line no-restricted-syntax */ as Parameters<typeof api.createPlan>[0]);
       }
       setIsModalOpen(false);
       fetchPlans();

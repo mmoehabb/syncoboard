@@ -15,7 +15,7 @@ export class PayPalProvider implements PaymentProvider<PayPalWebhookEvent> {
     for (const plan of plans) {
       try {
         await createPayPalProduct(plan.id, plan.name);
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (err.response?.status !== 400) {
           console.error(
             `Error creating PayPal product for plan ${plan.id}`,
@@ -30,7 +30,7 @@ export class PayPalProvider implements PaymentProvider<PayPalWebhookEvent> {
             const paypalPlan = await createPayPalPlan(
               plan.id,
               `${plan.name} - ${price.interval}`,
-              price.interval as any,
+              price.interval,
               price.amount,
               price.currency,
             );
@@ -42,7 +42,7 @@ export class PayPalProvider implements PaymentProvider<PayPalWebhookEvent> {
             console.log(
               `Synced PayPal plan for Price ${price.id}: ${paypalPlan.id}`,
             );
-          } catch (err: any) {
+          } catch (err: unknown) {
             console.error(
               `Error creating PayPal plan for price ${price.id}`,
               err.response?.data || err.message,
@@ -77,7 +77,7 @@ export class PayPalProvider implements PaymentProvider<PayPalWebhookEvent> {
       cancelUrl,
     );
 
-    const approvalLink = sub.links.find((link: any) => link.rel === "approve");
+    const approvalLink = sub.links.find((link: unknown) => link.rel === "approve");
 
     if (!approvalLink) {
       throw new Error("Could not find approval link in PayPal response");
@@ -138,6 +138,6 @@ export class PayPalProvider implements PaymentProvider<PayPalWebhookEvent> {
       throw new Error("Invalid PayPal webhook signature");
     }
 
-    return parsedBody as PayPalWebhookEvent;
+    return parsedBody;
   }
 }

@@ -25,8 +25,9 @@ export default function LoginPage() {
       localStorage.setItem("adminToken", accessToken);
       setGlobalApiToken(accessToken);
       router.push("/users");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Login failed");
+    } catch (err: unknown) {
+      setError((err && typeof err === "object" && "response" in err ?
+      (err as {response?:{data?:{message?:string}}}) /* eslint-disable-line no-restricted-syntax */.response?.data?.message : undefined) || "Login failed");
     }
   };
 

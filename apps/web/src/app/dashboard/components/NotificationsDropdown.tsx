@@ -9,7 +9,7 @@ import { WEBSOCKET_EVENTS } from "@syncoboard/shared";
 export function NotificationsDropdown() {
   const { socket, isConnected } = useSocket();
   const [open, setOpen] = useState(false);
-  const [logs, setLogs] = useState<any[]>([]);
+  const [logs, setLogs] = useState<unknown[]>([]);
   const [lastRead, setLastRead] = useState<Date | null>(null);
   const [loading, setLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -29,7 +29,7 @@ export function NotificationsDropdown() {
       setLastRead(readDate);
 
       if (logsData.logs) {
-        const unread = logsData.logs.filter((log: any) => {
+        const unread = logsData.logs.filter((log: unknown) => {
           if (!readDate) return true;
           return new Date(log.createdAt) > readDate;
         });
@@ -64,7 +64,8 @@ export function NotificationsDropdown() {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        /* @ts-expect-error node */
+        !dropdownRef.current.contains(event.target)
       ) {
         setOpen(false);
       }

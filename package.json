@@ -18,7 +18,7 @@
     "start:websocket": "bun run --filter websocket start",
     "start:cron": "bun run --filter @syncoboard/cron start",
     "build": "bun run --filter \"*\" generate && bun run --filter \"*\" build",
-    "lint": "bun run --filter \"*\" lint",
+    "lint": "eslint \"**/*.ts\" \"**/*.tsx\"",
     "format": "bun prettier --write .",
     "check": "bun prettier --check .",
     "db:push": "bun run --filter @syncoboard/db push",
@@ -32,9 +32,16 @@
   "packageManager": "bun@1.3.11",
   "devDependencies": {
     "@types/string-similarity": "^4.0.2",
+    "@typescript-eslint/eslint-plugin": "^8.59.3",
+    "@typescript-eslint/parser": "^8.59.3",
     "dotenv": "^17.4.1",
+    "eslint": "8.57.0",
+    "eslint-config-next": "16.2.4",
     "eslint-plugin-react": "^7.37.5",
-    "prettier": "^3.8.3"
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "prettier": "^3.8.3",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.3"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",

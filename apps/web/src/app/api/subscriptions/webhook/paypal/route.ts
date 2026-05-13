@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     let event;
     try {
       event = await provider.handleWebhook(rawBody, headers);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Webhook signature verification failed:", err.message);
       return NextResponse.json(
         { error: "Webhook signature verification failed" },
@@ -73,7 +73,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ received: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Webhook Error:", error);
     return NextResponse.json(
       { error: "Internal Server Error", details: error.message },

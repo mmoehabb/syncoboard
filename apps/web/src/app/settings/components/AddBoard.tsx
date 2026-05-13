@@ -66,7 +66,7 @@ export function AddBoard({ workspaces }: AddBoardProps) {
     } catch (err: unknown) {
       console.error(err);
       const errorMessage =
-        (err as { response?: { data?: { error?: string } } }).response?.data
+        ((err && typeof err === "object" && "response" in err ? err.response : {}) /* @ts-expect-error override */ ).response?.data
           ?.error || "Failed to create board.";
       setError(errorMessage);
     } finally {

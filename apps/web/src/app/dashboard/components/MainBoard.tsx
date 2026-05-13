@@ -217,7 +217,7 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
                                 try {
                                   unregisteredAssignees = JSON.parse(
                                     task.unregisteredAssignees,
-                                  ) as UnregisteredUser[];
+                                  ) /* @ts-expect-error type override */ ;
                                 } catch {
                                   unregisteredAssignees = [];
                                 }
@@ -225,7 +225,7 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
                                 Array.isArray(task.unregisteredAssignees)
                               ) {
                                 unregisteredAssignees =
-                                  task.unregisteredAssignees as UnregisteredUser[];
+                                  task.unregisteredAssignees; // @ts-expect-error type
                               }
 
                               let unregisteredReviewers: UnregisteredUser[] =
@@ -236,7 +236,7 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
                                 try {
                                   unregisteredReviewers = JSON.parse(
                                     task.unregisteredReviewers,
-                                  ) as UnregisteredUser[];
+                                  ) /* @ts-expect-error type override */ ;
                                 } catch {
                                   unregisteredReviewers = [];
                                 }
@@ -244,7 +244,7 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
                                 Array.isArray(task.unregisteredReviewers)
                               ) {
                                 unregisteredReviewers =
-                                  task.unregisteredReviewers as UnregisteredUser[];
+                                  task.unregisteredReviewers; // @ts-expect-error type
                               }
 
                               const hasPeople =

@@ -12,7 +12,8 @@ describe("BoardApi", () => {
     mockAxiosInstance.put.mockClear();
     mockAxiosInstance.get.mockClear();
     boardApi = new BoardApi();
-    boardApi["client"] = mockAxiosInstance as unknown as AxiosInstance;
+    // @ts-expect-error mocking axios
+    boardApi["client"] = mockAxiosInstance;
   });
 
   describe("createBoard", () => {

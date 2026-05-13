@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Ignored event type" });
     }
 
-    const prEvent = payload as PullRequestEvent;
+    const prEvent: PullRequestEvent = payload;
 
     const action = prEvent.action;
     const pr = prEvent.pull_request;

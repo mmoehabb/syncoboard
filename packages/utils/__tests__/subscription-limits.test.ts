@@ -25,30 +25,40 @@ mock.module("@syncoboard/db", () => ({
 describe("enforceSubscriptionLimits", () => {
   beforeEach(() => {
     // Reset mocks
-    (prisma.subscription.findFirst as any).mockReset();
-    (prisma.plan.findFirst as any).mockReset();
-    (prisma.workspace.findMany as any).mockReset();
-    (prisma.workspace.updateMany as any).mockReset();
-    (prisma.board.findMany as any).mockReset();
-    (prisma.board.updateMany as any).mockReset();
+    // @ts-expect-error mocking prisma for tests
+    (prisma.subscription.findFirst).mockReset();
+    // @ts-expect-error mocking prisma for tests
+    (prisma.plan.findFirst).mockReset();
+    // @ts-expect-error mocking prisma for tests
+    (prisma.workspace.findMany).mockReset();
+    // @ts-expect-error mocking prisma for tests
+    (prisma.workspace.updateMany).mockReset();
+    // @ts-expect-error mocking prisma for tests
+    (prisma.board.findMany).mockReset();
+    // @ts-expect-error mocking prisma for tests
+    (prisma.board.updateMany).mockReset();
   });
 
   test("should downgrade workspaces to 1 and boards to 1 when no active subscription (fallback to free plan)", async () => {
     const userId = "user-123";
 
-    (prisma.subscription.findFirst as any).mockResolvedValue(null);
-    (prisma.plan.findFirst as any).mockResolvedValue({
+    // @ts-expect-error mocking prisma for tests
+    (prisma.subscription.findFirst).mockResolvedValue(null);
+    // @ts-expect-error mocking prisma for tests
+    (prisma.plan.findFirst).mockResolvedValue({
       maxWorkspaces: 1,
       maxActiveBoards: 1,
     });
 
-    (prisma.workspace.findMany as any).mockResolvedValue([
+    // @ts-expect-error mocking prisma for tests
+    (prisma.workspace.findMany).mockResolvedValue([
       { id: "ws3", createdAt: new Date("2024-03-01") }, // Newest
       { id: "ws2", createdAt: new Date("2024-02-01") },
       { id: "ws1", createdAt: new Date("2024-01-01") }, // Oldest
     ]);
 
-    (prisma.board.findMany as any).mockResolvedValue([
+    // @ts-expect-error mocking prisma for tests
+    (prisma.board.findMany).mockResolvedValue([
       { id: "b3", createdAt: new Date("2024-03-01") }, // Newest
       { id: "b2", createdAt: new Date("2024-02-01") },
       { id: "b1", createdAt: new Date("2024-01-01") }, // Oldest
@@ -57,36 +67,45 @@ describe("enforceSubscriptionLimits", () => {
     await enforceSubscriptionLimits(userId);
 
     // Verify workspace limit enforcement (1 allowed, so 2 deactivated)
-    expect((prisma.workspace.updateMany as any).mock.calls.length).toBe(1);
+    // @ts-expect-error mocking prisma for tests
+    expect((prisma.workspace.updateMany).mock.calls.length).toBe(1);
     expect(
-      (prisma.workspace.updateMany as any).mock.calls[0][0].where.id.in,
+    // @ts-expect-error mocking prisma for tests
+      (prisma.workspace.updateMany).mock.calls[0][0].where.id.in,
     ).toEqual(["ws2", "ws1"]);
     expect(
-      (prisma.workspace.updateMany as any).mock.calls[0][0].data.isActive,
+    // @ts-expect-error mocking prisma for tests
+      (prisma.workspace.updateMany).mock.calls[0][0].data.isActive,
     ).toBe(false);
 
     // Verify board limit enforcement (1 allowed, so 2 deactivated)
-    expect((prisma.board.updateMany as any).mock.calls.length).toBe(2);
+    // @ts-expect-error mocking prisma for tests
+    expect((prisma.board.updateMany).mock.calls.length).toBe(2);
 
     expect(
-      (prisma.board.updateMany as any).mock.calls[0][0].where.workspaceId.in,
+    // @ts-expect-error mocking prisma for tests
+      (prisma.board.updateMany).mock.calls[0][0].where.workspaceId.in,
     ).toEqual(["ws2", "ws1"]);
     expect(
-      (prisma.board.updateMany as any).mock.calls[0][0].data.isActive,
+    // @ts-expect-error mocking prisma for tests
+      (prisma.board.updateMany).mock.calls[0][0].data.isActive,
     ).toBe(false);
 
     expect(
-      (prisma.board.updateMany as any).mock.calls[1][0].where.id.in,
+    // @ts-expect-error mocking prisma for tests
+      (prisma.board.updateMany).mock.calls[1][0].where.id.in,
     ).toEqual(["b2", "b1"]);
     expect(
-      (prisma.board.updateMany as any).mock.calls[1][0].data.isActive,
+    // @ts-expect-error mocking prisma for tests
+      (prisma.board.updateMany).mock.calls[1][0].data.isActive,
     ).toBe(false);
   });
 
   test("should not deactivate if under the limits", async () => {
     const userId = "user-123";
 
-    (prisma.subscription.findFirst as any).mockResolvedValue({
+    // @ts-expect-error mocking prisma for tests
+    (prisma.subscription.findFirst).mockResolvedValue({
       price: {
         plan: {
           maxWorkspaces: 3,
@@ -95,12 +114,14 @@ describe("enforceSubscriptionLimits", () => {
       },
     });
 
-    (prisma.workspace.findMany as any).mockResolvedValue([
+    // @ts-expect-error mocking prisma for tests
+    (prisma.workspace.findMany).mockResolvedValue([
       { id: "ws2", createdAt: new Date("2024-02-01") },
       { id: "ws1", createdAt: new Date("2024-01-01") },
     ]);
 
-    (prisma.board.findMany as any).mockResolvedValue([
+    // @ts-expect-error mocking prisma for tests
+    (prisma.board.findMany).mockResolvedValue([
       { id: "b3", createdAt: new Date("2024-03-01") },
       { id: "b2", createdAt: new Date("2024-02-01") },
       { id: "b1", createdAt: new Date("2024-01-01") },
@@ -109,14 +130,17 @@ describe("enforceSubscriptionLimits", () => {
     await enforceSubscriptionLimits(userId);
 
     // Limits are not exceeded, so no updates should occur
-    expect((prisma.workspace.updateMany as any).mock.calls.length).toBe(0);
-    expect((prisma.board.updateMany as any).mock.calls.length).toBe(0);
+    // @ts-expect-error mocking prisma for tests
+    expect((prisma.workspace.updateMany).mock.calls.length).toBe(0);
+    // @ts-expect-error mocking prisma for tests
+    expect((prisma.board.updateMany).mock.calls.length).toBe(0);
   });
 
   test("should handle unlimited plans (-1)", async () => {
     const userId = "user-123";
 
-    (prisma.subscription.findFirst as any).mockResolvedValue({
+    // @ts-expect-error mocking prisma for tests
+    (prisma.subscription.findFirst).mockResolvedValue({
       price: {
         plan: {
           maxWorkspaces: -1,
@@ -130,12 +154,16 @@ describe("enforceSubscriptionLimits", () => {
       id: `id-${i}`,
       createdAt: new Date(),
     }));
-    (prisma.workspace.findMany as any).mockResolvedValue(manyItems);
-    (prisma.board.findMany as any).mockResolvedValue(manyItems);
+    // @ts-expect-error mocking prisma for tests
+    (prisma.workspace.findMany).mockResolvedValue(manyItems);
+    // @ts-expect-error mocking prisma for tests
+    (prisma.board.findMany).mockResolvedValue(manyItems);
 
     await enforceSubscriptionLimits(userId);
 
-    expect((prisma.workspace.updateMany as any).mock.calls.length).toBe(0);
-    expect((prisma.board.updateMany as any).mock.calls.length).toBe(0);
+    // @ts-expect-error mocking prisma for tests
+    expect((prisma.workspace.updateMany).mock.calls.length).toBe(0);
+    // @ts-expect-error mocking prisma for tests
+    expect((prisma.board.updateMany).mock.calls.length).toBe(0);
   });
 });

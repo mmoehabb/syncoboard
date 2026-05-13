@@ -36,7 +36,7 @@ export function AuthForm() {
       // Redirect to the CLI local server
       window.location.href = `http://localhost:${port}?token=${token}`;
       setStatus("success");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
       setErrorMsg(error.message);
       setStatus("error");

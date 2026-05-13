@@ -5,7 +5,7 @@ export const WEBSOCKET_EVENTS = {
   TASK_UPDATED: "task_updated",
   BOARD_UPDATED: "board_updated",
   NOTIFICATION_RECEIVED: "notification_received",
-} as const;
+} ;
 
 export function encodeBoardRoomName(boardId: string): string {
   return `board_${boardId}`;

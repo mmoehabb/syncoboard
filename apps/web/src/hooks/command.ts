@@ -8,7 +8,7 @@ export function useInputFocusTracking() {
 
   useEffect(() => {
     const handleFocusIn = (e: FocusEvent) => {
-      const target = e.target as HTMLElement;
+      const target = e.target;
       if (
         target &&
         (target.tagName === "INPUT" ||
@@ -86,7 +86,7 @@ export function useKeyboardNavigation(
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement;
+      const target = e.target;
       const isInput =
         target.tagName === "INPUT" ||
         target.tagName === "TEXTAREA" ||
@@ -180,7 +180,7 @@ export function useKeyboardNavigation(
               if (scrollTarget.scrollHeight <= scrollTarget.clientHeight) {
                 const scrollableChild = activeContainer.querySelector(
                   ".overflow-y-auto, .overflow-auto",
-                ) as HTMLElement;
+                );
                 if (scrollableChild) {
                   scrollTarget = scrollableChild;
                 }
@@ -253,7 +253,7 @@ export function useKeyboardNavigation(
           if (e.key === "Enter") {
             const selectedElement = document.querySelector(
               ".cmd-selected",
-            ) as HTMLElement;
+            );
             if (selectedElement) {
               e.preventDefault();
               if (
@@ -273,7 +273,7 @@ export function useKeyboardNavigation(
               if (activeContainer) {
                 const collapsibleHeader = activeContainer.querySelector(
                   ".cmd-collapsible",
-                ) as HTMLElement;
+                );
                 if (collapsibleHeader) {
                   e.preventDefault();
                   collapsibleHeader.click();

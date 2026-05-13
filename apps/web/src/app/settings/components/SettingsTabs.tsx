@@ -10,7 +10,7 @@ interface SettingsTabsProps {
   workspaces: { id: string; name: string }[];
   userId: string;
   isActive: boolean;
-  subscription: any;
+  subscription: unknown;
 }
 
 export function SettingsTabs({

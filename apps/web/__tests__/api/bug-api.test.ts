@@ -9,7 +9,8 @@ describe("BugApi", () => {
   beforeEach(async () => {
     mockAxiosInstance.post.mockReset();
     bugApi = new BugApiClass();
-    bugApi["client"] = mockAxiosInstance as unknown as AxiosInstance;
+    // @ts-expect-error mocking axios
+    bugApi["client"] = mockAxiosInstance;
   });
 
   afterEach(() => {

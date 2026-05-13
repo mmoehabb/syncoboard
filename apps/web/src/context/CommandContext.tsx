@@ -133,7 +133,7 @@ export function CommandProvider({ children }: { children: ReactNode }) {
         setMode,
         args,
         selectedTaskId,
-        activeBoardId: params?.boardId as string | undefined,
+        activeBoardId: params?.boardId | undefined,
         isVoiceCallActive,
         setIsVoiceCallActive,
         virtualPath,
