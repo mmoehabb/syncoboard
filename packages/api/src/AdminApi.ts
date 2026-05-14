@@ -73,6 +73,32 @@ export class AdminApi extends ApiClient {
     return response.data;
   }
 
+  public async getReports(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  }): Promise<{
+    data: import("@syncoboard/db").BugReport[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append("page", params.page.toString());
+    if (params?.limit) searchParams.append("limit", params.limit.toString());
+    if (params?.search) searchParams.append("search", params.search);
+
+    const qs = searchParams.toString();
+    const url = qs ? `/reports?${qs}` : "/reports";
+    const response = await this.get<{
+      data: import("@syncoboard/db").BugReport[];
+      total: number;
+      page: number;
+      limit: number;
+    }>(url);
+    return response.data;
+  }
+
   public async changePassword(
     data: AdminChangePasswordRequest,
   ): Promise<AdminChangePasswordResponse> {
