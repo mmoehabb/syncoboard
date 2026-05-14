@@ -10,6 +10,7 @@ import {
   LogOut,
   LayoutDashboard,
   Settings,
+  Bug,
 } from "lucide-react";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -38,6 +39,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const navItems = [
     { href: "/users", label: "Users", icon: Users },
     { href: "/plans", label: "Plans", icon: CreditCard },
+    { href: "/reports", label: "Reports", icon: Bug },
     { href: "/settings", label: "Settings", icon: Settings },
   ];
 
