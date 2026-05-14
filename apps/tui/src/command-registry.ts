@@ -140,6 +140,7 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
       const boardCommands = commands.filter((c) =>
         [
           "delete-board",
+          "restore-workspace",
           "restore-board",
           "list-deleted-boards",
           "activate-board",
@@ -261,6 +262,40 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
             printOutput([`Error: ${errorMessage}`]);
           });
       });
+    },
+  },
+
+  "restore-workspace": {
+    name: "restore-workspace",
+    description:
+      "Restore a soft-deleted workspace (usage: /restore-workspace <workspace_name>)",
+    action: async (args: string[]) => {
+      if (args.length !== 1) {
+        return {
+          output:
+            "Error: Missing arguments. Usage: /restore-workspace <workspace_name>",
+          type: "system",
+        };
+      }
+
+      const workspaceName = args[0];
+
+      try {
+        const { workspaceApi } = await import("@syncoboard/api");
+        await workspaceApi.restoreWorkspace(workspaceName.trim());
+        return {
+          output: `Successfully restored workspace '${workspaceName.trim()}'.`,
+          type: "system",
+        };
+      } catch (error: any) {
+        return {
+          output:
+            error.response?.data?.error?.message ||
+            error.message ||
+            "Failed to restore workspace.",
+          type: "error",
+        };
+      }
     },
   },
   "restore-board": {

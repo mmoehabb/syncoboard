@@ -180,6 +180,7 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
         [
           "add-board",
           "delete-board",
+          "restore-workspace",
           "restore-board",
           "list-deleted-boards",
           "activate-board",
@@ -312,6 +313,52 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
                   ?.data?.error ||
                 (err as Error).message ||
                 "Failed to delete workspace.";
+              printOutput([`Error: ${errorMessage}`]);
+            }
+          },
+        });
+      }
+    },
+  },
+
+  "restore-workspace": {
+    name: "restore-workspace",
+    description:
+      "Restore a soft-deleted workspace (usage: /restore-workspace <workspace_name>)",
+    action: ({ args, printOutput, updatePrompt }: any) => {
+      if (!args || args.length === 0) {
+        printOutput([
+          "Error: Missing arguments. Usage: /restore-workspace <workspace_name>",
+        ]);
+        return;
+      }
+      const workspaceName = args.join(" ").trim();
+
+      if (updatePrompt) {
+        updatePrompt({
+          message: `Are you sure you want to restore workspace '${workspaceName}'? [y/N]: `,
+          onSubmit: async (input: string) => {
+            const confirmed = input.toLowerCase() === "y";
+            if (!confirmed) {
+              printOutput(["Workspace restoration cancelled."]);
+              return;
+            }
+
+            try {
+              const { workspaceApi } = await import("@syncoboard/api");
+              await workspaceApi.restoreWorkspace(workspaceName);
+              printOutput([
+                `Successfully restored workspace '${workspaceName}'.`,
+                "Refreshing data...",
+              ]);
+              setTimeout(() => {
+                window.location.reload();
+              }, 1000);
+            } catch (err: any) {
+              const errorMessage =
+                err.response?.data?.error?.message ||
+                err.message ||
+                "Failed to restore workspace.";
               printOutput([`Error: ${errorMessage}`]);
             }
           },
