@@ -20,6 +20,7 @@ import { SimpleConfirmationModal } from "@/components/modals/SimpleConfirmationM
 import { ModifyTaskModal } from "@/components/modals/ModifyTaskModal";
 import { useToast } from "@/context/ToastContext";
 import axios from "axios";
+import { useRef } from "react";
 
 export function MainBoard({ board }: { board?: MainBoardData | null }) {
   const router = useRouter();
@@ -47,6 +48,7 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
     task: MainBoardTask | null;
   } | null>(null);
   const [isMoveMenuOpen, setIsMoveMenuOpen] = useState(false);
+  const moveMenuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Modals State
   const [modifyModalState, setModifyModalState] = useState<{
@@ -74,6 +76,22 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
       task,
     });
     setIsMoveMenuOpen(false);
+    if (moveMenuTimeoutRef.current) {
+      clearTimeout(moveMenuTimeoutRef.current);
+    }
+  };
+
+  const handleMoveMenuMouseEnter = () => {
+    if (moveMenuTimeoutRef.current) {
+      clearTimeout(moveMenuTimeoutRef.current);
+    }
+    setIsMoveMenuOpen(true);
+  };
+
+  const handleMoveMenuMouseLeave = () => {
+    moveMenuTimeoutRef.current = setTimeout(() => {
+      setIsMoveMenuOpen(false);
+    }, 300);
   };
 
   const closeContextMenu = () => {
@@ -593,8 +611,8 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
           <ContextMenuSubMenu
             label="Move Task"
             isOpen={isMoveMenuOpen}
-            onMouseEnter={() => setIsMoveMenuOpen(true)}
-            onMouseLeave={() => setIsMoveMenuOpen(false)}
+            onMouseEnter={handleMoveMenuMouseEnter}
+            onMouseLeave={handleMoveMenuMouseLeave}
           >
             {ALL_STATUSES.map((status) => (
               <ContextMenuItem
