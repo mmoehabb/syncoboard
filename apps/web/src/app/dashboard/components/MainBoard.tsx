@@ -11,10 +11,21 @@ import { useCommand } from "@/context/CommandContext";
 import type { MainBoardData, MainBoardTask, UnregisteredUser } from "./types";
 import { useSocket } from "@/context/SocketContext";
 import { WEBSOCKET_EVENTS } from "@syncoboard/shared";
+import {
+  ContextMenu,
+  ContextMenuItem,
+  ContextMenuSubMenu,
+} from "@/components/ui/context-menu/ContextMenu";
+import { SimpleConfirmationModal } from "@/components/modals/SimpleConfirmationModal";
+import { ModifyTaskModal } from "@/components/modals/ModifyTaskModal";
+import { useToast } from "@/context/ToastContext";
+import axios from "axios";
+import { useRef } from "react";
 
 export function MainBoard({ board }: { board?: MainBoardData | null }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { showToast } = useToast();
   const searchParams = useSearchParams();
   const taskIdParam = searchParams.get("taskId");
   const { isVoiceCallActive } = useCommand();
@@ -29,6 +40,120 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
   const [collapsedGroups, setCollapsedGroups] = useState<
     Record<string, boolean>
   >({});
+
+  // Context Menu State
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    task: MainBoardTask | null;
+  } | null>(null);
+  const [isMoveMenuOpen, setIsMoveMenuOpen] = useState(false);
+  const moveMenuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Modals State
+  const [modifyModalState, setModifyModalState] = useState<{
+    isOpen: boolean;
+    task: MainBoardTask | null;
+  }>({ isOpen: false, task: null });
+
+  const [simpleConfirmModalState, setSimpleConfirmModalState] = useState<{
+    isOpen: boolean;
+    message: string;
+    onConfirm: () => Promise<void>;
+  }>({
+    isOpen: false,
+    message: "",
+    onConfirm: async () => {},
+  });
+
+  const { setDeleteModalState } = useCommand();
+
+  const handleContextMenu = (e: React.MouseEvent, task: MainBoardTask) => {
+    e.preventDefault();
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      task,
+    });
+    setIsMoveMenuOpen(false);
+    if (moveMenuTimeoutRef.current) {
+      clearTimeout(moveMenuTimeoutRef.current);
+    }
+  };
+
+  const handleMoveMenuMouseEnter = () => {
+    if (moveMenuTimeoutRef.current) {
+      clearTimeout(moveMenuTimeoutRef.current);
+    }
+    setIsMoveMenuOpen(true);
+  };
+
+  const handleMoveMenuMouseLeave = () => {
+    moveMenuTimeoutRef.current = setTimeout(() => {
+      setIsMoveMenuOpen(false);
+    }, 300);
+  };
+
+  const closeContextMenu = () => {
+    setContextMenu(null);
+    setIsMoveMenuOpen(false);
+  };
+
+  const handleModifyTask = async (newTitle: string) => {
+    if (!modifyModalState.task) return;
+    try {
+      await axios.patch(`/api/tasks/${modifyModalState.task.id}`, {
+        title: newTitle,
+      });
+      showToast("Task modified successfully", "success");
+      setModifyModalState({ isOpen: false, task: null });
+      router.refresh();
+    } catch (error) {
+      showToast("Failed to modify task", "error");
+    }
+  };
+
+  const handleDeleteTask = async (task: MainBoardTask) => {
+    try {
+      await axios.delete(`/api/tasks/${task.id}`);
+      showToast("Task deleted successfully", "success");
+      setSimpleConfirmModalState((prev) => ({ ...prev, isOpen: false }));
+      router.refresh();
+    } catch (error) {
+      showToast("Failed to delete task", "error");
+    }
+  };
+
+  const handleMoveTask = async (task: MainBoardTask, newStatus: string) => {
+    try {
+      await axios.patch(`/api/tasks/${task.id}`, { status: newStatus });
+      showToast("Task moved successfully", "success");
+      setSimpleConfirmModalState((prev) => ({ ...prev, isOpen: false }));
+      router.refresh();
+    } catch (error) {
+      showToast("Failed to move task", "error");
+    }
+  };
+
+  const handleMoveOptionClick = (status: string) => {
+    if (!contextMenu?.task) return;
+    const taskToMove = contextMenu.task;
+    closeContextMenu();
+    setSimpleConfirmModalState({
+      isOpen: true,
+      message: `Are you sure you want to move task SYNC-${taskToMove.id} to ${status}?`,
+      onConfirm: () => handleMoveTask(taskToMove, status),
+    });
+  };
+
+  const ALL_STATUSES = [
+    "TODO",
+    "IN_PROGRESS",
+    "IN_REVIEW",
+    "CHANGES_REQUESTED",
+    "DONE",
+    "CLOSED",
+  ];
 
   useEffect(() => {
     setSearchValue(searchQueryParam);
@@ -259,6 +384,12 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
                                   onClick={() =>
                                     router.push(`?taskId=${task.id.toString()}`)
                                   }
+                                  onContextMenu={(e) =>
+                                    handleContextMenu(
+                                      e,
+                                      task as unknown as MainBoardTask,
+                                    )
+                                  }
                                   className={`surface-panel p-3 rounded-md border transition-all cursor-pointer flex flex-col gap-2 ${selectedTask?.id === task.id ? "border-git-green bg-git-green/5 shadow-md scale-[1.01]" : "border-white/10 bg-void-grey hover:border-white/20"} cmd-selectable [&.cmd-selected]:border-neon-pulse [&.cmd-selected]:bg-neon-pulse/5 [&.cmd-selected]:shadow-md [&.cmd-selected]:scale-[1.01]`}
                                 >
                                   <div className="flex items-start justify-between">
@@ -469,6 +600,89 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
       )}
 
       {isVoiceCallActive && board && <VoiceCallPanel boardId={board.id} />}
+
+      {/* Context Menu */}
+      {contextMenu && contextMenu.task && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onClose={closeContextMenu}
+        >
+          <ContextMenuSubMenu
+            label="Move Task"
+            isOpen={isMoveMenuOpen}
+            onMouseEnter={handleMoveMenuMouseEnter}
+            onMouseLeave={handleMoveMenuMouseLeave}
+          >
+            {ALL_STATUSES.map((status) => (
+              <ContextMenuItem
+                key={status}
+                onClick={() => handleMoveOptionClick(status)}
+                disabled={contextMenu.task!.status === status}
+              >
+                {status}
+              </ContextMenuItem>
+            ))}
+          </ContextMenuSubMenu>
+          <ContextMenuItem
+            onClick={() => {
+              const task = contextMenu.task;
+              closeContextMenu();
+              if (task) {
+                setModifyModalState({
+                  isOpen: true,
+                  task,
+                });
+              }
+            }}
+          >
+            Modify Task
+          </ContextMenuItem>
+          <ContextMenuItem
+            className="text-red-500 hover:text-red-400"
+            onClick={() => {
+              const task = contextMenu.task;
+              closeContextMenu();
+              if (task) {
+                if (task.prNumber) {
+                  setDeleteModalState({
+                    isOpen: true,
+                    message: `This task is attached to PR #${task.prNumber}. Are you absolutely sure you want to delete it?`,
+                    onConfirm: () => handleDeleteTask(task),
+                  });
+                } else {
+                  setSimpleConfirmModalState({
+                    isOpen: true,
+                    message: `Are you sure you want to delete task SYNC-${task.id}?`,
+                    onConfirm: () => handleDeleteTask(task),
+                  });
+                }
+              }
+            }}
+          >
+            Delete Task
+          </ContextMenuItem>
+        </ContextMenu>
+      )}
+
+      {/* Modals */}
+      <SimpleConfirmationModal
+        isOpen={simpleConfirmModalState.isOpen}
+        message={simpleConfirmModalState.message}
+        onConfirm={simpleConfirmModalState.onConfirm}
+        onCancel={() =>
+          setSimpleConfirmModalState((prev) => ({ ...prev, isOpen: false }))
+        }
+      />
+
+      {modifyModalState.task && (
+        <ModifyTaskModal
+          isOpen={modifyModalState.isOpen}
+          initialTitle={modifyModalState.task.title}
+          onConfirm={handleModifyTask}
+          onCancel={() => setModifyModalState({ isOpen: false, task: null })}
+        />
+      )}
     </div>
   );
 }

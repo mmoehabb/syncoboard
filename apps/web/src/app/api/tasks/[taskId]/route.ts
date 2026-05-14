@@ -31,10 +31,12 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { status } = body;
+    const { status, title } = body;
 
-    if (!status) {
-      return apiError(API_ERRORS.customBadRequest("Status is required"));
+    if (!status && !title) {
+      return apiError(
+        API_ERRORS.customBadRequest("Status or title is required"),
+      );
     }
 
     const validStatuses: TaskStatus[] = [
@@ -46,7 +48,7 @@ export async function PATCH(
       "CLOSED",
     ];
 
-    if (!validStatuses.includes(status as TaskStatus)) {
+    if (status && !validStatuses.includes(status as TaskStatus)) {
       return apiError(
         API_ERRORS.customBadRequest(`Invalid task status: ${status}`),
       );
@@ -73,12 +75,19 @@ export async function PATCH(
       return apiError(API_ERRORS.customNotFound("Task"));
     }
 
+    const dataToUpdate: any = {};
+    if (status) dataToUpdate.status = status as TaskStatus;
+    if (title) dataToUpdate.title = title;
+
     const task = await prisma.task.update({
       where: { id: BigInt(taskId) },
-      data: { status: status as TaskStatus },
+      data: dataToUpdate,
     });
 
-    if (existingTask.status !== status) {
+    if (
+      (status && existingTask.status !== status) ||
+      (title && existingTask.title !== title)
+    ) {
       await prisma.boardActivityLog.create({
         data: {
           boardId: existingTask.boardId,
@@ -103,8 +112,8 @@ export async function PATCH(
       { status: 200 },
     );
   } catch (error) {
-    console.error("Error updating task status:", error);
-    return apiError(API_ERRORS.customInternal("Failed to update task status"));
+    console.error("Error updating task:", error);
+    return apiError(API_ERRORS.customInternal("Failed to update task"));
   }
 }
 

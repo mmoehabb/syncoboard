@@ -30,7 +30,7 @@ export function Cursor() {
   return (
     <div
       ref={cursorRef}
-      className={`fixed top-0 left-0 w-4 h-4 rounded-full pointer-events-none z-[9999] transition-colors transition-opacity transition-shadow duration-200 ${
+      className={`fixed top-0 left-0 w-4 h-4 rounded-full pointer-events-none z-[99999] transition-colors transition-opacity transition-shadow duration-200 ${
         isDimmed ? "bg-syntax-grey opacity-50" : "bg-neon-pulse"
       }`}
       style={{
