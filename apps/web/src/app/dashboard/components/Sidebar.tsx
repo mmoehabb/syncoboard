@@ -17,6 +17,7 @@ type FlatItem = {
   id: string;
   label: string;
   isActive: boolean;
+  isDeleted?: boolean;
 };
 
 export function Sidebar({
@@ -30,20 +31,39 @@ export function Sidebar({
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
   const flatItems: FlatItem[] = [];
-  workspaces.forEach((ws) => {
+
+  // Sort workspaces so soft-deleted are at the bottom
+  const sortedWorkspaces = [...workspaces].sort((a, b) => {
+    if (a.isDeleted && !b.isDeleted) return 1;
+    if (!a.isDeleted && b.isDeleted) return -1;
+    return 0;
+  });
+
+  sortedWorkspaces.forEach((ws) => {
     flatItems.push({
       type: "workspace",
       id: ws.id,
       label: ws.name,
       isActive: ws.isActive,
+      isDeleted: ws.isDeleted,
     });
     if (!collapsed[ws.id]) {
-      ws.boards?.forEach((board) => {
+      // Sort boards so soft-deleted are at the bottom
+      const sortedBoards = ws.boards
+        ? [...ws.boards].sort((a, b) => {
+            if (a.isDeleted && !b.isDeleted) return 1;
+            if (!a.isDeleted && b.isDeleted) return -1;
+            return 0;
+          })
+        : [];
+
+      sortedBoards.forEach((board) => {
         flatItems.push({
           type: "board",
           id: board.id,
           label: board.name,
           isActive: board.isActive,
+          isDeleted: board.isDeleted,
         });
       });
     }
@@ -70,7 +90,7 @@ export function Sidebar({
             return (
               <div
                 key={`ws-${item.id}`}
-                className={`group relative ${!item.isActive ? "opacity-50" : ""}`}
+                className={`group relative ${!item.isActive ? "opacity-50" : ""} ${item.isDeleted ? "line-through opacity-40 text-syntax-grey/50" : ""}`}
               >
                 <button
                   onClick={() => toggleWorkspace(item.id)}
@@ -105,7 +125,7 @@ export function Sidebar({
           return (
             <div
               key={`b-${item.id}`}
-              className={`group relative ${!item.isActive ? "opacity-50" : ""}`}
+              className={`group relative ${!item.isActive ? "opacity-50" : ""} ${item.isDeleted ? "line-through opacity-40 text-syntax-grey/50" : ""}`}
             >
               <button
                 onClick={() => router.push(`/dashboard/b/${item.id}`)}

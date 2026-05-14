@@ -43,6 +43,21 @@ export class WorkspaceApi extends ApiClient {
     return response.data;
   }
 
+  public async restoreWorkspace(
+    workspaceName: string,
+  ): Promise<{ message: string }> {
+    const response = await this.put<{ message: string }>(
+      "/restore",
+      undefined,
+      {
+        params: {
+          workspace: workspaceName,
+        },
+      },
+    );
+    return response.data;
+  }
+
   public async updateWorkspaceStatus(
     workspaceName: string,
     isActive: boolean,
