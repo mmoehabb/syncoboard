@@ -37,7 +37,7 @@ export default async function Home(props: {
         <main className="flex flex-col w-full">
           <Hero />
           <Idea />
-          <Plans plans={plans} />
+          <Plans plans={plans} isLoggedIn={!!session?.user} />
         </main>
         <Footer />
       </div>

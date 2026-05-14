@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Plan, Price } from "@syncoboard/db";
 import { subscriptionApi } from "@syncoboard/api";
 
@@ -9,9 +10,11 @@ export type PlanWithPrices = Plan & { prices: Price[] };
 
 interface PlansProps {
   plans: PlanWithPrices[];
+  isLoggedIn?: boolean;
 }
 
-export function Plans({ plans }: PlansProps) {
+export function Plans({ plans, isLoggedIn }: PlansProps) {
+  const router = useRouter();
   const [duration, setDuration] = useState<"MONTH" | "YEAR">("MONTH");
 
   // Filter plans to show (we can hide inactive ones just in case)
@@ -48,6 +51,11 @@ export function Plans({ plans }: PlansProps) {
   };
 
   const handleSubscribe = async (priceId: string) => {
+    if (!isLoggedIn) {
+      router.push("/login");
+      return;
+    }
+
     try {
       setLoadingPriceId(priceId);
       const data = await subscriptionApi.checkout(priceId);
