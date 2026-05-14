@@ -28,3 +28,9 @@ export type DashboardWorkspace = Prisma.WorkspaceGetPayload<{
     boards: true;
   };
 }>;
+
+export type PlanWithPrices = Prisma.PlanGetPayload<{
+  include: {
+    prices: true;
+  };
+}>;
