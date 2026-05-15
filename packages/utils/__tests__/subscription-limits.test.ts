@@ -1,6 +1,4 @@
 import { expect, test, describe, beforeEach, mock, afterEach } from "bun:test";
-import { enforceSubscriptionLimits } from "../src/subscription-limits";
-import { prisma } from "@syncoboard/db";
 
 // Mocking prisma globally
 mock.module("@syncoboard/db", () => ({
@@ -23,17 +21,21 @@ mock.module("@syncoboard/db", () => ({
 }));
 
 describe("enforceSubscriptionLimits", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    const { prisma } = await import("@syncoboard/db");
     // Reset mocks
-    (prisma.subscription.findFirst as any).mockReset();
-    (prisma.plan.findFirst as any).mockReset();
-    (prisma.workspace.findMany as any).mockReset();
-    (prisma.workspace.updateMany as any).mockReset();
-    (prisma.board.findMany as any).mockReset();
-    (prisma.board.updateMany as any).mockReset();
+    (prisma.subscription.findFirst as any).mockClear();
+    (prisma.plan.findFirst as any).mockClear();
+    (prisma.workspace.findMany as any).mockClear();
+    (prisma.workspace.updateMany as any).mockClear();
+    (prisma.board.findMany as any).mockClear();
+    (prisma.board.updateMany as any).mockClear();
   });
 
   test("should downgrade workspaces to 1 and boards to 1 when no active subscription (fallback to free plan)", async () => {
+    const { prisma } = await import("@syncoboard/db");
+    const { enforceSubscriptionLimits } =
+      await import("../src/subscription-limits");
     const userId = "user-123";
 
     (prisma.subscription.findFirst as any).mockResolvedValue(null);
@@ -84,6 +86,9 @@ describe("enforceSubscriptionLimits", () => {
   });
 
   test("should not deactivate if under the limits", async () => {
+    const { prisma } = await import("@syncoboard/db");
+    const { enforceSubscriptionLimits } =
+      await import("../src/subscription-limits");
     const userId = "user-123";
 
     (prisma.subscription.findFirst as any).mockResolvedValue({
@@ -114,6 +119,9 @@ describe("enforceSubscriptionLimits", () => {
   });
 
   test("should handle unlimited plans (-1)", async () => {
+    const { prisma } = await import("@syncoboard/db");
+    const { enforceSubscriptionLimits } =
+      await import("../src/subscription-limits");
     const userId = "user-123";
 
     (prisma.subscription.findFirst as any).mockResolvedValue({

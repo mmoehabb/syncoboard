@@ -51,17 +51,19 @@ export async function enforceSubscriptionLimits(userId: string) {
   if (maxWorkspaces !== -1 && userAdminWorkspaces.length > maxWorkspaces) {
     const workspacesToDeactivate = userAdminWorkspaces.slice(maxWorkspaces);
     if (workspacesToDeactivate.length > 0) {
-      await prisma.workspace.updateMany({
-        where: { id: { in: workspacesToDeactivate.map((ws) => ws.id) } },
-        data: { isActive: false },
-      });
-
-      await prisma.board.updateMany({
-        where: {
-          workspaceId: { in: workspacesToDeactivate.map((ws) => ws.id) },
-        },
-        data: { isActive: false },
-      });
+      const workspaceIds = workspacesToDeactivate.map((ws) => ws.id);
+      await Promise.all([
+        prisma.workspace.updateMany({
+          where: { id: { in: workspaceIds } },
+          data: { isActive: false },
+        }),
+        prisma.board.updateMany({
+          where: {
+            workspaceId: { in: workspaceIds },
+          },
+          data: { isActive: false },
+        }),
+      ]);
     }
   }
 
