@@ -4,7 +4,11 @@ import { prisma } from "@syncoboard/db";
 import { API_ERRORS, apiError } from "@/lib/api/error";
 import { hasValidSubscription } from "@/lib/api/with-subscription";
 import { emitWebSocketEvent } from "@/lib/api/websocket";
-import { WEBSOCKET_EVENTS, encodeBoardRoomName } from "@syncoboard/shared";
+import {
+  WEBSOCKET_EVENTS,
+  encodeBoardRoomName,
+  serializeBigInt,
+} from "@syncoboard/shared";
 
 export async function POST(req: Request) {
   const userId = await getSessionOrPat();
@@ -79,10 +83,7 @@ export async function POST(req: Request) {
     });
 
     // Make bigints serializable
-    return NextResponse.json(
-      { task: { ...task, id: task.id.toString() } },
-      { status: 201 },
-    );
+    return NextResponse.json(serializeBigInt({ task }), { status: 201 });
   } catch (error) {
     console.error("Error creating task:", error);
     return apiError(API_ERRORS.customInternal("Failed to create task"));

@@ -4,6 +4,7 @@ import { prisma } from "@syncoboard/db";
 import { API_ERRORS, apiError } from "@/lib/api/error";
 import type { DirectoryResponse } from "@syncoboard/types";
 import { hasValidSubscription } from "@/lib/api/with-subscription";
+import { serializeBigInt } from "@syncoboard/shared";
 
 export async function GET(req: Request) {
   const userId = await getSessionOrPat();
@@ -53,7 +54,7 @@ export async function GET(req: Request) {
         })),
       };
 
-      return NextResponse.json(response);
+      return NextResponse.json(serializeBigInt(response));
     }
 
     const workspaceName = parts[0];
@@ -126,7 +127,7 @@ export async function GET(req: Request) {
         })),
       };
 
-      return NextResponse.json(response);
+      return NextResponse.json(serializeBigInt(response));
     }
 
     const boardName = parts[1];
@@ -233,7 +234,7 @@ export async function GET(req: Request) {
         hasMoreByStatus,
       };
 
-      return NextResponse.json(response);
+      return NextResponse.json(serializeBigInt(response));
     }
 
     const taskName = parts[2]; // SYNC-123
@@ -277,7 +278,7 @@ export async function GET(req: Request) {
         id: task.id.toString(),
         entries: [], // Tasks are leaf nodes
       };
-      return NextResponse.json(response);
+      return NextResponse.json(serializeBigInt(response));
     }
 
     return apiError(
