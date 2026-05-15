@@ -27,7 +27,7 @@ export async function POST(req: Request) {
 
   try {
     const body: BugReportPayload = await req.json();
-    let { message, stack, url } = body;
+    let { message, stack, url, browser } = body;
 
     if (!message) {
       return apiError(API_ERRORS.customBadRequest("Message is required"));
@@ -63,12 +63,27 @@ export async function POST(req: Request) {
       url = url.replace(/[\x00-\x1F\x7F]/g, " ");
     }
 
+    if (browser) {
+      if (typeof browser !== "string") {
+        return apiError(
+          API_ERRORS.customBadRequest("Browser must be a string"),
+        );
+      }
+      if (browser.length > 1000) {
+        return apiError(
+          API_ERRORS.customBadRequest("Browser string is too long"),
+        );
+      }
+      browser = browser.replace(/[\x00-\x1F\x7F]/g, " ");
+    }
+
     const bugReport = await prisma.bugReport.create({
       data: {
         userId,
         message,
         stack,
         url,
+        browser,
       },
     });
 
