@@ -3,7 +3,7 @@ module.exports = {
     {
       name: "web",
       script: "bun",
-      args: "run start:web",
+      args: "run web start",
       env: {
         NODE_ENV: "development",
       },
@@ -14,7 +14,7 @@ module.exports = {
     {
       name: "dashboard",
       script: "bun",
-      args: "run start:dashboard",
+      args: "run dashboard start",
       env: {
         NODE_ENV: "development",
       },
@@ -25,7 +25,7 @@ module.exports = {
     {
       name: "websocket",
       script: "bun",
-      args: "run start:websocket",
+      args: "run websocket start",
       env: {
         NODE_ENV: "development",
       },
@@ -36,7 +36,7 @@ module.exports = {
     {
       name: "cron",
       script: "bun",
-      args: "run start:cron",
+      args: "run cron start",
       env: {
         NODE_ENV: "development",
       },
