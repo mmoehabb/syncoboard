@@ -3,6 +3,10 @@ import { getSessionOrPat } from "@/lib/auth";
 import { prisma } from "@syncoboard/db";
 import { API_ERRORS, apiError } from "@/lib/api/error";
 import { hasValidSubscription } from "@/lib/api/with-subscription";
+import {
+  FREE_MAX_ACTIVE_BOARDS,
+  FREE_MAX_BOARDS_PER_WORKSPACE,
+} from "@/lib/constants";
 
 export async function PUT(req: Request) {
   const userId = await getSessionOrPat();
@@ -86,9 +90,77 @@ export async function PUT(req: Request) {
       );
     }
 
+    let isBoardActive = true;
+    if (!workspace.isActive) {
+      isBoardActive = false;
+    } else {
+      const userSubscription = await prisma.subscription.findFirst({
+        where: {
+          userId: userId,
+          status: "ACTIVE",
+          currentPeriodEnd: { gt: new Date() },
+        },
+        include: {
+          price: {
+            include: { plan: true },
+          },
+        },
+      });
+
+      let maxActiveBoards = FREE_MAX_ACTIVE_BOARDS;
+      let maxBoardsPerWorkspace = FREE_MAX_BOARDS_PER_WORKSPACE;
+
+      if (userSubscription?.price?.plan) {
+        maxActiveBoards = userSubscription.price.plan.maxActiveBoards;
+        maxBoardsPerWorkspace =
+          userSubscription.price.plan.maxBoardsPerWorkspace;
+      } else {
+        const freePlan = await prisma.plan.findFirst({
+          where: { name: "Free" },
+        });
+        if (freePlan) {
+          maxActiveBoards = freePlan.maxActiveBoards;
+          maxBoardsPerWorkspace = freePlan.maxBoardsPerWorkspace;
+        }
+      }
+
+      if (maxActiveBoards > 0 || maxBoardsPerWorkspace > 0) {
+        // Count active boards overall
+        const activeBoardsCount = await prisma.board.count({
+          where: {
+            isDeleted: false,
+            isActive: true,
+            members: {
+              some: { userId: userId, role: "ADMIN" },
+            },
+          },
+        });
+
+        // Count active boards in this workspace
+        const activeWorkspaceBoardsCount = await prisma.board.count({
+          where: {
+            workspaceId: workspace.id,
+            isDeleted: false,
+            isActive: true,
+            members: {
+              some: { userId: userId, role: "ADMIN" },
+            },
+          },
+        });
+
+        if (
+          (maxActiveBoards > 0 && activeBoardsCount >= maxActiveBoards) ||
+          (maxBoardsPerWorkspace > 0 &&
+            activeWorkspaceBoardsCount >= maxBoardsPerWorkspace)
+        ) {
+          isBoardActive = false;
+        }
+      }
+    }
+
     await prisma.board.update({
       where: { id: board.id },
-      data: { isDeleted: false },
+      data: { isDeleted: false, isActive: isBoardActive },
     });
 
     return NextResponse.json({ message: "Board restored successfully" });
