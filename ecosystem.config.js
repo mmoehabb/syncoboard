@@ -12,6 +12,17 @@ module.exports = {
       },
     },
     {
+      name: "dashboard",
+      script: "bun",
+      args: "run start:dashboard",
+      env: {
+        NODE_ENV: "development",
+      },
+      env_production: {
+        NODE_ENV: "production",
+      },
+    },
+    {
       name: "websocket",
       script: "bun",
       args: "run start:websocket",

@@ -5,7 +5,8 @@
   "main": "src/index.ts",
   "scripts": {
     "start": "bun run src/index.ts",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "build": "echo no build command for cron"
   },
   "dependencies": {
     "@syncoboard/db": "workspace:*",
