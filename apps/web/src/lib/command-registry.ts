@@ -912,4 +912,33 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
       }
     },
   },
+  "report-bug": {
+    name: "report-bug",
+    description: "Report a bug manually (usage: /report-bug <message>)",
+    action: ({ args, printOutput }) => {
+      if (!args || args.length === 0) {
+        printOutput(["Error: Missing message. Usage: /report-bug <message>"]);
+        return;
+      }
+
+      const message = args.join(" ");
+
+      import("@syncoboard/api").then(({ bugApi }) => {
+        bugApi
+          .reportBug({
+            message,
+            browser: navigator.userAgent,
+            url: window.location.href,
+          })
+          .then(() => {
+            printOutput(["Bug reported successfully. Thank you!"]);
+          })
+          .catch((err: unknown) => {
+            const errorMessage =
+              (err as Error).message || "Failed to report bug.";
+            printOutput([`Error: ${errorMessage}`]);
+          });
+      });
+    },
+  },
 };
