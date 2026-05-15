@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import {
@@ -7,10 +8,11 @@ import {
 } from "@syncoboard/shared";
 
 const HTTP_PORT = process.env.PORT || 3002;
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "http://localhost:3000";
 
 const httpServer = createServer((req, res) => {
   // CORS setup for webhook endpoint
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
@@ -58,7 +60,7 @@ const httpServer = createServer((req, res) => {
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "*", // Adjust for production
+    origin: ALLOWED_ORIGIN,
     methods: ["GET", "POST"],
   },
 });
