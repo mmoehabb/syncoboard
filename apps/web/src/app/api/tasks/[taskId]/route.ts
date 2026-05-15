@@ -5,7 +5,11 @@ import { API_ERRORS, apiError } from "@/lib/api/error";
 import { TaskStatus } from "@prisma/client";
 import { hasValidSubscription } from "@/lib/api/with-subscription";
 import { emitWebSocketEvent } from "@/lib/api/websocket";
-import { WEBSOCKET_EVENTS, encodeBoardRoomName } from "@syncoboard/shared";
+import {
+  WEBSOCKET_EVENTS,
+  encodeBoardRoomName,
+  serializeBigInt,
+} from "@syncoboard/shared";
 
 export async function PATCH(
   req: Request,
@@ -107,10 +111,7 @@ export async function PATCH(
       },
     );
 
-    return NextResponse.json(
-      { task: { ...task, id: task.id.toString() } },
-      { status: 200 },
-    );
+    return NextResponse.json(serializeBigInt({ task }), { status: 200 });
   } catch (error) {
     console.error("Error updating task:", error);
     return apiError(API_ERRORS.customInternal("Failed to update task"));

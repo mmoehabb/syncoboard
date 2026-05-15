@@ -8,6 +8,7 @@ import {
   WEBSOCKET_EVENTS,
   encodeUserRoomName,
   encodeBoardRoomName,
+  serializeBigInt,
 } from "@syncoboard/shared";
 
 export async function POST(req: Request) {
@@ -177,14 +178,14 @@ export async function POST(req: Request) {
     );
 
     return NextResponse.json(
-      {
+      serializeBigInt({
         invitation: {
           id: invitationLog.id,
           boardId: invitationLog.boardId,
           targetUserId: invitationLog.targetUserId,
           status: invitationLog.status,
         },
-      },
+      }),
       { status: 201 },
     );
   } catch (error) {

@@ -3,7 +3,11 @@ import { getSessionOrPat } from "@/lib/auth";
 import { prisma } from "@syncoboard/db";
 import { API_ERRORS, apiError } from "@/lib/api/error";
 import { emitWebSocketEvent } from "@/lib/api/websocket";
-import { WEBSOCKET_EVENTS, encodeBoardRoomName } from "@syncoboard/shared";
+import {
+  WEBSOCKET_EVENTS,
+  encodeBoardRoomName,
+  serializeBigInt,
+} from "@syncoboard/shared";
 
 export async function GET(req: Request) {
   const userId = await getSessionOrPat();
@@ -43,7 +47,7 @@ export async function GET(req: Request) {
       take: 50,
     });
 
-    return NextResponse.json({ logs });
+    return NextResponse.json(serializeBigInt({ logs }));
   } catch (error) {
     console.error("Error fetching notifications:", error);
     return apiError(API_ERRORS.customInternal("Failed to fetch notifications"));
