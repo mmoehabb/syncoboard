@@ -150,9 +150,13 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
         ].includes(c.name),
       );
       const taskCommands = commands.filter((c) =>
-        ["list-tasks", "add-task", "update-task", "delete-task", "search-task"].includes(
-          c.name,
-        ),
+        [
+          "list-tasks",
+          "add-task",
+          "update-task",
+          "delete-task",
+          "search-task",
+        ].includes(c.name),
       );
 
       const formatCmd = (cmd: Command) =>
@@ -782,10 +786,13 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
 
   "list-tasks": {
     name: "list-tasks",
-    description: "List tasks with pagination (usage: /list-tasks <workspace>/<board> [page] [limit])",
+    description:
+      "List tasks with pagination (usage: /list-tasks <workspace>/<board> [page] [limit])",
     action: ({ args, printOutput, virtualPath }) => {
       if (!args || args.length === 0) {
-        printOutput(["Error: Missing arguments. Usage: /list-tasks <workspace>/<board> [page] [limit]"]);
+        printOutput([
+          "Error: Missing arguments. Usage: /list-tasks <workspace>/<board> [page] [limit]",
+        ]);
         return;
       }
 
@@ -799,9 +806,12 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
         normalizedPath = "/" + normalizedPath;
       }
 
-      const parts = normalizedPath === "/" ? [] : normalizedPath.split("/").filter(Boolean);
+      const parts =
+        normalizedPath === "/" ? [] : normalizedPath.split("/").filter(Boolean);
       if (parts.length !== 2) {
-        printOutput(["Error: Invalid path. Path must point to a specific board, e.g., <workspace>/<board>"]);
+        printOutput([
+          "Error: Invalid path. Path must point to a specific board, e.g., <workspace>/<board>",
+        ]);
         return;
       }
 
@@ -816,7 +826,9 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
         if (!isNaN(parsedPage) && parsedPage > 0) {
           page = parsedPage;
         } else {
-          printOutput(["Error: Invalid page number. Must be a positive integer."]);
+          printOutput([
+            "Error: Invalid page number. Must be a positive integer.",
+          ]);
           return;
         }
       }
@@ -832,12 +844,20 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
       }
 
       import("@syncoboard/api").then(({ taskApi }) => {
-        taskApi.listTasks(workspaceName, boardName, page, limit)
+        taskApi
+          .listTasks(workspaceName, boardName, page, limit)
           .then((response) => {
             const outputLines: string[] = [];
             const { tasksByStatus, hasMoreByStatus } = response;
 
-            const statuses = ["TODO", "IN_PROGRESS", "IN_REVIEW", "CHANGES_REQUESTED", "DONE", "CLOSED"];
+            const statuses = [
+              "TODO",
+              "IN_PROGRESS",
+              "IN_REVIEW",
+              "CHANGES_REQUESTED",
+              "DONE",
+              "CLOSED",
+            ];
             let totalTasks = 0;
 
             statuses.forEach((status) => {
@@ -846,9 +866,10 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
                 totalTasks += tasks.length;
                 outputLines.push(`--- ${status} ---`);
                 tasks.forEach((task: any) => {
-                  const title = task.title && task.title.length > 30
-                    ? task.title.substring(0, 30) + "..."
-                    : task.title || "";
+                  const title =
+                    task.title && task.title.length > 30
+                      ? task.title.substring(0, 30) + "..."
+                      : task.title || "";
                   outputLines.push(`SYNC-${task.id} (${title}) [Task]`);
                 });
                 if (hasMoreByStatus[status]) {
@@ -858,19 +879,27 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
             });
 
             if (totalTasks === 0) {
-              outputLines.push("No tasks found on this board for the given page.");
+              outputLines.push(
+                "No tasks found on this board for the given page.",
+              );
             } else {
-              outputLines.unshift(`Listing tasks for board: ${workspaceName}/${boardName} (Page ${page}, Limit ${limit})`);
+              outputLines.unshift(
+                `Listing tasks for board: ${workspaceName}/${boardName} (Page ${page}, Limit ${limit})`,
+              );
             }
 
             printOutput(outputLines);
           })
           .catch((err: unknown) => {
-            const errorMessage = (err as { response?: { data?: { error?: string } } }).response?.data?.error || (err as Error).message || "Failed to list tasks.";
+            const errorMessage =
+              (err as { response?: { data?: { error?: string } } }).response
+                ?.data?.error ||
+              (err as Error).message ||
+              "Failed to list tasks.";
             printOutput([`Error: ${errorMessage}`]);
           });
       });
-    }
+    },
   },
   "search-task": {
     name: "search-task",

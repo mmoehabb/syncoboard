@@ -90,7 +90,6 @@ export async function POST(req: Request) {
   }
 }
 
-
 export async function GET(req: Request) {
   const userId = await getSessionOrPat();
 
@@ -112,7 +111,9 @@ export async function GET(req: Request) {
 
     if (!workspaceName || !boardName) {
       return apiError(
-        API_ERRORS.customBadRequest("workspace and board parameters are required")
+        API_ERRORS.customBadRequest(
+          "workspace and board parameters are required",
+        ),
       );
     }
 
@@ -128,7 +129,12 @@ export async function GET(req: Request) {
       where: {
         OR: [
           { name: { equals: workspaceName, mode: "insensitive" } },
-          { name: { equals: workspaceName.replace(/-/g, " "), mode: "insensitive" } },
+          {
+            name: {
+              equals: workspaceName.replace(/-/g, " "),
+              mode: "insensitive",
+            },
+          },
         ],
         members: {
           some: { userId: userId },
@@ -137,7 +143,9 @@ export async function GET(req: Request) {
     });
 
     if (!workspace) {
-      return apiError(API_ERRORS.customNotFound("Workspace not found or unauthorized"));
+      return apiError(
+        API_ERRORS.customNotFound("Workspace not found or unauthorized"),
+      );
     }
 
     // Find board
@@ -146,7 +154,9 @@ export async function GET(req: Request) {
         workspaceId: workspace.id,
         OR: [
           { name: { equals: boardName, mode: "insensitive" } },
-          { name: { equals: boardName.replace(/-/g, " "), mode: "insensitive" } },
+          {
+            name: { equals: boardName.replace(/-/g, " "), mode: "insensitive" },
+          },
         ],
       },
     });
@@ -175,7 +185,9 @@ export async function GET(req: Request) {
         },
       });
       if (!boardMember) {
-        return apiError(API_ERRORS.customForbidden("Unauthorized access to this board"));
+        return apiError(
+          API_ERRORS.customForbidden("Unauthorized access to this board"),
+        );
       }
     }
 
@@ -217,7 +229,7 @@ export async function GET(req: Request) {
           hasMoreByStatus[status] = false;
           tasksByStatus[status] = tasksForStatus;
         }
-      })
+      }),
     );
 
     const response = {
@@ -226,7 +238,6 @@ export async function GET(req: Request) {
     };
 
     return NextResponse.json(serializeBigInt(response));
-
   } catch (error) {
     console.error("Error fetching tasks:", error);
     return apiError(API_ERRORS.customInternal("Failed to fetch tasks"));

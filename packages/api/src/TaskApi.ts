@@ -49,7 +49,7 @@ export class TaskApi extends ApiClient {
     boardName: string,
     page: number = 1,
     limit: number = 5,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<ListTasksResponse> {
     const response = await this.get<ListTasksResponse>("", {
       ...config,
