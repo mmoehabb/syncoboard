@@ -8,3 +8,8 @@ export interface CreateTaskPayload {
 export interface UpdateTaskStatusPayload {
   status: TaskStatus;
 }
+
+export interface ListTasksResponse {
+  tasksByStatus: Record<string, any[]>;
+  hasMoreByStatus: Record<string, boolean>;
+}

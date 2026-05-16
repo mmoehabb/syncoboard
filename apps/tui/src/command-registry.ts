@@ -150,7 +150,7 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
         ].includes(c.name),
       );
       const taskCommands = commands.filter((c) =>
-        ["add-task", "update-task", "delete-task", "search-task"].includes(
+        ["list-tasks", "add-task", "update-task", "delete-task", "search-task"].includes(
           c.name,
         ),
       );
@@ -778,6 +778,99 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
           });
       });
     },
+  },
+
+  "list-tasks": {
+    name: "list-tasks",
+    description: "List tasks with pagination (usage: /list-tasks <workspace>/<board> [page] [limit])",
+    action: ({ args, printOutput, virtualPath }) => {
+      if (!args || args.length === 0) {
+        printOutput(["Error: Missing arguments. Usage: /list-tasks <workspace>/<board> [page] [limit]"]);
+        return;
+      }
+
+      const targetPath = args[0];
+      const resolvedPath = resolvePath(virtualPath, targetPath);
+      let normalizedPath = resolvedPath.replace(/\/+/g, "/").trim();
+      if (normalizedPath !== "/" && normalizedPath.endsWith("/")) {
+        normalizedPath = normalizedPath.slice(0, -1);
+      }
+      if (!normalizedPath.startsWith("/")) {
+        normalizedPath = "/" + normalizedPath;
+      }
+
+      const parts = normalizedPath === "/" ? [] : normalizedPath.split("/").filter(Boolean);
+      if (parts.length !== 2) {
+        printOutput(["Error: Invalid path. Path must point to a specific board, e.g., <workspace>/<board>"]);
+        return;
+      }
+
+      const workspaceName = parts[0];
+      const boardName = parts[1];
+
+      let page = 1;
+      let limit = 5;
+
+      if (args.length > 1) {
+        const parsedPage = parseInt(args[1], 10);
+        if (!isNaN(parsedPage) && parsedPage > 0) {
+          page = parsedPage;
+        } else {
+          printOutput(["Error: Invalid page number. Must be a positive integer."]);
+          return;
+        }
+      }
+
+      if (args.length > 2) {
+        const parsedLimit = parseInt(args[2], 10);
+        if (!isNaN(parsedLimit) && parsedLimit > 0) {
+          limit = parsedLimit;
+        } else {
+          printOutput(["Error: Invalid limit. Must be a positive integer."]);
+          return;
+        }
+      }
+
+      import("@syncoboard/api").then(({ taskApi }) => {
+        taskApi.listTasks(workspaceName, boardName, page, limit)
+          .then((response) => {
+            const outputLines: string[] = [];
+            const { tasksByStatus, hasMoreByStatus } = response;
+
+            const statuses = ["TODO", "IN_PROGRESS", "IN_REVIEW", "CHANGES_REQUESTED", "DONE", "CLOSED"];
+            let totalTasks = 0;
+
+            statuses.forEach((status) => {
+              const tasks = tasksByStatus[status];
+              if (tasks && tasks.length > 0) {
+                totalTasks += tasks.length;
+                outputLines.push(`--- ${status} ---`);
+                tasks.forEach((task: any) => {
+                  const title = task.title && task.title.length > 30
+                    ? task.title.substring(0, 30) + "..."
+                    : task.title || "";
+                  outputLines.push(`SYNC-${task.id} (${title}) [Task]`);
+                });
+                if (hasMoreByStatus[status]) {
+                  outputLines.push(`... (more tasks available on next page)`);
+                }
+              }
+            });
+
+            if (totalTasks === 0) {
+              outputLines.push("No tasks found on this board for the given page.");
+            } else {
+              outputLines.unshift(`Listing tasks for board: ${workspaceName}/${boardName} (Page ${page}, Limit ${limit})`);
+            }
+
+            printOutput(outputLines);
+          })
+          .catch((err: unknown) => {
+            const errorMessage = (err as { response?: { data?: { error?: string } } }).response?.data?.error || (err as Error).message || "Failed to list tasks.";
+            printOutput([`Error: ${errorMessage}`]);
+          });
+      });
+    }
   },
   "search-task": {
     name: "search-task",
