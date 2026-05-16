@@ -269,33 +269,30 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
     name: "restore-workspace",
     description:
       "Restore a soft-deleted workspace (usage: /restore-workspace <workspace_name>)",
-    action: async (args: string[]) => {
-      if (args.length !== 1) {
-        return {
-          output:
-            "Error: Missing arguments. Usage: /restore-workspace <workspace_name>",
-          type: "system",
-        };
+    action: ({ args, printOutput }) => {
+      if (!args || args.length !== 1) {
+        printOutput([
+          "Error: Missing arguments. Usage: /restore-workspace <workspace_name>",
+        ]);
+        return;
       }
 
       const workspaceName = args[0];
 
-      try {
-        const { workspaceApi } = await import("@syncoboard/api");
-        await workspaceApi.restoreWorkspace(workspaceName.trim());
-        return {
-          output: `Successfully restored workspace '${workspaceName.trim()}'.`,
-          type: "system",
-        };
-      } catch (error: any) {
-        return {
-          output:
-            error.response?.data?.error?.message ||
-            error.message ||
-            "Failed to restore workspace.",
-          type: "error",
-        };
-      }
+      import("@syncoboard/api").then(({ workspaceApi }) => {
+        workspaceApi
+          .restoreWorkspace(workspaceName.trim())
+          .then(() => {
+            printOutput([
+              `Successfully restored workspace '${workspaceName.trim()}'`,
+            ]);
+          })
+          .catch((error: any) => {
+            printOutput([
+              `Error: ${error.response?.data?.error?.message || error.message || "Failed to restore workspace."}`,
+            ]);
+          });
+      });
     },
   },
   "restore-board": {
@@ -826,6 +823,77 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
           .catch((err: unknown) => {
             const errorMessage =
               (err as Error).message || "Failed to report bug.";
+            printOutput([`Error: ${errorMessage}`]);
+          });
+      });
+    },
+  },
+
+  updates: {
+    name: "updates",
+    description: "Print unread updates and mark them as read",
+    action: ({ printOutput }) => {
+      Promise.all([import("@syncoboard/api")]).then(([{ notificationApi }]) => {
+        Promise.all([
+          notificationApi.getNotifications(),
+          notificationApi.getReadState(),
+        ])
+          .then(([logsData, readData]) => {
+            const logs = logsData.logs || [];
+            const readDate = readData.lastRead
+              ? new Date(readData.lastRead)
+              : null;
+
+            const unread = logs.filter((log) => {
+              if (!readDate) return true;
+              return new Date(log.createdAt) > readDate;
+            });
+
+            if (unread.length === 0) {
+              printOutput(["No new updates"]);
+              return;
+            }
+
+            const output: string[] = [];
+            unread.forEach((log) => {
+              const dateStr = new Date(log.createdAt).toLocaleDateString();
+
+              if (log.type === "INVITATION") {
+                const actorName =
+                  log.actor?.name || log.actor?.email || "Someone";
+                const boardName = `${log.board?.workspace?.name}/${log.board?.name}`;
+                output.push(
+                  `[${dateStr}] ${actorName} invited you to join ${boardName}`,
+                );
+              } else if (log.type === "MEMBER_JOIN") {
+                const actorName =
+                  log.actor?.name || log.actor?.email || "A new member";
+                const boardName = `${log.board?.workspace?.name}/${log.board?.name}`;
+                output.push(`[${dateStr}] ${actorName} joined ${boardName}`);
+              } else if (log.type === "MEMBER_LEAVE") {
+                const actorName =
+                  log.actor?.name || log.actor?.email || "A member";
+                const boardName = `${log.board?.workspace?.name}/${log.board?.name}`;
+                output.push(`[${dateStr}] ${actorName} left ${boardName}`);
+              } else if (log.type === "TASK_UPDATE") {
+                const taskTitle = log.task?.title || "Unknown Task";
+                const status = log.task?.status;
+                const boardName = `${log.board?.workspace?.name}/${log.board?.name}`;
+                output.push(
+                  `[${dateStr}] Task "${taskTitle}" was updated to ${status} in ${boardName}`,
+                );
+              }
+            });
+
+            printOutput(output);
+
+            notificationApi.markAsRead().catch((err: unknown) => {
+              console.error("Failed to mark notifications as read", err);
+            });
+          })
+          .catch((err: unknown) => {
+            const errorMessage =
+              (err as Error).message || "Failed to fetch updates.";
             printOutput([`Error: ${errorMessage}`]);
           });
       });
