@@ -1,4 +1,5 @@
 import { ApiClient } from "./ApiClient";
+import type { NotificationLog } from "@syncoboard/types";
 
 export class NotificationApi extends ApiClient {
   constructor() {
@@ -6,7 +7,7 @@ export class NotificationApi extends ApiClient {
   }
 
   public async getNotifications() {
-    const response = await this.get<{ logs: any[] }>("");
+    const response = await this.get<{ logs: NotificationLog[] }>("");
     return response.data;
   }
 

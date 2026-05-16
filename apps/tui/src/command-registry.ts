@@ -844,7 +844,7 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
               ? new Date(readData.lastRead)
               : null;
 
-            const unread = logs.filter((log: any) => {
+            const unread = logs.filter((log) => {
               if (!readDate) return true;
               return new Date(log.createdAt) > readDate;
             });
@@ -855,7 +855,7 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
             }
 
             const output: string[] = [];
-            unread.forEach((log: any) => {
+            unread.forEach((log) => {
               const dateStr = new Date(log.createdAt).toLocaleDateString();
 
               if (log.type === "INVITATION") {
