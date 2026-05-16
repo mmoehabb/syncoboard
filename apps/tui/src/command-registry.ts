@@ -271,7 +271,9 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
       "Restore a soft-deleted workspace (usage: /restore-workspace <workspace_name>)",
     action: ({ args, printOutput }) => {
       if (!args || args.length !== 1) {
-        printOutput(["Error: Missing arguments. Usage: /restore-workspace <workspace_name>"]);
+        printOutput([
+          "Error: Missing arguments. Usage: /restore-workspace <workspace_name>",
+        ]);
         return;
       }
 
@@ -281,15 +283,19 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
         workspaceApi
           .restoreWorkspace(workspaceName.trim())
           .then(() => {
-            printOutput([`Successfully restored workspace '${workspaceName.trim()}'`]);
+            printOutput([
+              `Successfully restored workspace '${workspaceName.trim()}'`,
+            ]);
           })
           .catch((error: any) => {
-            printOutput([`Error: ${error.response?.data?.error?.message || error.message || "Failed to restore workspace."}`]);
+            printOutput([
+              `Error: ${error.response?.data?.error?.message || error.message || "Failed to restore workspace."}`,
+            ]);
           });
       });
     },
   },
-"restore-board": {
+  "restore-board": {
     name: "restore-board",
     description:
       "Restore a soft-deleted board (usage: /restore-board <workspace_name>/<board_name>)",
@@ -827,16 +833,16 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
     name: "updates",
     description: "Print unread updates and mark them as read",
     action: ({ printOutput }) => {
-      Promise.all([
-        import("@syncoboard/api"),
-      ]).then(([{ notificationApi }]) => {
+      Promise.all([import("@syncoboard/api")]).then(([{ notificationApi }]) => {
         Promise.all([
           notificationApi.getNotifications(),
           notificationApi.getReadState(),
         ])
           .then(([logsData, readData]) => {
             const logs = logsData.logs || [];
-            const readDate = readData.lastRead ? new Date(readData.lastRead) : null;
+            const readDate = readData.lastRead
+              ? new Date(readData.lastRead)
+              : null;
 
             const unread = logs.filter((log: any) => {
               if (!readDate) return true;
@@ -853,22 +859,29 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
               const dateStr = new Date(log.createdAt).toLocaleDateString();
 
               if (log.type === "INVITATION") {
-                const actorName = log.actor?.name || log.actor?.email || "Someone";
+                const actorName =
+                  log.actor?.name || log.actor?.email || "Someone";
                 const boardName = `${log.board?.workspace?.name}/${log.board?.name}`;
-                output.push(`[${dateStr}] ${actorName} invited you to join ${boardName}`);
+                output.push(
+                  `[${dateStr}] ${actorName} invited you to join ${boardName}`,
+                );
               } else if (log.type === "MEMBER_JOIN") {
-                const actorName = log.actor?.name || log.actor?.email || "A new member";
+                const actorName =
+                  log.actor?.name || log.actor?.email || "A new member";
                 const boardName = `${log.board?.workspace?.name}/${log.board?.name}`;
                 output.push(`[${dateStr}] ${actorName} joined ${boardName}`);
               } else if (log.type === "MEMBER_LEAVE") {
-                const actorName = log.actor?.name || log.actor?.email || "A member";
+                const actorName =
+                  log.actor?.name || log.actor?.email || "A member";
                 const boardName = `${log.board?.workspace?.name}/${log.board?.name}`;
                 output.push(`[${dateStr}] ${actorName} left ${boardName}`);
               } else if (log.type === "TASK_UPDATE") {
                 const taskTitle = log.task?.title || "Unknown Task";
                 const status = log.task?.status;
                 const boardName = `${log.board?.workspace?.name}/${log.board?.name}`;
-                output.push(`[${dateStr}] Task "${taskTitle}" was updated to ${status} in ${boardName}`);
+                output.push(
+                  `[${dateStr}] Task "${taskTitle}" was updated to ${status} in ${boardName}`,
+                );
               }
             });
 
@@ -879,7 +892,8 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
             });
           })
           .catch((err: unknown) => {
-            const errorMessage = (err as Error).message || "Failed to fetch updates.";
+            const errorMessage =
+              (err as Error).message || "Failed to fetch updates.";
             printOutput([`Error: ${errorMessage}`]);
           });
       });
