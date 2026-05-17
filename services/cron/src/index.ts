@@ -34,7 +34,7 @@ cron.schedule("0 1 * * *", async () => {
 
     if (expiredSubscriptions.length > 0) {
       console.log(
-        `[CRON] Found ${expiredSubscriptions.length} expired subscriptions. Enforcing limits.`
+        `[CRON] Found ${expiredSubscriptions.length} expired subscriptions. Enforcing limits.`,
       );
 
       // We process them in chunks to avoid overwhelming the database connection pool
@@ -44,9 +44,7 @@ cron.schedule("0 1 * * *", async () => {
 
         // Enforce limits (passing null since their subscription is now effectively expired)
         await Promise.all(
-          chunk.map((sub) =>
-            enforceSubscriptionLimits(sub.userId, null)
-          )
+          chunk.map((sub) => enforceSubscriptionLimits(sub.userId, null)),
         );
       }
 
@@ -68,7 +66,7 @@ cron.schedule("0 1 * * *", async () => {
     await cleanupDeletedEntities();
 
     console.log(
-      `[CRON] Daily cron jobs completed successfully at ${new Date().toISOString()}`
+      `[CRON] Daily cron jobs completed successfully at ${new Date().toISOString()}`,
     );
   } catch (error) {
     console.error("[CRON] Error executing daily cron jobs:", error);

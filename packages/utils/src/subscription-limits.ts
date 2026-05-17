@@ -7,7 +7,7 @@ import { prisma } from "@syncoboard/db";
  */
 export async function enforceSubscriptionLimits(
   userId: string,
-  activeSubscription?: any | null
+  activeSubscription?: any | null,
 ) {
   let subscription = activeSubscription;
 
