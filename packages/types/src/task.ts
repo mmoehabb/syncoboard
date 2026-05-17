@@ -1,4 +1,4 @@
-import type { TaskStatus } from "@syncoboard/db";
+import type { TaskStatus, Task } from "@syncoboard/db";
 
 export interface CreateTaskPayload {
   boardId: string;
@@ -7,4 +7,9 @@ export interface CreateTaskPayload {
 
 export interface UpdateTaskStatusPayload {
   status: TaskStatus;
+}
+
+export interface ListTasksResponse {
+  tasksByStatus: Record<TaskStatus, Task[]>;
+  hasMoreByStatus: Record<TaskStatus, boolean>;
 }

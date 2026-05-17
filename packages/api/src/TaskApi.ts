@@ -5,6 +5,7 @@ import type { Task } from "@syncoboard/db";
 import type {
   CreateTaskPayload,
   UpdateTaskStatusPayload,
+  ListTasksResponse,
 } from "@syncoboard/types";
 
 export class TaskApi extends ApiClient {
@@ -41,6 +42,25 @@ export class TaskApi extends ApiClient {
       `/${taskId}`,
       config,
     );
+    return response.data;
+  }
+  public async listTasks(
+    workspaceName: string,
+    boardName: string,
+    page: number = 1,
+    limit: number = 5,
+    config?: AxiosRequestConfig,
+  ): Promise<ListTasksResponse> {
+    const response = await this.get<ListTasksResponse>("", {
+      ...config,
+      params: {
+        ...config?.params,
+        workspace: workspaceName,
+        board: boardName,
+        page,
+        limit,
+      },
+    });
     return response.data;
   }
 }
