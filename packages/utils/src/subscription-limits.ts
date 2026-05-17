@@ -5,27 +5,35 @@ import { prisma } from "@syncoboard/db";
  * (e.g. Trial expires, user downgrades to Free).
  * It will prioritize keeping the newest ones active (by createdAt DESC).
  */
-export async function enforceSubscriptionLimits(userId: string) {
-  const activeSubscription = await prisma.subscription.findFirst({
-    where: {
-      userId,
-      status: "ACTIVE",
-      currentPeriodEnd: { gt: new Date() },
-    },
-    include: {
-      price: {
-        include: { plan: true },
+export async function enforceSubscriptionLimits(
+  userId: string,
+  activeSubscription?: any | null,
+) {
+  let subscription = activeSubscription;
+
+  // If undefined, we fetch it. If null, we know they have no active sub.
+  if (subscription === undefined) {
+    subscription = await prisma.subscription.findFirst({
+      where: {
+        userId,
+        status: "ACTIVE",
+        currentPeriodEnd: { gt: new Date() },
       },
-    },
-  });
+      include: {
+        price: {
+          include: { plan: true },
+        },
+      },
+    });
+  }
 
   // If no active sub, assume Free plan limits. Let's find the Free plan or use safe defaults.
   let maxWorkspaces = 1;
   let maxActiveBoards = 1;
 
-  if (activeSubscription?.price?.plan) {
-    maxWorkspaces = activeSubscription.price.plan.maxWorkspaces;
-    maxActiveBoards = activeSubscription.price.plan.maxActiveBoards;
+  if (subscription?.price?.plan) {
+    maxWorkspaces = subscription.price.plan.maxWorkspaces;
+    maxActiveBoards = subscription.price.plan.maxActiveBoards;
   } else {
     const freePlan = await prisma.plan.findFirst({
       where: { name: "Free" },
