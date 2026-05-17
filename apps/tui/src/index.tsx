@@ -67,6 +67,10 @@ const App = () => {
     undefined,
   );
 
+  const [history, setHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState<number>(-1);
+  const [cursorPosition, setCursorPosition] = useState<number>(0);
+
   useEffect(() => {
     loadConfig().then((cfg) => {
       setConfig(cfg);
@@ -135,6 +139,16 @@ const App = () => {
   useInput(async (char, key) => {
     if (key.return) {
       setOutput((prev) => [...prev, `> ${input}`]);
+
+      const trimmedInput = input.trim();
+      if (trimmedInput) {
+        setHistory((prev) => {
+          const newHistory = [trimmedInput, ...prev.filter((c) => c !== trimmedInput)].slice(0, 50);
+          return newHistory;
+        });
+      }
+      setHistoryIndex(-1);
+
       if (input === "/auth" || input === "auth") {
         handleAuth();
       } else if (input === "/logout" || input === "logout") {
@@ -146,7 +160,7 @@ const App = () => {
       } else if (input === "/clear" || input === "clear") {
         setOutput([]);
       } else if (input) {
-        const parts = input.trim().split(" ");
+        const parts = trimmedInput.split(" ");
         let cmdName = parts[0];
         if (cmdName.startsWith("/")) {
           cmdName = cmdName.substring(1);
@@ -171,6 +185,31 @@ const App = () => {
         }
       }
       setInput("");
+      setCursorPosition(0);
+    } else if (key.upArrow) {
+      if (history.length > 0 && (input === "" || historyIndex !== -1)) {
+        const nextIndex = Math.min(historyIndex + 1, history.length - 1);
+        setHistoryIndex(nextIndex);
+        setInput(history[nextIndex]);
+        setCursorPosition(history[nextIndex].length);
+      }
+    } else if (key.downArrow) {
+      if (historyIndex !== -1) {
+        const nextIndex = historyIndex - 1;
+        if (nextIndex === -1) {
+          setHistoryIndex(-1);
+          setInput("");
+          setCursorPosition(0);
+        } else {
+          setHistoryIndex(nextIndex);
+          setInput(history[nextIndex]);
+          setCursorPosition(history[nextIndex].length);
+        }
+      }
+    } else if (key.leftArrow) {
+      setCursorPosition((prev) => Math.max(0, prev - 1));
+    } else if (key.rightArrow) {
+      setCursorPosition((prev) => Math.min(input.length, prev + 1));
     } else if (key.tab) {
       await executeTabCompletion({
         inputValue: input,
@@ -179,17 +218,32 @@ const App = () => {
         getDirectoryEntries: async (path) => {
           return directoryApi.getDirectory(path);
         },
-        setInputValue: setInput,
+        setInputValue: (newInput: string) => {
+          setInput(newInput);
+          setCursorPosition(newInput.length);
+        },
         printOutput: (lines: string[]) => {
           setOutput((prev) => [...prev, ...lines]);
         },
       });
-    } else if (key.backspace || key.delete) {
-      setInput((prev) => prev.slice(0, -1));
+    } else if (key.backspace) {
+      if (cursorPosition > 0) {
+        setInput((prev) => prev.slice(0, cursorPosition - 1) + prev.slice(cursorPosition));
+        setCursorPosition((prev) => prev - 1);
+      }
+    } else if (key.delete) {
+      if (cursorPosition < input.length) {
+        setInput((prev) => prev.slice(0, cursorPosition) + prev.slice(cursorPosition + 1));
+      }
     } else if (char) {
-      setInput((prev) => prev + char);
+      setInput((prev) => prev.slice(0, cursorPosition) + char + prev.slice(cursorPosition));
+      setCursorPosition((prev) => prev + char.length);
     }
   });
+
+  const renderedInputBeforeCursor = input.slice(0, cursorPosition);
+  const renderedInputAtCursor = cursorPosition < input.length ? input[cursorPosition] : " ";
+  const renderedInputAfterCursor = cursorPosition < input.length ? input.slice(cursorPosition + 1) : "";
 
   return (
     <Box flexDirection="column" padding={1}>
@@ -201,9 +255,9 @@ const App = () => {
       <Box>
         <Text color="blue">{virtualPath} </Text>
         <Text color="green">$ </Text>
-        <Text>{input}</Text>
-        {/* Simple cursor */}
-        <Text inverse> </Text>
+        <Text>{renderedInputBeforeCursor}</Text>
+        <Text inverse>{renderedInputAtCursor}</Text>
+        <Text>{renderedInputAfterCursor}</Text>
       </Box>
       {config.token && (
         <Box marginTop={1}>

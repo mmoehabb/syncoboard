@@ -861,7 +861,7 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
             let totalTasks = 0;
 
             statuses.forEach((status) => {
-              const tasks = tasksByStatus[status];
+              const tasks = tasksByStatus[status as keyof typeof tasksByStatus];
               if (tasks && tasks.length > 0) {
                 totalTasks += tasks.length;
                 outputLines.push(`--- ${status} ---`);
@@ -872,7 +872,7 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
                       : task.title || "";
                   outputLines.push(`SYNC-${task.id} (${title}) [Task]`);
                 });
-                if (hasMoreByStatus[status]) {
+                if (hasMoreByStatus[status as keyof typeof hasMoreByStatus]) {
                   outputLines.push(`... (more tasks available on next page)`);
                 }
               }
