@@ -143,7 +143,10 @@ const App = () => {
       const trimmedInput = input.trim();
       if (trimmedInput) {
         setHistory((prev) => {
-          const newHistory = [trimmedInput, ...prev.filter((c) => c !== trimmedInput)].slice(0, 50);
+          const newHistory = [
+            trimmedInput,
+            ...prev.filter((c) => c !== trimmedInput),
+          ].slice(0, 50);
           return newHistory;
         });
       }
@@ -228,22 +231,33 @@ const App = () => {
       });
     } else if (key.backspace) {
       if (cursorPosition > 0) {
-        setInput((prev) => prev.slice(0, cursorPosition - 1) + prev.slice(cursorPosition));
+        setInput(
+          (prev) =>
+            prev.slice(0, cursorPosition - 1) + prev.slice(cursorPosition),
+        );
         setCursorPosition((prev) => prev - 1);
       }
     } else if (key.delete) {
       if (cursorPosition < input.length) {
-        setInput((prev) => prev.slice(0, cursorPosition) + prev.slice(cursorPosition + 1));
+        setInput(
+          (prev) =>
+            prev.slice(0, cursorPosition) + prev.slice(cursorPosition + 1),
+        );
       }
     } else if (char) {
-      setInput((prev) => prev.slice(0, cursorPosition) + char + prev.slice(cursorPosition));
+      setInput(
+        (prev) =>
+          prev.slice(0, cursorPosition) + char + prev.slice(cursorPosition),
+      );
       setCursorPosition((prev) => prev + char.length);
     }
   });
 
   const renderedInputBeforeCursor = input.slice(0, cursorPosition);
-  const renderedInputAtCursor = cursorPosition < input.length ? input[cursorPosition] : " ";
-  const renderedInputAfterCursor = cursorPosition < input.length ? input.slice(cursorPosition + 1) : "";
+  const renderedInputAtCursor =
+    cursorPosition < input.length ? input[cursorPosition] : " ";
+  const renderedInputAfterCursor =
+    cursorPosition < input.length ? input.slice(cursorPosition + 1) : "";
 
   return (
     <Box flexDirection="column" padding={1}>
