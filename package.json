@@ -39,7 +39,9 @@
     "@types/string-similarity": "^4.0.2",
     "dotenv": "^17.4.1",
     "eslint-plugin-react": "^7.37.5",
-    "prettier": "^3.8.3"
+    "prettier": "^3.8.3",
+    "react": "18.3.1",
+    "tui": "workspace:*"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
@@ -49,6 +51,7 @@
     "@types/node": "^20.19.39",
     "axios": "^1.16.0",
     "date-fns": "^4.1.0",
+    "ink": "^5.0.0",
     "next-auth": "5.0.0-beta.30",
     "octokit": "^5.0.5",
     "string-similarity": "^4.0.4",

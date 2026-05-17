@@ -810,7 +810,7 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
         normalizedPath === "/" ? [] : normalizedPath.split("/").filter(Boolean);
       if (parts.length !== 2) {
         printOutput([
-          "Error: Invalid path. Path must point to a specific board, e.g., <workspace>/<board>",
+          `Error: Invalid path "${normalizedPath}". Path must point to a specific board, e.g., <workspace>/<board>`,
         ]);
         return;
       }
