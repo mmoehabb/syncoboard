@@ -9,6 +9,7 @@ import { setGlobalApiToken, directoryApi } from "@syncoboard/api";
 import { executeTabCompletion } from "@syncoboard/shared";
 import { COMMAND_REGISTRY } from "./command-registry";
 import { AppMode } from "./types";
+import { MAX_COMMAND_HISTORY } from "./constants";
 
 const CONFIG_DIR = path.join(os.homedir(), ".config", "syncoboard");
 const CONFIG_FILE = path.join(CONFIG_DIR, "config.json");
@@ -146,7 +147,7 @@ const App = () => {
           const newHistory = [
             trimmedInput,
             ...prev.filter((c) => c !== trimmedInput),
-          ].slice(0, 50);
+          ].slice(0, MAX_COMMAND_HISTORY);
           return newHistory;
         });
       }
