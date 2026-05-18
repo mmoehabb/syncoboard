@@ -850,7 +850,7 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
             const outputLines: string[] = [];
             const { tasksByStatus, hasMoreByStatus } = response;
 
-            const statuses = [
+            const statuses: Array<keyof typeof tasksByStatus> = [
               "TODO",
               "IN_PROGRESS",
               "IN_REVIEW",
