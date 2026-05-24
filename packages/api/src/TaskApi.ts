@@ -44,6 +44,18 @@ export class TaskApi extends ApiClient {
     );
     return response.data;
   }
+
+  public async getTask(
+    taskId: string,
+    config?: AxiosRequestConfig,
+  ): Promise<Task> {
+    const response = await this.get<{ task: Task }>(
+      `/${taskId}`,
+      config,
+    );
+    return response.data.task;
+  }
+
   public async listTasks(
     workspaceName: string,
     boardName: string,
