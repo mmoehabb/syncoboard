@@ -225,8 +225,23 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
   "join-voice-call": {
     name: "join-voice-call",
     description: "Join or start the board's voice call session",
-    action: ({ printOutput }) => {
-      printOutput(["Not supported in TUI"]);
+    action: ({ printOutput, activeBoardId, setIsVoiceCallActive }) => {
+      if (!activeBoardId) {
+        printOutput(["Error: You must be on a board to join a voice call."]);
+        return;
+      }
+      import("./services/voice").then(({ p2pVoiceService }) => {
+        p2pVoiceService.join(activeBoardId, printOutput, setIsVoiceCallActive);
+      });
+    },
+  },
+  "leave-voice-call": {
+    name: "leave-voice-call",
+    description: "Leave the current voice call session",
+    action: ({ printOutput, setIsVoiceCallActive }) => {
+      import("./services/voice").then(({ p2pVoiceService }) => {
+        p2pVoiceService.leave(printOutput, setIsVoiceCallActive);
+      });
     },
   },
   logout: {
