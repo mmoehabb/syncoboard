@@ -49,10 +49,7 @@ export class TaskApi extends ApiClient {
     taskId: string,
     config?: AxiosRequestConfig,
   ): Promise<Task> {
-    const response = await this.get<{ task: Task }>(
-      `/${taskId}`,
-      config,
-    );
+    const response = await this.get<{ task: Task }>(`/${taskId}`, config);
     return response.data.task;
   }
 

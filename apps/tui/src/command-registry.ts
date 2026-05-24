@@ -1038,7 +1038,7 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
       }
     },
   },
-  "tui": {
+  tui: {
     name: "tui",
     description: "Switch to TUI mode with aesthetic layout",
     action: ({ setViewMode, printOutput }) => {
@@ -1050,7 +1050,7 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
       }
     },
   },
-  "classic": {
+  classic: {
     name: "classic",
     description: "Switch to classic line-by-line mode",
     action: ({ setViewMode, printOutput }) => {
@@ -1062,5 +1062,4 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
       }
     },
   },
-
 };

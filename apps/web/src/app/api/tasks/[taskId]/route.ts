@@ -183,7 +183,6 @@ export async function DELETE(
   }
 }
 
-
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ taskId: string }> },

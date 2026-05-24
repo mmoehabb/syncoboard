@@ -36,11 +36,11 @@ export const TuiLayout: React.FC<TuiLayoutProps> = ({
       normalizedPath = "/" + normalizedPath;
     }
 
-    let parts = normalizedPath === "/" ? [] : normalizedPath.split("/").filter(Boolean);
+    let parts =
+      normalizedPath === "/" ? [] : normalizedPath.split("/").filter(Boolean);
     if (parts.length > 0 && parts[0] === "~") {
       parts = parts.slice(1);
     }
-
 
     if (parts.length >= 2) {
       const workspaceName = parts[0];
@@ -75,55 +75,89 @@ export const TuiLayout: React.FC<TuiLayoutProps> = ({
     }
   }, [selectedTaskId]);
 
-
   const pathParts = virtualPath.split("/").filter(Boolean);
   let activeWorkspaceName = pathParts[0];
   if (activeWorkspaceName === "~") {
     activeWorkspaceName = pathParts.length > 1 ? pathParts[1] : "";
   }
 
-
   return (
     <Box flexDirection="row" width="100%" height={20} borderStyle="single">
       {/* Left Column: Workspaces */}
-      <Box flexDirection="column" width="25%" borderRightColor="white" borderStyle="single" paddingX={1}>
-        <Text bold underline color="cyan">Workspaces</Text>
+      <Box
+        flexDirection="column"
+        width="25%"
+        borderRightColor="white"
+        borderStyle="single"
+        paddingX={1}
+      >
+        <Text bold underline color="cyan">
+          Workspaces
+        </Text>
         {workspaces.map((ws: any) => (
-          <Text key={ws.id} color={ws.name === activeWorkspaceName ? "green" : "white"}>
-            {ws.name === activeWorkspaceName ? "▶ " : "  "}{ws.name}
+          <Text
+            key={ws.id}
+            color={ws.name === activeWorkspaceName ? "green" : "white"}
+          >
+            {ws.name === activeWorkspaceName ? "▶ " : "  "}
+            {ws.name}
           </Text>
         ))}
       </Box>
 
       {/* Middle Column: Tasks */}
-      <Box flexDirection="column" width="40%" borderRightColor="white" borderStyle="single" paddingX={1}>
-        <Text bold underline color="cyan">Tasks</Text>
+      <Box
+        flexDirection="column"
+        width="40%"
+        borderRightColor="white"
+        borderStyle="single"
+        paddingX={1}
+      >
+        <Text bold underline color="cyan">
+          Tasks
+        </Text>
         {tasks.length > 0 ? (
           tasks.map((task: any) => {
-             const title = task.title && task.title.length > 30 ? task.title.substring(0, 30) + "..." : task.title || "";
-             const isSelected = selectedTaskId === String(task.id);
-             return (
-               <Text key={task.id} color={isSelected ? "green" : "white"}>
-                  {isSelected ? "▶ " : "  "}SYNC-{task.id}: {title}
-               </Text>
-             );
+            const title =
+              task.title && task.title.length > 30
+                ? task.title.substring(0, 30) + "..."
+                : task.title || "";
+            const isSelected = selectedTaskId === String(task.id);
+            return (
+              <Text key={task.id} color={isSelected ? "green" : "white"}>
+                {isSelected ? "▶ " : "  "}SYNC-{task.id}: {title}
+              </Text>
+            );
           })
         ) : (
-          <Text color="gray">No tasks found. Navigate to a board using /cd</Text>
+          <Text color="gray">
+            No tasks found. Navigate to a board using /cd
+          </Text>
         )}
       </Box>
 
       {/* Right Column: Task Details */}
       <Box flexDirection="column" width="35%" paddingX={1}>
-        <Text bold underline color="cyan">Task Details</Text>
+        <Text bold underline color="cyan">
+          Task Details
+        </Text>
         {taskDetails ? (
           <Box flexDirection="column" marginTop={1}>
-            <Text bold color="white">SYNC-{taskDetails.id}</Text>
+            <Text bold color="white">
+              SYNC-{taskDetails.id}
+            </Text>
             <Text>Title: {taskDetails.title}</Text>
             <Text>Status: {taskDetails.status}</Text>
-            {taskDetails.description && <Text>Desc: {taskDetails.description}</Text>}
+            {taskDetails.description && (
+              <Text>Desc: {taskDetails.description}</Text>
+            )}
             <Box marginTop={1}>
-              <Text color="blue">Assignees: {taskDetails.assignees?.map((a:any) => a.name || a.email).join(", ") || "None"}</Text>
+              <Text color="blue">
+                Assignees:{" "}
+                {taskDetails.assignees
+                  ?.map((a: any) => a.name || a.email)
+                  .join(", ") || "None"}
+              </Text>
             </Box>
           </Box>
         ) : (
