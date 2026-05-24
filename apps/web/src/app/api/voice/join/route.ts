@@ -8,7 +8,9 @@ export async function POST(req: Request) {
     const { boardId, peerId } = body;
 
     if (!boardId || !peerId) {
-      return apiError(API_ERRORS.customBadRequest("boardId and peerId are required"));
+      return apiError(
+        API_ERRORS.customBadRequest("boardId and peerId are required"),
+      );
     }
 
     await joinVoiceCall(boardId, peerId);
@@ -18,6 +20,8 @@ export async function POST(req: Request) {
     if (error.message === "Unauthorized") {
       return apiError(API_ERRORS.UNAUTHORIZED);
     }
-    return apiError(API_ERRORS.customInternal(error.message || "Failed to join voice call"));
+    return apiError(
+      API_ERRORS.customInternal(error.message || "Failed to join voice call"),
+    );
   }
 }

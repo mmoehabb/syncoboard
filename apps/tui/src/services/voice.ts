@@ -6,7 +6,11 @@ class P2PVoiceService {
   private isConnecting: boolean = false;
   private boardId: string | null = null;
 
-  async join(boardId: string, printOutput: (lines: string[]) => void, setIsVoiceCallActive?: (active: boolean) => void) {
+  async join(
+    boardId: string,
+    printOutput: (lines: string[]) => void,
+    setIsVoiceCallActive?: (active: boolean) => void,
+  ) {
     if (this.peer || this.isConnecting) {
       printOutput(["You are already in a voice call or connecting..."]);
       return;
@@ -29,10 +33,15 @@ class P2PVoiceService {
       printOutput(["Initializing WebRTC engine..."]);
 
       // Initialize peer
-      this.peer = new Peer({ config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }, wrtc } as any);
+      this.peer = new Peer({
+        config: { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] },
+        wrtc,
+      } as any);
 
       this.peer.on("open", async (id: string) => {
-        printOutput([`WebRTC engine initialized. Joining board call (Peer ID: ${id})...`]);
+        printOutput([
+          `WebRTC engine initialized. Joining board call (Peer ID: ${id})...`,
+        ]);
 
         try {
           await voiceApi.join(boardId, id);
@@ -64,7 +73,7 @@ class P2PVoiceService {
         // call.answer(stream)
 
         call.on("stream", (remoteStream: any) => {
-           printOutput([`Receiving stream from ${call.peer}. (Playback TODO)`]);
+          printOutput([`Receiving stream from ${call.peer}. (Playback TODO)`]);
         });
       });
 
@@ -72,14 +81,16 @@ class P2PVoiceService {
         printOutput([`PeerJS Error: ${err.type} - ${err.message}`]);
         this.isConnecting = false;
       });
-
     } catch (err: any) {
       printOutput([`Failed to initialize WebRTC: ${err.message}`]);
       this.isConnecting = false;
     }
   }
 
-  async leave(printOutput: (lines: string[]) => void, setIsVoiceCallActive?: (active: boolean) => void) {
+  async leave(
+    printOutput: (lines: string[]) => void,
+    setIsVoiceCallActive?: (active: boolean) => void,
+  ) {
     if (!this.peer && !this.boardId) {
       printOutput(["You are not in a voice call."]);
       return;
@@ -96,7 +107,7 @@ class P2PVoiceService {
       try {
         await voiceApi.leave(this.boardId);
       } catch (err) {
-         // Ignore
+        // Ignore
       }
     }
 
