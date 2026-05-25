@@ -83,6 +83,7 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
       virtualPath,
       setVirtualPath,
       setActiveBoardId,
+      setSelectedTaskId,
     }) => {
       const targetPath = args && args.length > 0 ? args[0] : "~";
       const resolvedPath = resolvePath(virtualPath, targetPath);
@@ -96,9 +97,19 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
               if (setActiveBoardId) {
                 setActiveBoardId(response.id);
               }
-            } else if (response.type !== "Task") {
+              if (setSelectedTaskId) {
+                setSelectedTaskId(null);
+              }
+            } else if (response.type === "Task" && response.id) {
+              if (setSelectedTaskId) {
+                setSelectedTaskId(response.id);
+              }
+            } else {
               if (setActiveBoardId) {
                 setActiveBoardId(undefined);
+              }
+              if (setSelectedTaskId) {
+                setSelectedTaskId(null);
               }
             }
             printOutput([`Changed directory to ${resolvedPath}`]);

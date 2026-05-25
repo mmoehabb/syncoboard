@@ -209,19 +209,13 @@ export async function GET(
     const task = await prisma.task.findFirst({
       where: {
         id: BigInt(taskId),
-        board: {
-          OR: [
-            { members: { some: { userId: userId } } },
-            {
-              workspace: {
-                members: { some: { userId: userId, role: "ADMIN" } },
-              },
-            },
-          ],
-        },
       },
       include: {
-        board: true,
+        board: {
+          include: {
+            workspace: true,
+          },
+        },
         assignees: true,
         reviewers: true,
         labels: true,
@@ -230,6 +224,32 @@ export async function GET(
 
     if (!task) {
       return apiError(API_ERRORS.customNotFound("Task"));
+    }
+
+    const _boardMember = await prisma.boardMember.findUnique({
+      where: {
+        boardId_userId: {
+          boardId: task.boardId,
+          userId: userId,
+        },
+      },
+    });
+
+    if (!_boardMember) {
+      const _workspaceMember = await prisma.workspaceMember.findUnique({
+        where: {
+          workspaceId_userId: {
+            workspaceId: task.board.workspaceId,
+            userId: userId,
+          },
+        },
+      });
+
+      if (_workspaceMember?.role !== "ADMIN") {
+        return apiError(
+          API_ERRORS.customForbidden("Unauthorized access to this board"),
+        );
+      }
     }
 
     return NextResponse.json(serializeBigInt({ task }), { status: 200 });

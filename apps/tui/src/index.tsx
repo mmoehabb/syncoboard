@@ -143,6 +143,13 @@ const App = () => {
           return newHistory;
         });
       }
+
+      // If in TUI mode, we hide previous output on the next command
+      if (viewMode === "tui") {
+        if (!input.trim().startsWith("ls") && !input.trim().startsWith("/ls")) {
+          setOutput([`> ${input}`]);
+        }
+      }
       setHistoryIndex(-1);
 
       if (input === "/auth" || input === "auth") {
@@ -265,6 +272,23 @@ const App = () => {
         <Box flexDirection="column" marginBottom={1}>
           {output.map((line, i) => (
             <Text key={i}>{line}</Text>
+          ))}
+        </Box>
+      )}
+
+      {viewMode === "tui" && output.length > 0 && (
+        <Box
+          flexDirection="column"
+          marginTop={1}
+          marginBottom={1}
+          borderStyle="single"
+          borderColor="gray"
+          paddingX={1}
+        >
+          {output.map((line, i) => (
+            <Text key={i} color="gray">
+              {line}
+            </Text>
           ))}
         </Box>
       )}
