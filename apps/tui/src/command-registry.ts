@@ -147,6 +147,8 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
           "deactivate-board",
           "invite-member",
           "rmv-member",
+          "join-voice-call",
+          "leave-voice-call",
         ].includes(c.name),
       );
       const taskCommands = commands.filter((c) =>

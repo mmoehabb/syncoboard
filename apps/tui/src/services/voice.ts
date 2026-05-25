@@ -24,18 +24,30 @@ class P2PVoiceService {
       // although we installed wrtc, peerjs may still complain if not initialized carefully.
       // We are writing a TODO here for the real audio task
 
-      const { default: Peer } = await import("peerjs");
-
-      // Node.js doesn't have WebRTC built-in, so we normally pass `wrtc` to PeerJS options
       // @ts-ignore
-      const wrtc = (await import("wrtc")).default;
+      const wrtc = (await import("wrtc")).default || (await import("wrtc"));
+
+      const gl = global as any;
+      gl.window = gl;
+      gl.RTCPeerConnection = wrtc.RTCPeerConnection;
+      gl.RTCSessionDescription = wrtc.RTCSessionDescription;
+      gl.RTCIceCandidate = wrtc.RTCIceCandidate;
+      gl.WebSocket = await import("ws");
+
+      const { default: Peer, util } = await import("peerjs");
+
+      // Hack to bypass PeerJS browser checks in Node.js
+      if (util.supports) {
+        util.supports.audioVideo = true;
+        util.supports.data = true;
+        util.supports.webRTC = true;
+      }
 
       printOutput(["Initializing WebRTC engine..."]);
 
       // Initialize peer
       this.peer = new Peer({
         config: { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] },
-        wrtc,
       } as any);
 
       this.peer.on("open", async (id: string) => {
