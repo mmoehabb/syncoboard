@@ -8,8 +8,9 @@ import { spawn } from "node:child_process";
 import { setGlobalApiToken, directoryApi } from "@syncoboard/api";
 import { executeTabCompletion } from "@syncoboard/shared";
 import { COMMAND_REGISTRY } from "./command-registry";
-import { AppMode } from "./types";
+import { AppMode, ViewMode } from "./types";
 import { MAX_COMMAND_HISTORY } from "./constants";
+import { TuiLayout } from "./TuiLayout";
 
 const CONFIG_DIR = path.join(os.homedir(), ".config", "syncoboard");
 const CONFIG_FILE = path.join(CONFIG_DIR, "config.json");
@@ -59,14 +60,17 @@ const App = () => {
   const [output, setOutput] = useState<string[]>([
     "Welcome to Syncoboard TUI!",
     "Type /auth to login.",
+    "Hint: Try typing /tui to experience the new aesthetic layout!",
   ]);
   const [input, setInput] = useState("");
   const [config, setConfig] = useState<Config>({});
-  const [virtualPath, setVirtualPath] = useState<string>("");
+  const [virtualPath, setVirtualPath] = useState<string>("/");
   const [mode, setMode] = useState<AppMode>("command");
+  const [viewMode, setViewMode] = useState<ViewMode>("classic");
   const [activeBoardId, setActiveBoardId] = useState<string | undefined>(
     undefined,
   );
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
@@ -80,17 +84,6 @@ const App = () => {
       }
     });
   }, []);
-
-  useEffect(() => {
-    // Attempt to extract activeBoardId from virtual path
-    // Format is typically ~/<workspace_name>/<board_name> => the ID isn't directly in path, but directoryApi returns it.
-    // However, if we don't have it, we might just not have it. The real board resolution happens in CD.
-    // For TUI, let's keep it simple. If we want activeBoardId we might need to parse it,
-    // but the directory API response sets it properly in cd. We can just derive it if needed or
-    // simply not support activeBoardId dependent actions unless explicitly set.
-    // Let's rely on directory fetching in cd or manually setting it.
-    // For now, if virtualPath has 3 parts like /workspace/board, it's a board.
-  }, [virtualPath]);
 
   const handleAuth = () => {
     const port = 3456;
@@ -151,7 +144,19 @@ const App = () => {
           return newHistory;
         });
       }
+
+      // If in TUI mode, we hide previous output on the next command
+      if (viewMode === "tui") {
+        if (!input.trim().startsWith("ls") && !input.trim().startsWith("/ls")) {
+          setOutput([`> ${input}`]);
+        }
+      }
       setHistoryIndex(-1);
+
+      // The hint disappears on any command executed, because we use setOutput logic. Wait, let's just make sure.
+      setOutput((prev) => {
+        return prev.filter((line) => !line.startsWith("Hint: Try typing /tui"));
+      });
 
       if (input === "/auth" || input === "auth") {
         handleAuth();
@@ -178,11 +183,14 @@ const App = () => {
             printOutput: (lines: string[]) =>
               setOutput((prev) => [...prev, ...lines]),
             setMode,
+            setViewMode,
             args,
             virtualPath,
             setVirtualPath,
             activeBoardId,
             setActiveBoardId,
+            selectedTaskId,
+            setSelectedTaskId,
           });
         } else {
           setOutput((prev) => [...prev, `Command not found: ${cmdName}`]);
@@ -262,19 +270,45 @@ const App = () => {
 
   return (
     <Box flexDirection="column" padding={1}>
-      <Box flexDirection="column" marginBottom={1}>
-        {output.map((line, i) => (
-          <Text key={i}>{line}</Text>
-        ))}
-      </Box>
-      <Box>
+      {viewMode === "tui" && (
+        <TuiLayout virtualPath={virtualPath} selectedTaskId={selectedTaskId} />
+      )}
+
+      {viewMode === "classic" && (
+        <Box flexDirection="column" marginBottom={1}>
+          {output.map((line, i) => (
+            <Text key={i}>{line}</Text>
+          ))}
+        </Box>
+      )}
+
+      {viewMode === "tui" && output.length > 0 && (
+        <Box
+          flexDirection="column"
+          marginTop={1}
+          marginBottom={1}
+          borderStyle="single"
+          borderColor="gray"
+          paddingX={1}
+        >
+          {output.map((line, i) => (
+            <Text key={i} color="gray">
+              {line}
+            </Text>
+          ))}
+        </Box>
+      )}
+
+      {/* The command bar is always visible at the bottom */}
+      <Box marginTop={viewMode === "tui" ? 1 : 0}>
         <Text color="blue">{virtualPath} </Text>
         <Text color="green">$ </Text>
         <Text>{renderedInputBeforeCursor}</Text>
         <Text inverse>{renderedInputAtCursor}</Text>
         <Text>{renderedInputAfterCursor}</Text>
       </Box>
-      {config.token && (
+
+      {config.token && viewMode === "classic" && (
         <Box marginTop={1}>
           <Text color="gray">Logged in</Text>
         </Box>

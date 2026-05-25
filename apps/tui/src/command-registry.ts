@@ -83,6 +83,7 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
       virtualPath,
       setVirtualPath,
       setActiveBoardId,
+      setSelectedTaskId,
     }) => {
       const targetPath = args && args.length > 0 ? args[0] : "~";
       const resolvedPath = resolvePath(virtualPath, targetPath);
@@ -96,9 +97,19 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
               if (setActiveBoardId) {
                 setActiveBoardId(response.id);
               }
-            } else if (response.type !== "Task") {
+              if (setSelectedTaskId) {
+                setSelectedTaskId(null);
+              }
+            } else if (response.type === "Task" && response.id) {
+              if (setSelectedTaskId) {
+                setSelectedTaskId(response.id);
+              }
+            } else {
               if (setActiveBoardId) {
                 setActiveBoardId(undefined);
+              }
+              if (setSelectedTaskId) {
+                setSelectedTaskId(null);
               }
             }
             printOutput([`Changed directory to ${resolvedPath}`]);
@@ -128,7 +139,16 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
       const commands = Object.values(COMMAND_REGISTRY);
 
       const navCommands = commands.filter((c) =>
-        ["ls", "cd", "pwd", "help", "logout", "clear"].includes(c.name),
+        [
+          "ls",
+          "cd",
+          "pwd",
+          "help",
+          "logout",
+          "clear",
+          "tui",
+          "classic",
+        ].includes(c.name),
       );
       const workspaceCommands = commands.filter((c) =>
         [
@@ -156,6 +176,7 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
           "update-task",
           "delete-task",
           "search-task",
+          "select-task",
         ].includes(c.name),
       );
 
@@ -1019,6 +1040,47 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
             printOutput([`Error: ${errorMessage}`]);
           });
       });
+    },
+  },
+
+  "select-task": {
+    name: "select-task",
+    description: "Select a task to view details (usage: /select-task <taskId>)",
+    action: ({ args, printOutput, setSelectedTaskId }) => {
+      if (!args || args.length === 0) {
+        printOutput(["Error: Missing task id. Usage: /select-task <taskId>"]);
+        return;
+      }
+      if (setSelectedTaskId) {
+        setSelectedTaskId(args[0]);
+        printOutput([`Selected task SYNC-${args[0]}`]);
+      } else {
+        printOutput(["Error: setSelectedTaskId is not available."]);
+      }
+    },
+  },
+  tui: {
+    name: "tui",
+    description: "Switch to TUI mode with aesthetic layout",
+    action: ({ setViewMode, printOutput }) => {
+      if (setViewMode) {
+        setViewMode("tui");
+        printOutput(["Switched to TUI mode."]);
+      } else {
+        printOutput(["Error: setViewMode is not available."]);
+      }
+    },
+  },
+  classic: {
+    name: "classic",
+    description: "Switch to classic line-by-line mode",
+    action: ({ setViewMode, printOutput }) => {
+      if (setViewMode) {
+        setViewMode("classic");
+        printOutput(["Switched to classic mode."]);
+      } else {
+        printOutput(["Error: setViewMode is not available."]);
+      }
     },
   },
 };

@@ -1,4 +1,5 @@
 export type AppMode = "normal" | "command";
+export type ViewMode = "classic" | "tui";
 
 export interface Command {
   name: string;
@@ -7,6 +8,7 @@ export interface Command {
     navigate: (path: string) => void;
     printOutput: (output: string[]) => void;
     setMode: (mode: AppMode) => void;
+    setViewMode?: (mode: ViewMode) => void;
     args?: string[];
     selectedTaskId?: string | null;
     activeBoardId?: string;
@@ -15,6 +17,7 @@ export interface Command {
     virtualPath: string;
     setVirtualPath: (path: string) => void;
     setActiveBoardId?: (id: string | undefined) => void;
+    setSelectedTaskId?: (id: string | null) => void;
     setDeleteModalState?: (state: {
       isOpen: boolean;
       message?: string;

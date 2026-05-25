@@ -182,3 +182,79 @@ export async function DELETE(
     return apiError(API_ERRORS.customInternal("Failed to delete task"));
   }
 }
+
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ taskId: string }> },
+) {
+  const userId = await getSessionOrPat();
+
+  if (!userId) {
+    return apiError(API_ERRORS.UNAUTHORIZED);
+  }
+
+  const isValidSubscription = await hasValidSubscription(userId);
+  if (!isValidSubscription) {
+    return apiError(API_ERRORS.customForbidden("Active subscription required"));
+  }
+
+  try {
+    const resolvedParams = await params;
+    const taskId = resolvedParams.taskId;
+
+    if (!/^\d+$/.test(taskId)) {
+      return apiError(API_ERRORS.customBadRequest("Invalid task ID format"));
+    }
+
+    const task = await prisma.task.findFirst({
+      where: {
+        id: BigInt(taskId),
+      },
+      include: {
+        board: {
+          include: {
+            workspace: true,
+          },
+        },
+        assignees: true,
+        reviewers: true,
+        labels: true,
+      },
+    });
+
+    if (!task) {
+      return apiError(API_ERRORS.customNotFound("Task"));
+    }
+
+    const _boardMember = await prisma.boardMember.findUnique({
+      where: {
+        boardId_userId: {
+          boardId: task.boardId,
+          userId: userId,
+        },
+      },
+    });
+
+    if (!_boardMember) {
+      const _workspaceMember = await prisma.workspaceMember.findUnique({
+        where: {
+          workspaceId_userId: {
+            workspaceId: task.board.workspaceId,
+            userId: userId,
+          },
+        },
+      });
+
+      if (_workspaceMember?.role !== "ADMIN") {
+        return apiError(
+          API_ERRORS.customForbidden("Unauthorized access to this board"),
+        );
+      }
+    }
+
+    return NextResponse.json(serializeBigInt({ task }), { status: 200 });
+  } catch (error) {
+    console.error("Error fetching task:", error);
+    return apiError(API_ERRORS.customInternal("Failed to fetch task"));
+  }
+}
