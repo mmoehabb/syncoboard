@@ -139,7 +139,16 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
       const commands = Object.values(COMMAND_REGISTRY);
 
       const navCommands = commands.filter((c) =>
-        ["ls", "cd", "pwd", "help", "logout", "clear"].includes(c.name),
+        [
+          "ls",
+          "cd",
+          "pwd",
+          "help",
+          "logout",
+          "clear",
+          "tui",
+          "classic",
+        ].includes(c.name),
       );
       const workspaceCommands = commands.filter((c) =>
         [
@@ -167,6 +176,7 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
           "update-task",
           "delete-task",
           "search-task",
+          "select-task",
         ].includes(c.name),
       );
 

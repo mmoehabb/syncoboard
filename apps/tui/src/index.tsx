@@ -60,6 +60,7 @@ const App = () => {
   const [output, setOutput] = useState<string[]>([
     "Welcome to Syncoboard TUI!",
     "Type /auth to login.",
+    "Hint: Try typing /tui to experience the new aesthetic layout!",
   ]);
   const [input, setInput] = useState("");
   const [config, setConfig] = useState<Config>({});
@@ -151,6 +152,11 @@ const App = () => {
         }
       }
       setHistoryIndex(-1);
+
+      // The hint disappears on any command executed, because we use setOutput logic. Wait, let's just make sure.
+      setOutput((prev) => {
+        return prev.filter((line) => !line.startsWith("Hint: Try typing /tui"));
+      });
 
       if (input === "/auth" || input === "auth") {
         handleAuth();
