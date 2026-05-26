@@ -6,6 +6,7 @@ export * from "./TaskApi";
 export * from "./WorkspaceApi";
 export * from "./DirectoryApi";
 export * from "./BugApi";
+export * from "./VoiceApi";
 export * from "./error";
 export { setGlobalApiToken } from "./ApiClient";
 export * from "./AdminApi";
