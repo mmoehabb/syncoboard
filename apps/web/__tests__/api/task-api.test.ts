@@ -2,17 +2,17 @@ import { describe, expect, it, beforeEach, afterEach, mock } from "bun:test";
 import { mockAxiosInstance } from "../mocks/axios";
 import type { AxiosInstance } from "axios";
 import { TaskStatus } from "@prisma/client";
+import { TaskApi } from "../../../../packages/api/src/TaskApi";
 
 describe("TaskApi", () => {
   let taskApi: import("@syncoboard/api").TaskApi;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     mockAxiosInstance.post.mockReset();
     mockAxiosInstance.patch.mockReset();
     mockAxiosInstance.delete.mockReset();
 
-    const { TaskApi: TaskApiClass } = await import("@syncoboard/api");
-    taskApi = new TaskApiClass();
+    taskApi = new TaskApi();
     taskApi["client"] = mockAxiosInstance as unknown as AxiosInstance;
   });
 

@@ -1,15 +1,14 @@
 import { describe, expect, it, beforeEach, afterEach, mock } from "bun:test";
 import { mockAxiosInstance } from "../mocks/axios";
 import type { AxiosInstance } from "axios";
+import { WorkspaceApi } from "../../../../packages/api/src/WorkspaceApi";
 
 describe("WorkspaceApi", () => {
   let workspaceApi: import("@syncoboard/api").WorkspaceApi;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     mockAxiosInstance.get.mockReset();
-
-    const { WorkspaceApi: WorkspaceApiClass } = await import("@syncoboard/api");
-    workspaceApi = new WorkspaceApiClass();
+    workspaceApi = new WorkspaceApi();
     workspaceApi["client"] = mockAxiosInstance as unknown as AxiosInstance;
   });
 

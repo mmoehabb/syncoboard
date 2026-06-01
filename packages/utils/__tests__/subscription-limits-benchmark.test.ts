@@ -21,44 +21,70 @@ mock.module("@syncoboard/db", () => ({
 }));
 
 describe("enforceSubscriptionLimits Performance Benchmark", () => {
+  let prismaMock: any;
+
   beforeEach(async () => {
-    const { prisma } = await import("@syncoboard/db");
-    // Reset mocks
-    (prisma.subscription.findFirst as any).mockClear();
-    (prisma.plan.findFirst as any).mockClear();
-    (prisma.workspace.findMany as any).mockClear();
-    (prisma.workspace.updateMany as any).mockClear();
-    (prisma.board.findMany as any).mockClear();
-    (prisma.board.updateMany as any).mockClear();
+    const db = await import("@syncoboard/db");
+    prismaMock = db.prisma;
+    // Reset mocks safely
+    if (prismaMock.subscription?.findFirst?.mockClear) {
+      prismaMock.subscription.findFirst.mockClear();
+    }
+    if (prismaMock.plan?.findFirst?.mockClear) {
+      prismaMock.plan.findFirst.mockClear();
+    }
+    if (prismaMock.workspace?.findMany?.mockClear) {
+      prismaMock.workspace.findMany.mockClear();
+    }
+    if (prismaMock.workspace?.updateMany?.mockClear) {
+      prismaMock.workspace.updateMany.mockClear();
+    }
+    if (prismaMock.board?.findMany?.mockClear) {
+      prismaMock.board.findMany.mockClear();
+    }
+    if (prismaMock.board?.updateMany?.mockClear) {
+      prismaMock.board.updateMany.mockClear();
+    }
   });
 
   test("benchmark sequential vs concurrent updates", async () => {
-    const { prisma } = await import("@syncoboard/db");
     const { enforceSubscriptionLimits } =
       await import("../src/subscription-limits");
     const userId = "user-123";
 
-    (prisma.subscription.findFirst as any).mockResolvedValue(null);
-    (prisma.plan.findFirst as any).mockResolvedValue({
-      maxWorkspaces: 1,
-      maxActiveBoards: 1,
-    });
+    if (prismaMock.subscription?.findFirst?.mockResolvedValue) {
+      prismaMock.subscription.findFirst.mockResolvedValue(null);
+    }
+    if (prismaMock.plan?.findFirst?.mockResolvedValue) {
+      prismaMock.plan.findFirst.mockResolvedValue({
+        maxWorkspaces: 1,
+        maxActiveBoards: 1,
+      });
+    }
 
-    (prisma.workspace.findMany as any).mockResolvedValue([
-      { id: "ws3", createdAt: new Date("2024-03-01") },
-      { id: "ws2", createdAt: new Date("2024-02-01") },
-      { id: "ws1", createdAt: new Date("2024-01-01") },
-    ]);
+    if (prismaMock.workspace?.findMany?.mockResolvedValue) {
+      prismaMock.workspace.findMany.mockResolvedValue([
+        { id: "ws3", createdAt: new Date("2024-03-01") },
+        { id: "ws2", createdAt: new Date("2024-02-01") },
+        { id: "ws1", createdAt: new Date("2024-01-01") },
+      ]);
+    }
 
-    (prisma.board.findMany as any).mockResolvedValue([]);
+    if (prismaMock.board?.findMany?.mockResolvedValue) {
+      prismaMock.board.findMany.mockResolvedValue([]);
+    }
 
     // Simulate DB latency
-    (prisma.workspace.updateMany as any).mockImplementation(
-      () => new Promise((resolve) => setTimeout(resolve, 100)),
-    );
-    (prisma.board.updateMany as any).mockImplementation(
-      () => new Promise((resolve) => setTimeout(resolve, 100)),
-    );
+    if (prismaMock.workspace?.updateMany?.mockImplementation) {
+      prismaMock.workspace.updateMany.mockImplementation(
+        () => new Promise((resolve) => setTimeout(resolve, 100)),
+      );
+    }
+    if (prismaMock.board?.updateMany?.mockImplementation) {
+      prismaMock.board.updateMany.mockImplementation(
+        () => new Promise((resolve) => setTimeout(resolve, 100)),
+      );
+    }
 
     const start = performance.now();
     await enforceSubscriptionLimits(userId);
