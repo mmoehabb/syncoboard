@@ -17,7 +17,7 @@
     "build:pkgs": "bun run --filter \"./packages/*\" build",
     "build:apps": "bun run --filter \"./apps/*\" build",
     "build:services": "bun run --filter \"./services/*\" build",
-    "clean": "rm -rf apps/*/.next apps/*/dist packages/*/dist services/*/dist",
+    "clean": "rm -rf apps/*/.next apps/*/dist packages/*/dist services/*/dist **/*/*.tsbuildinfo",
     "web": "bun --filter web",
     "dashboard": "bun --filter dashboard",
     "tui": "bun --filter tui",
