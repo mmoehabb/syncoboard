@@ -32,7 +32,11 @@ export const TASK_STATUS_ORDER: Record<TaskStatus, number> = {
   CLOSED: 5,
 };
 
-export const TASK_STATUS_GROUPS: Array<{ title: string; status: TaskStatus; color: string }> = [
+export const TASK_STATUS_GROUPS: Array<{
+  title: string;
+  status: TaskStatus;
+  color: string;
+}> = [
   { title: "TODO", status: "TODO", color: "text-syntax-grey" },
   { title: "IN PROGRESS", status: "IN_PROGRESS", color: "text-neon-pulse" },
   { title: "IN REVIEW", status: "IN_REVIEW", color: "text-git-green" },
