@@ -20,6 +20,10 @@ export interface Command {
       onConfirm?: () => Promise<void>;
     }) => void;
     showToast?: (message: string, type?: "success" | "error" | "info") => void;
+    updatePrompt?: (opts: {
+      message: string;
+      onSubmit: (input: string) => Promise<void>;
+    }) => void;
   }) => void;
 }
 

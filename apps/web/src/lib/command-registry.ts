@@ -325,7 +325,7 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
     name: "restore-workspace",
     description:
       "Restore a soft-deleted workspace (usage: /restore-workspace <workspace_name>)",
-    action: ({ args, printOutput, updatePrompt }: any) => {
+    action: ({ args, printOutput, updatePrompt }) => {
       if (!args || args.length === 0) {
         printOutput([
           "Error: Missing arguments. Usage: /restore-workspace <workspace_name>",
