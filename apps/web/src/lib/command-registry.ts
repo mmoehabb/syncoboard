@@ -2,6 +2,7 @@ import { Command } from "../types/commands";
 import { NORMAL_ACTIONS_REGISTRY } from "./normal-actions-registry";
 
 import { resolvePath } from "@syncoboard/shared";
+import { TASK_STATUSES } from "@syncoboard/types";
 
 export const COMMAND_REGISTRY: Record<string, Command> = {
   ls: {
@@ -812,18 +813,10 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
       const statusRaw = args.slice(1).join(" ");
       const status = statusRaw.replace(/[\s-]+/g, "_").toUpperCase();
 
-      const validStatuses = [
-        "TODO",
-        "IN_PROGRESS",
-        "IN_REVIEW",
-        "CHANGES_REQUESTED",
-        "DONE",
-        "CLOSED",
-      ];
-      if (!validStatuses.includes(status)) {
+      if (!TASK_STATUSES.includes(status as any)) {
         printOutput([
           `Error: Invalid status '${statusRaw}'.`,
-          `Allowed statuses: ${validStatuses.join(", ")}`,
+          `Allowed statuses: ${TASK_STATUSES.join(", ")}`,
         ]);
         return;
       }

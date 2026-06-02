@@ -3,6 +3,7 @@
 import { prisma } from "@syncoboard/db";
 import { auth } from "@/lib/auth";
 import { TaskStatus } from "@prisma/client";
+import { TASK_STATUSES } from "@syncoboard/types";
 import { revalidatePath } from "next/cache";
 
 export async function updateTaskStatus(taskId: string, status: string) {
@@ -11,16 +12,7 @@ export async function updateTaskStatus(taskId: string, status: string) {
     throw new Error("Unauthorized");
   }
 
-  const validStatuses: TaskStatus[] = [
-    "TODO",
-    "IN_PROGRESS",
-    "IN_REVIEW",
-    "CHANGES_REQUESTED",
-    "DONE",
-    "CLOSED",
-  ];
-
-  if (!validStatuses.includes(status as TaskStatus)) {
+  if (!TASK_STATUSES.includes(status as TaskStatus)) {
     throw new Error(`Invalid task status: ${status}`);
   }
 
@@ -116,7 +108,7 @@ export async function addTask(boardId: string, title: string) {
     data: {
       boardId: boardId,
       title,
-      status: "TODO",
+      status: TaskStatus.TODO,
     },
   });
 

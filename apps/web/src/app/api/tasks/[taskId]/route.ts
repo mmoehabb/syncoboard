@@ -3,6 +3,7 @@ import { getSessionOrPat } from "@/lib/auth";
 import { prisma } from "@syncoboard/db";
 import { API_ERRORS, apiError } from "@/lib/api/error";
 import { TaskStatus } from "@prisma/client";
+import { TASK_STATUSES } from "@syncoboard/types";
 import { hasValidSubscription } from "@/lib/api/with-subscription";
 import { emitWebSocketEvent } from "@/lib/api/websocket";
 import {
@@ -43,16 +44,7 @@ export async function PATCH(
       );
     }
 
-    const validStatuses: TaskStatus[] = [
-      "TODO",
-      "IN_PROGRESS",
-      "IN_REVIEW",
-      "CHANGES_REQUESTED",
-      "DONE",
-      "CLOSED",
-    ];
-
-    if (status && !validStatuses.includes(status as TaskStatus)) {
+    if (status && !TASK_STATUSES.includes(status as TaskStatus)) {
       return apiError(
         API_ERRORS.customBadRequest(`Invalid task status: ${status}`),
       );
