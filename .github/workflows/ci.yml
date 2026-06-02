@@ -53,6 +53,7 @@ jobs:
       - name: Build
         env:
           DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/syncoboard"
+          NEXT_PUBLIC_API_URL: "http://localhost:3000"
         run: bun run build
 
       - name: Setup test environment
