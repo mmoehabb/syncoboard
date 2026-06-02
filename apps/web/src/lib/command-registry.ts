@@ -355,40 +355,11 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
                 window.location.reload();
               }, 1000);
             } catch (err) {
-              let errorMessage = "Failed to restore workspace.";
-              if (err instanceof Error) {
-                errorMessage = err.message;
-              }
-              if (
-                typeof err === "object" &&
-                err !== null &&
-                "response" in err
-              ) {
-                const response = (err as { response: unknown }).response;
-                if (
-                  typeof response === "object" &&
-                  response !== null &&
-                  "data" in response
-                ) {
-                  const data = (response as { data: unknown }).data;
-                  if (
-                    typeof data === "object" &&
-                    data !== null &&
-                    "error" in data
-                  ) {
-                    const errorObj = (data as { error: unknown }).error;
-                    if (
-                      typeof errorObj === "object" &&
-                      errorObj !== null &&
-                      "message" in errorObj &&
-                      typeof (errorObj as { message: unknown }).message ===
-                        "string"
-                    ) {
-                      errorMessage = (errorObj as { message: string }).message;
-                    }
-                  }
-                }
-              }
+              const { extractErrorMessage } = await import("./error");
+              const errorMessage = extractErrorMessage(
+                err,
+                "Failed to restore workspace.",
+              );
               printOutput([`Error: ${errorMessage}`]);
             }
           },
