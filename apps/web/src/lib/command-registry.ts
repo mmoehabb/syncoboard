@@ -354,11 +354,41 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
               setTimeout(() => {
                 window.location.reload();
               }, 1000);
-            } catch (err: any) {
-              const errorMessage =
-                err.response?.data?.error?.message ||
-                err.message ||
-                "Failed to restore workspace.";
+            } catch (err) {
+              let errorMessage = "Failed to restore workspace.";
+              if (err instanceof Error) {
+                errorMessage = err.message;
+              }
+              if (
+                typeof err === "object" &&
+                err !== null &&
+                "response" in err
+              ) {
+                const response = (err as { response: unknown }).response;
+                if (
+                  typeof response === "object" &&
+                  response !== null &&
+                  "data" in response
+                ) {
+                  const data = (response as { data: unknown }).data;
+                  if (
+                    typeof data === "object" &&
+                    data !== null &&
+                    "error" in data
+                  ) {
+                    const errorObj = (data as { error: unknown }).error;
+                    if (
+                      typeof errorObj === "object" &&
+                      errorObj !== null &&
+                      "message" in errorObj &&
+                      typeof (errorObj as { message: unknown }).message ===
+                        "string"
+                    ) {
+                      errorMessage = (errorObj as { message: string }).message;
+                    }
+                  }
+                }
+              }
               printOutput([`Error: ${errorMessage}`]);
             }
           },
