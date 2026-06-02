@@ -1,16 +1,14 @@
 import { describe, expect, it, beforeEach, afterEach, mock } from "bun:test";
 import { mockAxiosInstance } from "../mocks/axios";
 import type { AxiosInstance } from "axios";
+import { SubscriptionApi } from "../../../../packages/api/src/SubscriptionApi";
 
 describe("SubscriptionApi", () => {
   let subscriptionApi: import("@syncoboard/api").SubscriptionApi;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     mockAxiosInstance.post.mockReset();
-
-    const { SubscriptionApi: SubscriptionApiClass } =
-      await import("@syncoboard/api");
-    subscriptionApi = new SubscriptionApiClass();
+    subscriptionApi = new SubscriptionApi();
     subscriptionApi["client"] = mockAxiosInstance as unknown as AxiosInstance;
   });
 

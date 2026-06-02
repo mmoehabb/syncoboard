@@ -10,7 +10,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     GitHub({
       issuer: "https://github.com/login/oauth",
-      authorization: { params: { scope: "read:user user:email" } },
+      authorization: {
+        params: {
+          scope: "read:user user:email",
+          redirect_uri: process.env.AUTH_GITHUB_REDIRECT_URI,
+        },
+      },
     }),
   ],
   pages: {
