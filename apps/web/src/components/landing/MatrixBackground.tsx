@@ -7,8 +7,8 @@ import React, { useState, useEffect } from "react";
 const CHAR_POOL_SIZE = 50;
 const PRECOMPUTED_CHARS = Array.from({ length: CHAR_POOL_SIZE }).map(() =>
   Array.from({ length: 20 }).map(() =>
-    String.fromCharCode(33 + Math.floor(Math.random() * 94))
-  )
+    String.fromCharCode(33 + Math.floor(Math.random() * 94)),
+  ),
 );
 
 export function MatrixBackground() {
