@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionOrPat } from "@/lib/auth";
 import { prisma, TaskStatus } from "@syncoboard/db";
+import { TASK_STATUSES } from "@syncoboard/types";
 import { API_ERRORS, apiError } from "@/lib/api/error";
 import { hasValidSubscription } from "@/lib/api/with-subscription";
 import { emitWebSocketEvent } from "@/lib/api/websocket";
@@ -73,7 +74,7 @@ export async function POST(req: Request) {
       data: {
         boardId: boardId,
         title,
-        status: "TODO",
+        status: TaskStatus.TODO,
       },
     });
 
@@ -193,37 +194,17 @@ export async function GET(req: Request) {
 
     const skip = (page - 1) * limit;
 
-    // We can fetch tasks for each status
-    // In Prisma schema: TaskStatus has TODO, IN_PROGRESS, IN_REVIEW, CHANGES_REQUESTED, DONE, CLOSED
-    const statuses: TaskStatus[] = [
-      "TODO",
-      "IN_PROGRESS",
-      "IN_REVIEW",
-      "CHANGES_REQUESTED",
-      "DONE",
-      "CLOSED",
-    ];
+    const tasksByStatus = {} as Record<TaskStatus, any[]>;
+    const hasMoreByStatus = {} as Record<TaskStatus, boolean>;
 
-    const tasksByStatus: Record<TaskStatus, any[]> = {
-      TODO: [],
-      IN_PROGRESS: [],
-      IN_REVIEW: [],
-      CHANGES_REQUESTED: [],
-      DONE: [],
-      CLOSED: [],
-    };
-    const hasMoreByStatus: Record<TaskStatus, boolean> = {
-      TODO: false,
-      IN_PROGRESS: false,
-      IN_REVIEW: false,
-      CHANGES_REQUESTED: false,
-      DONE: false,
-      CLOSED: false,
-    };
+    for (const status of TASK_STATUSES) {
+      tasksByStatus[status] = [];
+      hasMoreByStatus[status] = false;
+    }
 
     // Run queries in parallel
     await Promise.all(
-      statuses.map(async (status) => {
+      TASK_STATUSES.map(async (status) => {
         const tasksForStatus = await prisma.task.findMany({
           where: {
             boardId: board.id,

@@ -1,5 +1,6 @@
 import { Command } from "./types";
 import { resolvePath } from "@syncoboard/shared";
+import { TASK_STATUSES } from "@syncoboard/types";
 
 export const COMMAND_REGISTRY: Record<string, Command> = {
   ls: {
@@ -743,18 +744,10 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
       const statusRaw = args.slice(1).join(" ");
       const status = statusRaw.replace(/[\s-]+/g, "_").toUpperCase();
 
-      const validStatuses = [
-        "TODO",
-        "IN_PROGRESS",
-        "IN_REVIEW",
-        "CHANGES_REQUESTED",
-        "DONE",
-        "CLOSED",
-      ];
-      if (!validStatuses.includes(status)) {
+      if (!TASK_STATUSES.some((s) => s === status)) {
         printOutput([
           `Error: Invalid status '${statusRaw}'.`,
-          `Allowed statuses: ${validStatuses.join(", ")}`,
+          `Allowed statuses: ${TASK_STATUSES.join(", ")}`,
         ]);
         return;
       }
@@ -871,17 +864,9 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
             const outputLines: string[] = [];
             const { tasksByStatus, hasMoreByStatus } = response;
 
-            const statuses: Array<keyof typeof tasksByStatus> = [
-              "TODO",
-              "IN_PROGRESS",
-              "IN_REVIEW",
-              "CHANGES_REQUESTED",
-              "DONE",
-              "CLOSED",
-            ];
             let totalTasks = 0;
 
-            statuses.forEach((status) => {
+            TASK_STATUSES.forEach((status) => {
               const tasks = tasksByStatus[status];
               if (tasks && tasks.length > 0) {
                 totalTasks += tasks.length;

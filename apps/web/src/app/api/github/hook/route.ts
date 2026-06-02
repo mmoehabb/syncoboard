@@ -64,22 +64,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Board not found for repo" });
     }
 
-    let status: TaskStatus = "TODO";
+    let status: TaskStatus = TaskStatus.TODO;
 
     if (pr.draft) {
-      status = "TODO";
+      status = TaskStatus.TODO;
     } else if (action === "opened") {
-      status = "IN_PROGRESS";
+      status = TaskStatus.IN_PROGRESS;
     } else if (action === "review_requested") {
-      status = "IN_REVIEW";
+      status = TaskStatus.IN_REVIEW;
     } else if (action === "closed") {
       if (pr.merged) {
-        status = "DONE";
+        status = TaskStatus.DONE;
       } else {
-        status = "CLOSED";
+        status = TaskStatus.CLOSED;
       }
     } else if (action === "reopened") {
-      status = "IN_PROGRESS";
+      status = TaskStatus.IN_PROGRESS;
     }
 
     // Process assignees and reviewers
