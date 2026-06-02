@@ -48,7 +48,9 @@ export async function POST(req: Request) {
     }
 
     if (!price.providerPlanId) {
-      return apiError(API_ERRORS.customInternal("Could not sync provider plan"));
+      return apiError(
+        API_ERRORS.customInternal("Could not sync provider plan"),
+      );
     }
 
     const user = {
