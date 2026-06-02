@@ -191,10 +191,8 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
 
     // Sort tasks by status to match the visual grouping
     return [...board.tasks].sort((a: MainBoardTask, b: MainBoardTask) => {
-      const orderA =
-        TASK_STATUS_ORDER[a.status as keyof typeof TASK_STATUS_ORDER] ?? 99;
-      const orderB =
-        TASK_STATUS_ORDER[b.status as keyof typeof TASK_STATUS_ORDER] ?? 99;
+      const orderA = TASK_STATUS_ORDER[a.status] ?? 99;
+      const orderB = TASK_STATUS_ORDER[b.status] ?? 99;
       if (orderA !== orderB) return orderA - orderB;
       // Secondary sort by updatedAt desc
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();

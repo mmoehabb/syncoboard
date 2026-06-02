@@ -813,7 +813,7 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
       const statusRaw = args.slice(1).join(" ");
       const status = statusRaw.replace(/[\s-]+/g, "_").toUpperCase();
 
-      if (!TASK_STATUSES.includes(status as any)) {
+      if (!TASK_STATUSES.some((s) => s === status)) {
         printOutput([
           `Error: Invalid status '${statusRaw}'.`,
           `Allowed statuses: ${TASK_STATUSES.join(", ")}`,
