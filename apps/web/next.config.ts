@@ -1,4 +1,11 @@
 import type { NextConfig } from "next";
+import { z } from "zod";
+
+const envSchema = z.object({
+  NEXT_PUBLIC_API_URL: z.string().url(),
+});
+
+envSchema.parse(process.env);
 
 const nextConfig: NextConfig = {
   /* config options here */
