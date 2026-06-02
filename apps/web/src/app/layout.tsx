@@ -36,6 +36,9 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${jetBrainsMono.variable} dark`}
     >
+      <head>
+        <meta name="apple-mobile-web-app-title" content="Syncoboard" />
+      </head>
       <body className="antialiased min-h-screen flex flex-col relative">
         <Cursor />
         <ToastProvider>
