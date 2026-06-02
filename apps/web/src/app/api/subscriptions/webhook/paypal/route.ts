@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@syncoboard/db";
 import { PayPalProvider } from "@syncoboard/payment";
+import { apiError, API_ERRORS } from "@/lib/api/error";
 
 export async function POST(req: Request) {
   try {
@@ -75,9 +76,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ received: true });
   } catch (error: any) {
     console.error("Webhook Error:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 },
-    );
+    return apiError(API_ERRORS.INTERNAL_SERVER_ERROR);
   }
 }
