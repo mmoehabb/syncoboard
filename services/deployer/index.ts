@@ -84,6 +84,10 @@ async function runDeployment() {
       console.log("[Deployer] Pulling latest code from origin/main...");
       await execAsync("git pull origin main", { cwd: rootDir });
 
+      // Install dependencies
+      console.log("[Deployer] Installing dependencies...");
+      await execAsync("bun install", { cwd: rootDir });
+
       // Clean and build
       console.log("[Deployer] Running clean and build...");
       await execAsync("bun run clean", { cwd: rootDir });
@@ -97,6 +101,10 @@ async function runDeployment() {
       // Rollback
       console.log(`[Deployer] Resetting to previous commit: ${currentCommit}`);
       await execAsync(`git reset --hard ${currentCommit}`, { cwd: rootDir });
+
+      // Install dependencies for the previous commit
+      console.log("[Deployer] Installing dependencies for rollback...");
+      await execAsync("bun install", { cwd: rootDir });
 
       console.log(
         "[Deployer] Re-running clean and build for previous commit...",
