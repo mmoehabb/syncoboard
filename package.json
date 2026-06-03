@@ -21,6 +21,7 @@
     "clean": "rm -rf apps/*/.next apps/*/dist packages/*/dist services/*/dist **/*/*.tsbuildinfo",
     "web": "bun --filter web",
     "dashboard": "bun --filter dashboard",
+    "maintenance": "bun --filter maintenance",
     "tui": "bun --filter tui",
     "api": "bun --filter @syncoboard/api",
     "db": "bun --filter @syncoboard/db",

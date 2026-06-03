@@ -49,6 +49,13 @@
         "typescript": "^5",
       },
     },
+    "apps/maintenance": {
+      "name": "maintenance",
+      "version": "0.1.0",
+      "devDependencies": {
+        "@types/bun": "^1.1.14",
+      },
+    },
     "apps/tui": {
       "name": "tui",
       "dependencies": {
@@ -207,12 +214,10 @@
       },
     },
     "services/deployer": {
-      "name": "deployer",
+      "name": "@syncoboard/deployer",
+      "version": "1.0.0",
       "devDependencies": {
         "@types/bun": "latest",
-      },
-      "peerDependencies": {
-        "typescript": "^5",
       },
     },
     "services/websocket": {
@@ -576,6 +581,8 @@
 
     "@syncoboard/db": ["@syncoboard/db@workspace:packages/db"],
 
+    "@syncoboard/deployer": ["@syncoboard/deployer@workspace:services/deployer"],
+
     "@syncoboard/payment": ["@syncoboard/payment@workspace:packages/payment"],
 
     "@syncoboard/shared": ["@syncoboard/shared@workspace:packages/shared"],
@@ -857,8 +864,6 @@
     "delayed-stream": ["delayed-stream@1.0.0", "", {}, "sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ=="],
 
     "denque": ["denque@2.1.0", "", {}, "sha512-HVQE3AAb/pxF8fQAoiqpvg9i3evqug3hoiwakOyZAwJm+6vZehbkYXZ0l4JxS+I3QxM97v5aaRNhj8v5oBhekw=="],
-
-    "deployer": ["deployer@workspace:services/deployer"],
 
     "destr": ["destr@2.0.5", "", {}, "sha512-ugFTXCtDZunbzasqBxrK93Ik/DRYsO6S/fedkWEMKqt04xZ4csmnmwGDBAb07QWNaGMAmnTIemsYZCksjATwsA=="],
 
@@ -1213,6 +1218,8 @@
     "lucide-react": ["lucide-react@1.14.0", "", { "peerDependencies": { "react": "^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-+1mdWcfSJVUsaTIjN9zoezmUhfXo5l0vP7ekBMPo3jcS/aIkxHnXqAPsByszMZx/Y8oQBRJxJx5xg+RH3urzxA=="],
 
     "magic-string": ["magic-string@0.30.21", "", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.5.5" } }, "sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ=="],
+
+    "maintenance": ["maintenance@workspace:apps/maintenance"],
 
     "math-intrinsics": ["math-intrinsics@1.1.0", "", {}, "sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g=="],
 

@@ -1,0 +1,14 @@
+{
+  "name": "maintenance",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "dev": "bun run --watch src/index.ts",
+    "build": "echo 'No build required'"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/bun": "^1.1.14"
+  }
+}

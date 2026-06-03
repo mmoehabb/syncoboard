@@ -30,7 +30,9 @@ async function getEcosystemApps(): Promise<string[]> {
     if (config && config.apps && Array.isArray(config.apps)) {
       return config.apps
         .map((app: any) => app.name)
-        .filter((name: string) => name !== "deployer");
+        .filter(
+          (name: string) => name !== "deployer" && name !== "maintenance",
+        );
     }
   } catch (error) {
     console.error("Failed to load ecosystem.config.js", error);
@@ -56,7 +58,7 @@ async function runDeployment() {
     const currentCommit = commitHashOutput.trim();
     console.log(`[Deployer] Current commit: ${currentCommit}`);
 
-    // Stop PM2 services except deployer
+    // Stop PM2 services except deployer and maintenance
     console.log(`[Deployer] Stopping PM2 services: ${appsList}`);
     try {
       await execAsync(`bunx pm2 stop ${appsList}`, { cwd: rootDir });
@@ -64,6 +66,16 @@ async function runDeployment() {
       console.log(
         `[Deployer] Warning: Failed to stop pm2 services. Maybe they are not running?`,
       );
+    }
+
+    // Start maintenance app
+    console.log(`[Deployer] Starting maintenance app...`);
+    try {
+      await execAsync(`bunx pm2 start ecosystem.config.js --only maintenance`, {
+        cwd: rootDir,
+      });
+    } catch (e) {
+      console.log(`[Deployer] Warning: Failed to start maintenance app.`);
     }
 
     try {
@@ -93,6 +105,14 @@ async function runDeployment() {
       console.log("[Deployer] Rollback build successful.");
     }
 
+    // Stop maintenance app
+    console.log(`[Deployer] Stopping maintenance app...`);
+    try {
+      await execAsync(`bunx pm2 stop maintenance`, { cwd: rootDir });
+    } catch (e) {
+      console.log(`[Deployer] Warning: Failed to stop maintenance app.`);
+    }
+
     // Restart PM2 services
     console.log(`[Deployer] Restarting PM2 services: ${appsList}`);
     try {
@@ -101,7 +121,10 @@ async function runDeployment() {
       console.log(
         `[Deployer] Warning: pm2 restart failed, trying pm2 start...`,
       );
-      await execAsync(`bunx pm2 start ecosystem.config.js`, { cwd: rootDir });
+      await execAsync(
+        `bunx pm2 start ecosystem.config.js --only ${appsList.replace(/ /g, ",")}`,
+        { cwd: rootDir },
+      );
     }
 
     console.log("[Deployer] Deployment process completed successfully!");
