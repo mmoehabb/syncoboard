@@ -39,8 +39,8 @@ describe("cleanupDeletedEntities", () => {
   beforeEach(() => {
     setSystemTime(mockNow);
     // Reset mocks
-    (prisma.board.deleteMany as any).mockReset();
-    (prisma.workspace.deleteMany as any).mockReset();
+    (prisma.board.deleteMany as { mockReset(): void }).mockReset();
+    (prisma.workspace.deleteMany as { mockReset(): void }).mockReset();
   });
 
   afterEach(() => {
@@ -50,8 +50,12 @@ describe("cleanupDeletedEntities", () => {
   test("should delete boards and workspaces older than 3 months", async () => {
     const threeMonthsAgo = new Date("2024-01-01T12:00:00Z");
 
-    (prisma.board.deleteMany as any).mockResolvedValue({ count: 5 });
-    (prisma.workspace.deleteMany as any).mockResolvedValue({ count: 2 });
+    (
+      prisma.board.deleteMany as { mockResolvedValue(v: unknown): void }
+    ).mockResolvedValue({ count: 5 });
+    (
+      prisma.workspace.deleteMany as { mockResolvedValue(v: unknown): void }
+    ).mockResolvedValue({ count: 2 });
 
     const result = await cleanupDeletedEntities();
 
@@ -79,8 +83,12 @@ describe("cleanupDeletedEntities", () => {
   });
 
   test("should return zero counts when nothing to delete", async () => {
-    (prisma.board.deleteMany as any).mockResolvedValue({ count: 0 });
-    (prisma.workspace.deleteMany as any).mockResolvedValue({ count: 0 });
+    (
+      prisma.board.deleteMany as { mockResolvedValue(v: unknown): void }
+    ).mockResolvedValue({ count: 0 });
+    (
+      prisma.workspace.deleteMany as { mockResolvedValue(v: unknown): void }
+    ).mockResolvedValue({ count: 0 });
 
     const result = await cleanupDeletedEntities();
 
@@ -89,12 +97,14 @@ describe("cleanupDeletedEntities", () => {
 
   test("should rethrow error and log it when prisma fails", async () => {
     const error = new Error("Database error");
-    (prisma.board.deleteMany as any).mockRejectedValue(error);
+    (
+      prisma.board.deleteMany as { mockRejectedValue(e: unknown): void }
+    ).mockRejectedValue(error);
 
     // Spy on console.error
     const consoleSpy = mock(() => {});
     const originalConsoleError = console.error;
-    console.error = consoleSpy as any;
+    console.error = consoleSpy as unknown as typeof console.error;
 
     await expect(cleanupDeletedEntities()).rejects.toThrow("Database error");
 

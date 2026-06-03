@@ -188,7 +188,7 @@ export async function verifyWebhookSignature(
   authAlgo: string,
   transmissionSig: string,
   webhookId: string,
-  webhookEvent: any,
+  webhookEvent: Record<string, unknown>,
 ) {
   const token = await getPayPalAccessToken();
 

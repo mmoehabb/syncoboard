@@ -1,4 +1,4 @@
-import { expect, test, describe, beforeEach, mock, afterEach } from "bun:test";
+import { test, describe, beforeEach, mock } from "bun:test";
 
 // Mocking prisma globally
 mock.module("@syncoboard/db", () => ({
@@ -20,8 +20,19 @@ mock.module("@syncoboard/db", () => ({
   },
 }));
 
+type MockFn = {
+  mockClear(): void;
+  mockResolvedValue(v: unknown): void;
+  mockImplementation(fn: (...args: unknown[]) => unknown): void;
+};
+
 describe("enforceSubscriptionLimits Performance Benchmark", () => {
-  let prismaMock: any;
+  let prismaMock: {
+    subscription: { findFirst: MockFn };
+    plan: { findFirst: MockFn };
+    workspace: { findMany: MockFn; updateMany: MockFn };
+    board: { findMany: MockFn; updateMany: MockFn };
+  };
 
   beforeEach(async () => {
     const db = await import("@syncoboard/db");

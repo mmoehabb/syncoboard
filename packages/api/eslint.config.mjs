@@ -1,11 +1,9 @@
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
+import tseslint from "typescript-eslint";
 
-const eslintConfig = [
-  ...nextVitals,
-  ...nextTs,
+const eslintConfig = tseslint.config(
+  ...tseslint.configs.recommended,
   {
-    ignores: [".next/**", "out/**", "build/**", "next-env.d.ts", "dist/**"],
+    ignores: ["dist/**", "build/**"],
   },
   {
     plugins: {
@@ -14,14 +12,12 @@ const eslintConfig = [
       ),
     },
     rules: {
-      "unused-imports/no-unused-imports": "warn",
-      "no-unused-vars": "warn",
-      "@typescript-eslint/no-unused-vars": "warn",
+      "unused-imports/no-unused-imports": "error",
+      "@typescript-eslint/no-unused-vars": "error",
       "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/no-empty-object-type": "error",
-      "@next/next/no-html-link-for-pages": "error",
     },
   },
-];
+);
 
 export default eslintConfig;

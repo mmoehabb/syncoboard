@@ -83,7 +83,7 @@ export const executeTabCompletion = async ({
     } else if (matches.length > 1) {
       printOutput([`$ /${inputValue}`, ...matches]);
     }
-  } catch (err) {
+  } catch {
     // Ignore errors for auto-completion (e.g., directory not found)
   }
 };
