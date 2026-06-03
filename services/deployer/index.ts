@@ -86,6 +86,7 @@ async function runDeployment() {
       // Clean and build
       console.log("[Deployer] Running clean and build...");
       await execAsync("bun run clean", { cwd: rootDir });
+      await execAsync("bun run db migrate:deploy", { cwd: rootDir });
       await execAsync("bun run build:low-spec", { cwd: rootDir });
 
       console.log("[Deployer] Build successful!");
@@ -100,6 +101,7 @@ async function runDeployment() {
         "[Deployer] Re-running clean and build for previous commit...",
       );
       await execAsync("bun run clean", { cwd: rootDir });
+      await execAsync("bun run db migrate:deploy", { cwd: rootDir });
       await execAsync("bun run build:low-spec", { cwd: rootDir });
 
       console.log("[Deployer] Rollback build successful.");
