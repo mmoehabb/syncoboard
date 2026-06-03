@@ -16,8 +16,8 @@ const GUIDE_PAGES = [
         <p>
           You can also manually create unlinked tasks for brainstorming,
           tracking chores, or planning features before writing code. If an
-          unlinked task's title matches the title of a newly opened Pull
-          Request, they will be linked automatically.
+          unlinked task's title approximately matches the title of a newly
+          opened Pull Request, they will be linked automatically.
         </p>
       </div>
     ),
