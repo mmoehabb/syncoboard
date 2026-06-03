@@ -221,13 +221,21 @@ export function AccountSettings({
             {subscription.status === "ACTIVE" &&
               !subscription.cancelAtPeriodEnd &&
               subscription.price?.plan?.name !== "Free" && (
-                <button
-                  onClick={handleOpenCancelDialog}
-                  disabled={isSubmitting}
-                  className="w-full bg-red-500/20 text-red-500 border border-red-500/50 font-bold font-mono py-2 hover:bg-red-500/30 transition-colors disabled:opacity-50 cmd-selectable [&.cmd-selected]:ring-2 [&.cmd-selected]:ring-red-500 [&.cmd-selected]:ring-offset-2 [&.cmd-selected]:ring-offset-void-grey"
-                >
-                  Cancel Subscription
-                </button>
+                <div className="flex flex-col gap-4">
+                  <button
+                    onClick={() => router.push("/plans")}
+                    className="w-full bg-white/10 text-white border border-white/20 font-bold font-mono py-2 hover:bg-white/20 transition-colors cmd-selectable [&.cmd-selected]:ring-2 [&.cmd-selected]:ring-white [&.cmd-selected]:ring-offset-2 [&.cmd-selected]:ring-offset-void-grey"
+                  >
+                    Explore Plans
+                  </button>
+                  <button
+                    onClick={handleOpenCancelDialog}
+                    disabled={isSubmitting}
+                    className="w-full bg-red-500/20 text-red-500 border border-red-500/50 font-bold font-mono py-2 hover:bg-red-500/30 transition-colors disabled:opacity-50 cmd-selectable [&.cmd-selected]:ring-2 [&.cmd-selected]:ring-red-500 [&.cmd-selected]:ring-offset-2 [&.cmd-selected]:ring-offset-void-grey"
+                  >
+                    Cancel Subscription
+                  </button>
+                </div>
               )}
 
             {subscription.status === "ACTIVE" &&
