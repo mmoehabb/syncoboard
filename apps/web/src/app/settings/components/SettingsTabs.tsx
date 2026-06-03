@@ -5,6 +5,8 @@ import { AddBoard } from "./AddBoard";
 import { AccountSettings } from "./AccountSettings";
 import { FocusedLabel } from "@/components/ui/FocusedLabel";
 import { AddWorkspace } from "./AddWorkspace";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 interface SettingsTabsProps {
   workspaces: { id: string; name: string }[];
@@ -27,10 +29,19 @@ export function SettingsTabs({
     <>
       {/* Left Nav */}
       <div className="w-64 border-r border-white/10 bg-void-grey/50 p-6 flex flex-col gap-4 cmd-container relative">
-        <div className="flex items-center justify-between">
-          <h3 className="text-syntax-grey font-bold uppercase tracking-wider text-xs">
-            Settings
-          </h3>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <Link
+              href="/dashboard"
+              className="p-1 rounded hover:bg-white/10 text-syntax-grey hover:text-white transition-colors"
+              title="Back to Dashboard"
+            >
+              <ArrowLeft size={16} />
+            </Link>
+            <h3 className="text-syntax-grey font-bold uppercase tracking-wider text-xs">
+              Settings
+            </h3>
+          </div>
           <FocusedLabel />
         </div>
         <div className="flex flex-col gap-2">
