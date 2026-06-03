@@ -39,8 +39,8 @@ describe("cleanupDeletedEntities", () => {
   beforeEach(() => {
     setSystemTime(mockNow);
     // Reset mocks
-    (prisma.board.deleteMany as { mockReset(): void }).mockReset();
-    (prisma.workspace.deleteMany as { mockReset(): void }).mockReset();
+    prisma.board.deleteMany.mockReset();
+    prisma.workspace.deleteMany.mockReset();
   });
 
   afterEach(() => {
@@ -50,12 +50,8 @@ describe("cleanupDeletedEntities", () => {
   test("should delete boards and workspaces older than 3 months", async () => {
     const threeMonthsAgo = new Date("2024-01-01T12:00:00Z");
 
-    (
-      prisma.board.deleteMany as { mockResolvedValue(v: unknown): void }
-    ).mockResolvedValue({ count: 5 });
-    (
-      prisma.workspace.deleteMany as { mockResolvedValue(v: unknown): void }
-    ).mockResolvedValue({ count: 2 });
+    prisma.board.deleteMany.mockResolvedValue({ count: 5 });
+    prisma.workspace.deleteMany.mockResolvedValue({ count: 2 });
 
     const result = await cleanupDeletedEntities();
 
@@ -83,12 +79,8 @@ describe("cleanupDeletedEntities", () => {
   });
 
   test("should return zero counts when nothing to delete", async () => {
-    (
-      prisma.board.deleteMany as { mockResolvedValue(v: unknown): void }
-    ).mockResolvedValue({ count: 0 });
-    (
-      prisma.workspace.deleteMany as { mockResolvedValue(v: unknown): void }
-    ).mockResolvedValue({ count: 0 });
+    prisma.board.deleteMany.mockResolvedValue({ count: 0 });
+    prisma.workspace.deleteMany.mockResolvedValue({ count: 0 });
 
     const result = await cleanupDeletedEntities();
 
@@ -97,14 +89,12 @@ describe("cleanupDeletedEntities", () => {
 
   test("should rethrow error and log it when prisma fails", async () => {
     const error = new Error("Database error");
-    (
-      prisma.board.deleteMany as { mockRejectedValue(e: unknown): void }
-    ).mockRejectedValue(error);
+    prisma.board.deleteMany.mockRejectedValue(error);
 
     // Spy on console.error
     const consoleSpy = mock(() => {});
     const originalConsoleError = console.error;
-    console.error = consoleSpy as unknown as typeof console.error;
+    console.error = consoleSpy;
 
     await expect(cleanupDeletedEntities()).rejects.toThrow("Database error");
 
@@ -112,6 +102,34 @@ describe("cleanupDeletedEntities", () => {
       "Error during cleanup of deleted entities:",
       error,
     );
+
+    // Restore console.error
+    console.error = originalConsoleError;
+  });
+
+  test("should rethrow error and log it when prisma workspace deletion fails", async () => {
+    const error = new Error("Workspace Database error");
+
+    // Simulate board success but workspace failure
+    prisma.board.deleteMany.mockResolvedValue({ count: 5 });
+    prisma.workspace.deleteMany.mockRejectedValue(error);
+
+    // Spy on console.error
+    const consoleSpy = mock(() => {});
+    const originalConsoleError = console.error;
+    console.error = consoleSpy;
+
+    await expect(cleanupDeletedEntities()).rejects.toThrow(
+      "Workspace Database error",
+    );
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "Error during cleanup of deleted entities:",
+      error,
+    );
+
+    // Verify board.deleteMany was called and succeeded before failing on workspace
+    expect(prisma.board.deleteMany).toHaveBeenCalled();
 
     // Restore console.error
     console.error = originalConsoleError;
