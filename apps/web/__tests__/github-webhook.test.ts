@@ -247,5 +247,188 @@ describe("GitHub Webhook", () => {
     const req = createSignedRequest(payload);
     const res = await POST(req);
     expect(res.status).toBe(200);
+    expect(prismaMock.task.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          status: TaskStatus.TODO,
+        }),
+      }),
+    );
+  });
+
+  it("should not change the existing task status for unhandled actions like 'assigned'", async () => {
+    const payload = {
+      action: "assigned",
+      pull_request: {
+        number: 5,
+        title: "Assigned PR",
+        body: "",
+        draft: false,
+        head: { ref: "assigned-branch" },
+      },
+      repository: {
+        id: 1296269,
+      },
+    };
+
+    prismaMock.board.findFirst.mockResolvedValueOnce({
+      id: "board-1",
+      githubRepoId: "1296269",
+    });
+    prismaMock.account.findMany.mockResolvedValue([]);
+    prismaMock.task.findFirst.mockResolvedValueOnce({
+      id: "task-3",
+      boardId: testBoard.id,
+      title: "Assigned PR",
+      status: TaskStatus.IN_PROGRESS,
+      prNumber: 5,
+      branchName: "assigned-branch",
+    });
+    prismaMock.task.update.mockResolvedValueOnce({ id: "task-3" });
+
+    const req = createSignedRequest(payload);
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+
+    // Status should not be included in the update data
+    expect(prismaMock.task.update).toHaveBeenCalledWith(
+      expect.not.objectContaining({
+        data: expect.objectContaining({
+          status: expect.anything(),
+        }),
+      }),
+    );
+  });
+
+  it("should update task status to IN_REVIEW for ready_for_review action", async () => {
+    const payload = {
+      action: "ready_for_review",
+      pull_request: {
+        number: 6,
+        title: "Ready PR",
+        body: "",
+        draft: false,
+        head: { ref: "ready-branch" },
+      },
+      repository: {
+        id: 1296269,
+      },
+    };
+
+    prismaMock.board.findFirst.mockResolvedValueOnce({
+      id: "board-1",
+      githubRepoId: "1296269",
+    });
+    prismaMock.account.findMany.mockResolvedValue([]);
+    prismaMock.task.findFirst.mockResolvedValueOnce({
+      id: "task-4",
+      boardId: testBoard.id,
+      title: "Ready PR",
+      status: TaskStatus.TODO,
+      prNumber: 6,
+      branchName: "ready-branch",
+    });
+    prismaMock.task.update.mockResolvedValueOnce({ id: "task-4" });
+
+    const req = createSignedRequest(payload);
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+
+    expect(prismaMock.task.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          status: TaskStatus.IN_REVIEW,
+        }),
+      }),
+    );
+  });
+
+  it("should update task status to IN_PROGRESS for review_request_removed action", async () => {
+    const payload = {
+      action: "review_request_removed",
+      pull_request: {
+        number: 7,
+        title: "Review removed PR",
+        body: "",
+        draft: false,
+        head: { ref: "review-removed-branch" },
+      },
+      repository: {
+        id: 1296269,
+      },
+    };
+
+    prismaMock.board.findFirst.mockResolvedValueOnce({
+      id: "board-1",
+      githubRepoId: "1296269",
+    });
+    prismaMock.account.findMany.mockResolvedValue([]);
+    prismaMock.task.findFirst.mockResolvedValueOnce({
+      id: "task-5",
+      boardId: testBoard.id,
+      title: "Review removed PR",
+      status: TaskStatus.IN_REVIEW,
+      prNumber: 7,
+      branchName: "review-removed-branch",
+    });
+    prismaMock.task.update.mockResolvedValueOnce({ id: "task-5" });
+
+    const req = createSignedRequest(payload);
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+
+    expect(prismaMock.task.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          status: TaskStatus.IN_PROGRESS,
+        }),
+      }),
+    );
+  });
+
+  it("should update task status to CHANGES_REQUESTED for pull_request_review changes_requested event", async () => {
+    const payload = {
+      action: "submitted",
+      review: {
+        state: "changes_requested",
+      },
+      pull_request: {
+        number: 8,
+        title: "Changes requested PR",
+        body: "",
+        draft: false,
+        head: { ref: "changes-requested-branch" },
+      },
+      repository: {
+        id: 1296269,
+      },
+    };
+
+    prismaMock.board.findFirst.mockResolvedValueOnce({
+      id: "board-1",
+      githubRepoId: "1296269",
+    });
+    prismaMock.account.findMany.mockResolvedValue([]);
+    prismaMock.task.findFirst.mockResolvedValueOnce({
+      id: "task-6",
+      boardId: testBoard.id,
+      title: "Changes requested PR",
+      status: TaskStatus.IN_REVIEW,
+      prNumber: 8,
+      branchName: "changes-requested-branch",
+    });
+    prismaMock.task.update.mockResolvedValueOnce({ id: "task-6" });
+
+    const req = createSignedRequest(payload, "pull_request_review");
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+
+    expect(prismaMock.task.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          status: TaskStatus.CHANGES_REQUESTED,
+        }),
+      }),
+    );
   });
 });

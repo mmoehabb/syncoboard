@@ -4,7 +4,10 @@ import { prisma } from "@syncoboard/db";
 import stringSimilarity from "string-similarity";
 import { TaskStatus } from "@prisma/client";
 import { SIMILARITY_THRESHOLD } from "@/lib/constants";
-import { PullRequestEvent } from "@octokit/webhooks-types";
+import {
+  PullRequestEvent,
+  PullRequestReviewEvent,
+} from "@octokit/webhooks-types";
 import { API_ERRORS, apiError } from "@/lib/api/error";
 
 function verifySignature(req: NextRequest, bodyText: string) {
@@ -40,15 +43,27 @@ export async function POST(req: NextRequest) {
     const payload = JSON.parse(bodyText);
     const event = req.headers.get("x-github-event");
 
-    if (event !== "pull_request") {
+    if (event !== "pull_request" && event !== "pull_request_review") {
       return NextResponse.json({ message: "Ignored event type" });
     }
 
-    const prEvent = payload as PullRequestEvent;
+    let action: string;
+    let pr: any;
+    let repo: any;
+    let review: any;
 
-    const action = prEvent.action;
-    const pr = prEvent.pull_request;
-    const repo = prEvent.repository;
+    if (event === "pull_request") {
+      const prEvent = payload as PullRequestEvent;
+      action = prEvent.action;
+      pr = prEvent.pull_request;
+      repo = prEvent.repository;
+    } else {
+      const reviewEvent = payload as PullRequestReviewEvent;
+      action = reviewEvent.action;
+      pr = reviewEvent.pull_request;
+      repo = reviewEvent.repository;
+      review = reviewEvent.review;
+    }
 
     if (!pr || !repo) {
       return apiError(API_ERRORS.customBadRequest("Invalid payload"));
@@ -64,22 +79,33 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Board not found for repo" });
     }
 
-    let status: TaskStatus = TaskStatus.TODO;
+    let status: TaskStatus | undefined = undefined;
 
-    if (pr.draft) {
-      status = TaskStatus.TODO;
-    } else if (action === "opened") {
-      status = TaskStatus.IN_PROGRESS;
-    } else if (action === "review_requested") {
-      status = TaskStatus.IN_REVIEW;
-    } else if (action === "closed") {
-      if (pr.merged) {
-        status = TaskStatus.DONE;
-      } else {
-        status = TaskStatus.CLOSED;
+    if (event === "pull_request") {
+      if (pr.draft) {
+        status = TaskStatus.TODO;
+      } else if (action === "opened") {
+        status = TaskStatus.IN_PROGRESS;
+      } else if (
+        action === "ready_for_review" ||
+        action === "review_requested"
+      ) {
+        status = TaskStatus.IN_REVIEW;
+      } else if (action === "review_request_removed") {
+        status = TaskStatus.IN_PROGRESS;
+      } else if (action === "closed") {
+        if (pr.merged) {
+          status = TaskStatus.DONE;
+        } else {
+          status = TaskStatus.CLOSED;
+        }
+      } else if (action === "reopened") {
+        status = TaskStatus.IN_PROGRESS;
       }
-    } else if (action === "reopened") {
-      status = TaskStatus.IN_PROGRESS;
+    } else if (event === "pull_request_review") {
+      if (action === "submitted" && review?.state === "changes_requested") {
+        status = TaskStatus.CHANGES_REQUESTED;
+      }
     }
 
     // Process assignees and reviewers
@@ -164,22 +190,27 @@ export async function POST(req: NextRequest) {
     });
 
     if (existingTask) {
+      const updateData: any = {
+        title: pr.title,
+        description: pr.body || "",
+        branchName: pr.head.ref,
+        assignees: {
+          set: registeredAssignees.map((id) => ({ id })),
+        },
+        reviewers: {
+          set: registeredReviewers.map((id) => ({ id })),
+        },
+        unregisteredAssignees: JSON.stringify(unregisteredAssignees),
+        unregisteredReviewers: JSON.stringify(unregisteredReviewers),
+      };
+
+      if (status !== undefined) {
+        updateData.status = status;
+      }
+
       await prisma.task.update({
         where: { id: existingTask.id },
-        data: {
-          title: pr.title,
-          description: pr.body || "",
-          status: status,
-          branchName: pr.head.ref,
-          assignees: {
-            set: registeredAssignees.map((id) => ({ id })),
-          },
-          reviewers: {
-            set: registeredReviewers.map((id) => ({ id })),
-          },
-          unregisteredAssignees: JSON.stringify(unregisteredAssignees),
-          unregisteredReviewers: JSON.stringify(unregisteredReviewers),
-        },
+        data: updateData,
       });
       return NextResponse.json({ message: "Task updated" });
     }
@@ -199,22 +230,27 @@ export async function POST(req: NextRequest) {
 
         if (match.bestMatch.rating >= SIMILARITY_THRESHOLD) {
           const matchedTask = unlinkedTasks[match.bestMatchIndex];
+          const updateData: any = {
+            prNumber: pr.number,
+            branchName: pr.head.ref,
+            description: matchedTask.description || pr.body || "",
+            assignees: {
+              set: registeredAssignees.map((id) => ({ id })),
+            },
+            reviewers: {
+              set: registeredReviewers.map((id) => ({ id })),
+            },
+            unregisteredAssignees: JSON.stringify(unregisteredAssignees),
+            unregisteredReviewers: JSON.stringify(unregisteredReviewers),
+          };
+
+          if (status !== undefined) {
+            updateData.status = status;
+          }
+
           await prisma.task.update({
             where: { id: matchedTask.id },
-            data: {
-              prNumber: pr.number,
-              branchName: pr.head.ref,
-              description: matchedTask.description || pr.body || "",
-              status: status,
-              assignees: {
-                set: registeredAssignees.map((id) => ({ id })),
-              },
-              reviewers: {
-                set: registeredReviewers.map((id) => ({ id })),
-              },
-              unregisteredAssignees: JSON.stringify(unregisteredAssignees),
-              unregisteredReviewers: JSON.stringify(unregisteredReviewers),
-            },
+            data: updateData,
           });
           return NextResponse.json({ message: "Task linked and updated" });
         }
@@ -222,12 +258,17 @@ export async function POST(req: NextRequest) {
     }
 
     // Otherwise create a new task
+    let createStatus = status;
+    if (createStatus === undefined) {
+      createStatus = pr.draft ? TaskStatus.TODO : TaskStatus.IN_PROGRESS;
+    }
+
     await prisma.task.create({
       data: {
         boardId: board.id,
         title: pr.title,
         description: pr.body || "",
-        status: status,
+        status: createStatus,
         prNumber: pr.number,
         branchName: pr.head.ref,
         assignees: {
