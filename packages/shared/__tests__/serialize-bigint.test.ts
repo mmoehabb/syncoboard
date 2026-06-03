@@ -75,7 +75,7 @@ describe("serializeBigInt", () => {
       id: "123",
       createdAt: date,
     };
-    const result = serializeBigInt(input) as any;
+    const result = serializeBigInt(input) as { id: string; createdAt: Date };
     expect(result).toEqual(expected);
     expect(result.createdAt).toBeInstanceOf(Date);
     expect(result.createdAt.getTime()).toBe(date.getTime());
