@@ -2,6 +2,7 @@ import { Command } from "../types/commands";
 import { NORMAL_ACTIONS_REGISTRY } from "./normal-actions-registry";
 
 import { resolvePath } from "@syncoboard/shared";
+import { extractErrorMessage } from "./error";
 
 export const COMMAND_REGISTRY: Record<string, Command> = {
   ls: {
@@ -355,7 +356,6 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
                 window.location.reload();
               }, 1000);
             } catch (err) {
-              const { extractErrorMessage } = await import("./error");
               const errorMessage = extractErrorMessage(
                 err,
                 "Failed to restore workspace.",
