@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
     const registeredAssignees: string[] = [];
     const unregisteredAssignees: { login: string; avatar_url: string }[] = [];
 
-    const assigneeIds = assignees.map((a) => String(a.id));
+    const assigneeIds = assignees.map((a: any) => String(a.id));
     const assigneeAccounts = await prisma.account.findMany({
       where: {
         provider: "github",
@@ -146,10 +146,10 @@ export async function POST(req: NextRequest) {
     // Actually, requested_reviewers can be User | Team. We'll only map those that have an 'id'.
     const reviewerIds = requestedReviewers
       .filter(
-        (r): r is Extract<typeof r, { id: number }> =>
+        (r: any): r is Extract<typeof r, { id: number }> =>
           "id" in r && "login" in r && "avatar_url" in r,
       )
-      .map((r) => String(r.id));
+      .map((r: any) => String(r.id));
 
     const reviewerAccounts = await prisma.account.findMany({
       where: {
@@ -162,7 +162,7 @@ export async function POST(req: NextRequest) {
       reviewerAccounts.map((a) => [a.providerAccountId, a.userId]),
     );
 
-    for (const reviewer of requestedReviewers) {
+    for (const reviewer of requestedReviewers as any[]) {
       if (
         !("id" in reviewer) ||
         !("login" in reviewer) ||
