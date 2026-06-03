@@ -31,7 +31,8 @@ async function getEcosystemApps(): Promise<string[]> {
       return config.apps
         .map((app: any) => app.name)
         .filter(
-          (name: string) => name !== "deployer" && name !== "maintenance",
+          (name: string) =>
+            name !== "deployer" && name !== "maintenance" && name !== "webhook",
         );
     }
   } catch (error) {

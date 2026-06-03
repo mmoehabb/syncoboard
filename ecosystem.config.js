@@ -12,6 +12,17 @@ module.exports = {
       },
     },
     {
+      name: "webhook",
+      script: "bun",
+      args: "run webhook start",
+      env: {
+        NODE_ENV: "development",
+      },
+      env_production: {
+        NODE_ENV: "production",
+      },
+    },
+    {
       name: "maintenance",
       script: "bun",
       args: "run maintenance start",
