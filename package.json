@@ -15,7 +15,7 @@
     "start:pm2": "pm2 start ecosystem.config.js",
     "build": "bun run db generate && bun run build:pkgs && bun run build:services && bun run build:apps",
     "build:low-spec": "BUN_JSC_forceRAMSize=512M bun run build",
-    "build:pkgs": "bun run --filter \"./packages/*\" build",
+    "build:pkgs": "echo 'All packages use source directly, no build needed'",
     "build:apps": "bun run --filter \"./apps/*\" build",
     "build:services": "bun run --filter \"./services/*\" build",
     "clean": "rm -rf apps/*/.next apps/*/dist packages/*/dist services/*/dist **/*/*.tsbuildinfo",
