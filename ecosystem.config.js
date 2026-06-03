@@ -12,6 +12,17 @@ module.exports = {
       },
     },
     {
+      name: "maintenance",
+      script: "bun",
+      args: "run maintenance start",
+      env: {
+        NODE_ENV: "development",
+      },
+      env_production: {
+        NODE_ENV: "production",
+      },
+    },
+    {
       name: "deployer",
       script: "bun",
       args: "run deployer start",
