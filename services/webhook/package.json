@@ -6,7 +6,7 @@
   "scripts": {
     "start": "bun run src/index.ts",
     "dev": "bun run --watch src/index.ts",
-    "build": "bun build src/index.ts --target=bun",
+    "build": "echo no build command for webhook",
     "lint": "eslint ."
   },
   "dependencies": {
