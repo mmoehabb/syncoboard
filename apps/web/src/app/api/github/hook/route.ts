@@ -1,35 +1,61 @@
 import { NextRequest, NextResponse } from "next/server";
-import crypto from "crypto";
-import { prisma } from "@syncoboard/db";
+import { Prisma, prisma } from "@syncoboard/db";
 import stringSimilarity from "string-similarity";
 import { TaskStatus } from "@prisma/client";
 import { SIMILARITY_THRESHOLD } from "@/lib/constants";
 import {
   PullRequestEvent,
   PullRequestReviewEvent,
+  PullRequest,
+  SimplePullRequest,
+  User,
+  Team,
+  PullRequestReview,
 } from "@octokit/webhooks-types";
 import { API_ERRORS, apiError } from "@/lib/api/error";
+import {
+  verifySignature,
+  determineTaskStatus,
+} from "@/lib/utils/github/webhook";
 
-function verifySignature(req: NextRequest, bodyText: string) {
-  const signature = req.headers.get("x-hub-signature-256");
-  const secret = process.env.GITHUB_WEBHOOK_SECRET;
+type GitHubUser = { login: string; avatar_url: string; id: number };
 
-  if (!secret || !signature) return false;
+function isGitHubUser(reviewer: User | Team): reviewer is User {
+  return "login" in reviewer && "avatar_url" in reviewer && "id" in reviewer;
+}
 
-  const hmac = crypto.createHmac("sha256", secret);
-  const digest = `sha256=${hmac.update(bodyText).digest("hex")}`;
+async function resolveUsers(githubUsers: User[]): Promise<{
+  registeredIds: string[];
+  unregisteredUsers: { login: string; avatar_url: string }[];
+}> {
+  const registeredIds: string[] = [];
+  const unregisteredUsers: { login: string; avatar_url: string }[] = [];
 
-  try {
-    const sigBuf = Buffer.from(signature);
-    const digestBuf = Buffer.from(digest);
-    if (sigBuf.length !== digestBuf.length) {
-      return false;
+  const userIds = githubUsers.map((u) => String(u.id));
+  const accounts = await prisma.account.findMany({
+    where: {
+      provider: "github",
+      providerAccountId: { in: userIds },
+    },
+  });
+
+  const accountMap = new Map(
+    accounts.map((a) => [a.providerAccountId, a.userId]),
+  );
+
+  for (const user of githubUsers) {
+    const userId = accountMap.get(String(user.id));
+    if (userId) {
+      registeredIds.push(userId);
+    } else {
+      unregisteredUsers.push({
+        login: user.login,
+        avatar_url: user.avatar_url,
+      });
     }
-    return crypto.timingSafeEqual(sigBuf, digestBuf);
-  } catch (e) {
-    console.error(e);
-    return false;
   }
+
+  return { registeredIds, unregisteredUsers };
 }
 
 export async function POST(req: NextRequest) {
@@ -48,9 +74,9 @@ export async function POST(req: NextRequest) {
     }
 
     let action: string;
-    let pr: any;
-    let repo: any;
-    let review: any;
+    let pr: PullRequest | SimplePullRequest;
+    let repo: { id: number };
+    let review: PullRequestReview | undefined;
 
     if (event === "pull_request") {
       const prEvent = payload as PullRequestEvent;
@@ -79,106 +105,39 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Board not found for repo" });
     }
 
-    let status: TaskStatus | undefined = undefined;
-
-    if (event === "pull_request") {
-      if (pr.draft) {
-        status = TaskStatus.TODO;
-      } else if (action === "opened") {
-        status = TaskStatus.IN_PROGRESS;
-      } else if (
-        action === "ready_for_review" ||
-        action === "review_requested"
-      ) {
-        status = TaskStatus.IN_REVIEW;
-      } else if (action === "review_request_removed") {
-        status = TaskStatus.IN_PROGRESS;
-      } else if (action === "closed") {
-        if (pr.merged) {
-          status = TaskStatus.DONE;
-        } else {
-          status = TaskStatus.CLOSED;
-        }
-      } else if (action === "reopened") {
-        status = TaskStatus.IN_PROGRESS;
-      }
-    } else if (event === "pull_request_review") {
-      if (action === "submitted" && review?.state === "changes_requested") {
-        status = TaskStatus.CHANGES_REQUESTED;
-      }
-    }
+    const status = determineTaskStatus(event, action, pr, review);
 
     // Process assignees and reviewers
     const assignees = pr.assignees || [];
-    const requestedReviewers = pr.requested_reviewers || [];
-
-    const registeredAssignees: string[] = [];
-    const unregisteredAssignees: { login: string; avatar_url: string }[] = [];
-
-    const assigneeIds = assignees.map((a: any) => String(a.id));
-    const assigneeAccounts = await prisma.account.findMany({
-      where: {
-        provider: "github",
-        providerAccountId: { in: assigneeIds },
-      },
-    });
-
-    const assigneeAccountMap = new Map(
-      assigneeAccounts.map((a) => [a.providerAccountId, a.userId]),
+    const requestedReviewers = (pr.requested_reviewers || []).filter(
+      isGitHubUser,
     );
 
-    for (const assignee of assignees) {
-      const userId = assigneeAccountMap.get(String(assignee.id));
-      if (userId) {
-        registeredAssignees.push(userId);
-      } else {
-        unregisteredAssignees.push({
-          login: assignee.login,
-          avatar_url: assignee.avatar_url,
-        });
-      }
-    }
+    const {
+      registeredIds: registeredAssignees,
+      unregisteredUsers: unregisteredAssignees,
+    } = await resolveUsers(assignees);
+    const {
+      registeredIds: registeredReviewers,
+      unregisteredUsers: unregisteredReviewers,
+    } = await resolveUsers(requestedReviewers);
 
-    const registeredReviewers: string[] = [];
-    const unregisteredReviewers: { login: string; avatar_url: string }[] = [];
-
-    // The PR object has requested_reviewers (we can assume these are users, not teams, for our purposes right now, or filter if needed)
-    // Actually, requested_reviewers can be User | Team. We'll only map those that have an 'id'.
-    const reviewerIds = requestedReviewers
-      .filter(
-        (r: any): r is Extract<typeof r, { id: number }> =>
-          "id" in r && "login" in r && "avatar_url" in r,
-      )
-      .map((r: any) => String(r.id));
-
-    const reviewerAccounts = await prisma.account.findMany({
-      where: {
-        provider: "github",
-        providerAccountId: { in: reviewerIds },
+    const updateData: Prisma.TaskUpdateInput = {
+      title: pr.title,
+      description: pr.body || "",
+      branchName: pr.head.ref,
+      assignees: {
+        set: registeredAssignees.map((id) => ({ id })),
       },
-    });
+      reviewers: {
+        set: registeredReviewers.map((id) => ({ id })),
+      },
+      unregisteredAssignees: JSON.stringify(unregisteredAssignees),
+      unregisteredReviewers: JSON.stringify(unregisteredReviewers),
+    };
 
-    const reviewerAccountMap = new Map(
-      reviewerAccounts.map((a) => [a.providerAccountId, a.userId]),
-    );
-
-    for (const reviewer of requestedReviewers as any[]) {
-      if (
-        !("id" in reviewer) ||
-        !("login" in reviewer) ||
-        !("avatar_url" in reviewer)
-      )
-        continue; // skip teams
-
-      const userId = reviewerAccountMap.get(String(reviewer.id));
-      if (userId) {
-        registeredReviewers.push(userId);
-      } else {
-        unregisteredReviewers.push({
-          login: reviewer.login,
-          avatar_url: reviewer.avatar_url,
-        });
-      }
+    if (status !== undefined) {
+      updateData.status = status;
     }
 
     // See if task with this PR already exists
@@ -190,24 +149,6 @@ export async function POST(req: NextRequest) {
     });
 
     if (existingTask) {
-      const updateData: any = {
-        title: pr.title,
-        description: pr.body || "",
-        branchName: pr.head.ref,
-        assignees: {
-          set: registeredAssignees.map((id) => ({ id })),
-        },
-        reviewers: {
-          set: registeredReviewers.map((id) => ({ id })),
-        },
-        unregisteredAssignees: JSON.stringify(unregisteredAssignees),
-        unregisteredReviewers: JSON.stringify(unregisteredReviewers),
-      };
-
-      if (status !== undefined) {
-        updateData.status = status;
-      }
-
       await prisma.task.update({
         where: { id: existingTask.id },
         data: updateData,
@@ -230,27 +171,16 @@ export async function POST(req: NextRequest) {
 
         if (match.bestMatch.rating >= SIMILARITY_THRESHOLD) {
           const matchedTask = unlinkedTasks[match.bestMatchIndex];
-          const updateData: any = {
-            prNumber: pr.number,
-            branchName: pr.head.ref,
-            description: matchedTask.description || pr.body || "",
-            assignees: {
-              set: registeredAssignees.map((id) => ({ id })),
-            },
-            reviewers: {
-              set: registeredReviewers.map((id) => ({ id })),
-            },
-            unregisteredAssignees: JSON.stringify(unregisteredAssignees),
-            unregisteredReviewers: JSON.stringify(unregisteredReviewers),
-          };
 
-          if (status !== undefined) {
-            updateData.status = status;
-          }
+          const linkedUpdateData: Prisma.TaskUpdateInput = {
+            ...updateData,
+            prNumber: pr.number,
+            description: matchedTask.description || pr.body || "",
+          };
 
           await prisma.task.update({
             where: { id: matchedTask.id },
-            data: updateData,
+            data: linkedUpdateData,
           });
           return NextResponse.json({ message: "Task linked and updated" });
         }
