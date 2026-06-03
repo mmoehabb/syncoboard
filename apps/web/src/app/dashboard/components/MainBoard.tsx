@@ -214,7 +214,7 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
         </div>
         <button
           onClick={() => router.push("/settings")}
-          className="bg-git-green text-obsidian-night font-bold font-mono py-2 px-4 hover:bg-opacity-90 transition-opacity rounded"
+          className="border border-neon-pulse text-neon-pulse font-bold font-mono py-2 px-4 hover:bg-neon-pulse hover:text-obsidian-night transition-colors rounded"
         >
           Add Board
         </button>
