@@ -7,10 +7,14 @@
     "@syncoboard/db": "workspace:*"
   },
   "scripts": {
-    "test": "bun test"
+    "test": "bun test",
+    "lint": "eslint ."
   },
   "devDependencies": {
     "@types/node": "^20.19.39",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "eslint": "8.57.0",
+    "eslint-config-next": "^16.2.4",
+    "eslint-plugin-unused-imports": "4.4.1"
   }
 }

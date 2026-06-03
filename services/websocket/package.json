@@ -6,7 +6,8 @@
   "scripts": {
     "start": "bun run src/index.ts",
     "dev": "bun run --watch src/index.ts",
-    "build": "echo no build command for websocket"
+    "build": "echo no build command for websocket",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@syncoboard/shared": "workspace:*",
@@ -14,6 +15,9 @@
   },
   "devDependencies": {
     "@types/node": "^20",
-    "typescript": "^5"
+    "typescript": "^5",
+    "eslint": "8.57.0",
+    "eslint-config-next": "^16.2.4",
+    "eslint-plugin-unused-imports": "4.4.1"
   }
 }

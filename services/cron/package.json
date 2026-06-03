@@ -6,7 +6,8 @@
   "scripts": {
     "start": "bun run src/index.ts",
     "dev": "bun run --watch src/index.ts",
-    "build": "echo no build command for cron"
+    "build": "echo no build command for cron",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@syncoboard/db": "workspace:*",
@@ -16,6 +17,9 @@
   "devDependencies": {
     "@types/node": "^20.19.39",
     "@types/node-cron": "^3.0.11",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "eslint": "8.57.0",
+    "eslint-config-next": "^16.2.4",
+    "eslint-plugin-unused-imports": "4.4.1"
   }
 }

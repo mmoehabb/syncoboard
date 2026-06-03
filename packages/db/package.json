@@ -10,7 +10,8 @@
     "seed": "prisma db seed",
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
-    "migrate:reset": "prisma migrate reset"
+    "migrate:reset": "prisma migrate reset",
+    "lint": "eslint ."
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -25,6 +26,9 @@
     "@types/pg": "^8.11.0",
     "bcryptjs": "^3.0.3",
     "prisma": "^7.7.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "eslint": "8.57.0",
+    "eslint-config-next": "^16.2.4",
+    "eslint-plugin-unused-imports": "4.4.1"
   }
 }
