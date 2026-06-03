@@ -1,7 +1,6 @@
 import { serve } from "bun";
 import { Prisma, prisma } from "@syncoboard/db";
 import stringSimilarity from "string-similarity";
-import type { TaskStatus } from "@prisma/client";
 import {
   PullRequestEvent,
   PullRequestReviewEvent,

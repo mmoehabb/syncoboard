@@ -1,7 +1,6 @@
 import { handleGithubWebhook } from "../src/index";
 import { describe, it, expect, beforeEach, afterAll, mock } from "bun:test";
 import crypto from "crypto";
-import type { TaskStatus } from "@prisma/client";
 
 // We need to bypass the secret for tests if GITHUB_WEBHOOK_SECRET is not set,
 // or set it explicitly so we can test signature verification.
@@ -32,7 +31,7 @@ mock.module("@syncoboard/db", () => ({
 
 describe("GitHub Webhook", () => {
   let testBoard: { id: string };
-  let prismaMock: any;
+  let prismaMock: Record<string, Record<string, ReturnType<typeof mock>>>;
 
   beforeEach(async () => {
     const db = await import("@syncoboard/db");
