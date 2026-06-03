@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterAll, mock } from "bun:test";
 import { POST } from "@/app/api/tasks/route";
+import { TaskStatus } from "@prisma/client";
 
 const mockPrisma = {
   boardMember: {
@@ -15,7 +16,7 @@ const mockPrisma = {
     create: mock().mockResolvedValue({
       id: BigInt(1),
       title: "Test",
-      status: "TODO",
+      status: TaskStatus.TODO,
     }),
   },
 };

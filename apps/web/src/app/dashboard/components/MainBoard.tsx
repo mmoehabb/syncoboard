@@ -13,6 +13,11 @@ import type { MainBoardData, MainBoardTask, UnregisteredUser } from "./types";
 import { useSocket } from "@/context/SocketContext";
 import { WEBSOCKET_EVENTS } from "@syncoboard/shared";
 import {
+  TASK_STATUSES,
+  TASK_STATUS_GROUPS,
+  TASK_STATUS_ORDER,
+} from "@syncoboard/types";
+import {
   ContextMenu,
   ContextMenuItem,
   ContextMenuSubMenu,
@@ -141,15 +146,6 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
     });
   };
 
-  const ALL_STATUSES = [
-    "TODO",
-    "IN_PROGRESS",
-    "IN_REVIEW",
-    "CHANGES_REQUESTED",
-    "DONE",
-    "CLOSED",
-  ];
-
   useEffect(() => {
     setSearchValue(searchQueryParam);
   }, [searchQueryParam]);
@@ -194,18 +190,9 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
     if (!board?.tasks) return [];
 
     // Sort tasks by status to match the visual grouping
-    const statusOrder: Record<string, number> = {
-      TODO: 0,
-      IN_PROGRESS: 1,
-      IN_REVIEW: 2,
-      CHANGES_REQUESTED: 3,
-      DONE: 4,
-      CLOSED: 5,
-    };
-
     return [...board.tasks].sort((a: MainBoardTask, b: MainBoardTask) => {
-      const orderA = statusOrder[a.status] ?? 99;
-      const orderB = statusOrder[b.status] ?? 99;
+      const orderA = TASK_STATUS_ORDER[a.status] ?? 99;
+      const orderB = TASK_STATUS_ORDER[b.status] ?? 99;
       if (orderA !== orderB) return orderA - orderB;
       // Secondary sort by updatedAt desc
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
@@ -218,19 +205,6 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
       tasks.find((t: MainBoardTask) => t.id.toString() === taskIdParam) || null
     );
   }, [taskIdParam, tasks]);
-
-  const statusGroups = [
-    { title: "TODO", status: "TODO", color: "text-syntax-grey" },
-    { title: "IN PROGRESS", status: "IN_PROGRESS", color: "text-neon-pulse" },
-    { title: "IN REVIEW", status: "IN_REVIEW", color: "text-git-green" },
-    {
-      title: "CHANGES REQUESTED",
-      status: "CHANGES_REQUESTED",
-      color: "text-red-400",
-    },
-    { title: "DONE", status: "DONE", color: "text-git-green opacity-50" },
-    { title: "CLOSED", status: "CLOSED", color: "text-syntax-grey opacity-50" },
-  ];
 
   if (!board) {
     return (
@@ -266,7 +240,7 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
 
           <div className="flex flex-col gap-4 h-full overflow-y-auto p-2 no-scrollbar">
             {tasks.length > 0 &&
-              statusGroups.map((group) => {
+              TASK_STATUS_GROUPS.map((group) => {
                 const groupTasks = tasks.filter(
                   (t: MainBoardTask) => t.status === group.status,
                 );
@@ -316,7 +290,7 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
             onMouseEnter={handleMoveMenuMouseEnter}
             onMouseLeave={handleMoveMenuMouseLeave}
           >
-            {ALL_STATUSES.map((status) => (
+            {TASK_STATUSES.map((status) => (
               <ContextMenuItem
                 key={status}
                 onClick={() => handleMoveOptionClick(status)}
