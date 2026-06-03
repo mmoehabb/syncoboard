@@ -16,13 +16,13 @@ export function serializeBigInt<T>(obj: T): T {
       return obj;
     }
 
-    const result = {} as any;
+    const result: Record<string, unknown> = {};
     for (const key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        result[key] = serializeBigInt((obj as any)[key]);
+        result[key] = serializeBigInt((obj as Record<string, unknown>)[key]);
       }
     }
-    return result;
+    return result as T;
   }
 
   return obj;

@@ -29,7 +29,7 @@ export interface AdminPlanCreateRequest {
   isActive?: boolean;
 }
 
-export interface AdminPlanUpdateRequest extends Partial<AdminPlanCreateRequest> {}
+export type AdminPlanUpdateRequest = Partial<AdminPlanCreateRequest>;
 
 export interface AdminChangePasswordRequest {
   currentPassword?: string;

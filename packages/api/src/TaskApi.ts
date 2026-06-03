@@ -2,11 +2,7 @@ import { ApiClient } from "./ApiClient";
 import { AxiosRequestConfig } from "axios";
 import { TaskStatus } from "@syncoboard/db";
 import type { Task } from "@syncoboard/db";
-import type {
-  CreateTaskPayload,
-  UpdateTaskStatusPayload,
-  ListTasksResponse,
-} from "@syncoboard/types";
+import type { CreateTaskPayload, ListTasksResponse } from "@syncoboard/types";
 
 export class TaskApi extends ApiClient {
   constructor(baseURL?: string) {

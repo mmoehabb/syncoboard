@@ -9,11 +9,19 @@ import {
   verifyWebhookSignature,
 } from "../api";
 
+type MockFn = {
+  mockClear(): void;
+  mockImplementation(fn: (...args: unknown[]) => unknown): void;
+  mock: { calls: Array<unknown[]> };
+};
+
 mock.module("axios", () => ({
   default: {
     post: mock(),
   },
 }));
+
+const mockedAxiosPost = axios.post as unknown as MockFn;
 
 describe("PayPal API", () => {
   const originalEnv = process.env;
@@ -23,10 +31,10 @@ describe("PayPal API", () => {
     process.env.PAYPAL_CLIENT_ID = "test-client-id";
     process.env.PAYPAL_CLIENT_SECRET = "test-client-secret";
     process.env.PAYPAL_ENV = "sandbox";
-    (axios.post as any).mockClear();
+    mockedAxiosPost.mockClear();
 
     // Default mock implementation to handle token requests and other API calls
-    (axios.post as any).mockImplementation((url: string) => {
+    mockedAxiosPost.mockImplementation((url: string) => {
       if (url.includes("/v1/oauth2/token")) {
         return Promise.resolve({
           data: {
@@ -69,19 +77,19 @@ describe("PayPal API", () => {
 
     test("should use cached token if not expired", async () => {
       // Clear mock to track new calls
-      (axios.post as any).mockClear();
+      mockedAxiosPost.mockClear();
 
       // Since the module is not reloaded, the token from previous tests might still be there.
       // We call it once to ensure it's cached.
       await getPayPalAccessToken();
-      const initialCallCount = (axios.post as any).mock.calls.filter(
-        (call: any[]) => call[0].includes("/v1/oauth2/token"),
+      const initialCallCount = mockedAxiosPost.mock.calls.filter(
+        (call: unknown[]) => (call[0] as string).includes("/v1/oauth2/token"),
       ).length;
 
       // Second call should use cache
       await getPayPalAccessToken();
-      const secondCallCount = (axios.post as any).mock.calls.filter(
-        (call: any[]) => call[0].includes("/v1/oauth2/token"),
+      const secondCallCount = mockedAxiosPost.mock.calls.filter(
+        (call: unknown[]) => (call[0] as string).includes("/v1/oauth2/token"),
       ).length;
 
       expect(secondCallCount).toBe(initialCallCount);
@@ -90,7 +98,7 @@ describe("PayPal API", () => {
 
   describe("createPayPalProduct", () => {
     test("should create product successfully", async () => {
-      (axios.post as any).mockImplementation((url: string) => {
+      mockedAxiosPost.mockImplementation((url: string) => {
         if (url.includes("/v1/oauth2/token")) {
           return Promise.resolve({
             data: { access_token: "token", expires_in: 3600 },
@@ -126,7 +134,7 @@ describe("PayPal API", () => {
 
   describe("createPayPalPlan", () => {
     test("should create plan with correct interval mapping", async () => {
-      (axios.post as any).mockImplementation((url: string) => {
+      mockedAxiosPost.mockImplementation((url: string) => {
         if (url.includes("/v1/oauth2/token")) {
           return Promise.resolve({
             data: { access_token: "token", expires_in: 3600 },
@@ -191,7 +199,7 @@ describe("PayPal API", () => {
 
   describe("createPayPalSubscription", () => {
     test("should create subscription successfully", async () => {
-      (axios.post as any).mockImplementation((url: string) => {
+      mockedAxiosPost.mockImplementation((url: string) => {
         if (url.includes("/v1/oauth2/token")) {
           return Promise.resolve({
             data: { access_token: "token", expires_in: 3600 },
@@ -245,7 +253,7 @@ describe("PayPal API", () => {
 
   describe("verifyWebhookSignature", () => {
     test("should return true on SUCCESS", async () => {
-      (axios.post as any).mockImplementation((url: string) => {
+      mockedAxiosPost.mockImplementation((url: string) => {
         if (url.includes("/v1/oauth2/token")) {
           return Promise.resolve({
             data: { access_token: "token", expires_in: 3600 },
@@ -279,7 +287,7 @@ describe("PayPal API", () => {
     });
 
     test("should return false on FAILURE", async () => {
-      (axios.post as any).mockImplementation((url: string) => {
+      mockedAxiosPost.mockImplementation((url: string) => {
         if (url.includes("/v1/oauth2/token")) {
           return Promise.resolve({
             data: { access_token: "token", expires_in: 3600 },

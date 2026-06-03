@@ -15,11 +15,15 @@ export class PayPalProvider implements PaymentProvider<PayPalWebhookEvent> {
     for (const plan of plans) {
       try {
         await createPayPalProduct(plan.id, plan.name);
-      } catch (err: any) {
-        if (err.response?.status !== 400) {
+      } catch (err: unknown) {
+        const paypalErr = err as {
+          response?: { data?: unknown; status?: number };
+          message?: string;
+        };
+        if (paypalErr.response?.status !== 400) {
           console.error(
             `Error creating PayPal product for plan ${plan.id}`,
-            err.response?.data || err.message,
+            paypalErr.response?.data || paypalErr.message,
           );
         }
       }
@@ -30,7 +34,7 @@ export class PayPalProvider implements PaymentProvider<PayPalWebhookEvent> {
             const paypalPlan = await createPayPalPlan(
               plan.id,
               `${plan.name} - ${price.interval}`,
-              price.interval as any,
+              price.interval as "WEEK" | "MONTH" | "YEAR" | "LIFETIME",
               price.amount,
               price.currency,
             );
@@ -42,10 +46,14 @@ export class PayPalProvider implements PaymentProvider<PayPalWebhookEvent> {
             console.log(
               `Synced PayPal plan for Price ${price.id}: ${paypalPlan.id}`,
             );
-          } catch (err: any) {
+          } catch (err: unknown) {
+            const paypalErr = err as {
+              response?: { data?: unknown };
+              message?: string;
+            };
             console.error(
               `Error creating PayPal plan for price ${price.id}`,
-              err.response?.data || err.message,
+              paypalErr.response?.data || paypalErr.message,
             );
           }
         }
@@ -77,7 +85,9 @@ export class PayPalProvider implements PaymentProvider<PayPalWebhookEvent> {
       cancelUrl,
     );
 
-    const approvalLink = sub.links.find((link: any) => link.rel === "approve");
+    const approvalLink = sub.links.find(
+      (link: { rel: string; href: string }) => link.rel === "approve",
+    );
 
     if (!approvalLink) {
       throw new Error("Could not find approval link in PayPal response");

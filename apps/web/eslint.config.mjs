@@ -14,10 +14,11 @@ const eslintConfig = [
       ),
     },
     rules: {
-      "unused-imports/no-unused-imports": "warn",
-      "no-unused-vars": "warn",
-      "@typescript-eslint/no-unused-vars": "warn",
+      "unused-imports/no-unused-imports": "error",
+      "no-unused-vars": "error",
+      "@typescript-eslint/no-unused-vars": "error",
       "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-empty-object-type": "error",
     },
   },
 ];

@@ -1,4 +1,5 @@
 import { prisma } from "@syncoboard/db";
+import type { Plan, Subscription } from "@syncoboard/db";
 
 /**
  * Revokes excess perks (workspaces, boards) when a user's subscription changes
@@ -7,7 +8,7 @@ import { prisma } from "@syncoboard/db";
  */
 export async function enforceSubscriptionLimits(
   userId: string,
-  activeSubscription?: any | null,
+  activeSubscription?: (Subscription & { price?: { plan: Plan } }) | null,
 ) {
   let subscription = activeSubscription;
 

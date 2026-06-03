@@ -1,11 +1,9 @@
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
+import tseslint from "typescript-eslint";
 
-const eslintConfig = [
-  ...nextVitals,
-  ...nextTs,
+const eslintConfig = tseslint.config(
+  ...tseslint.configs.recommended,
   {
-    ignores: [".next/**", "out/**", "build/**", "next-env.d.ts"],
+    ignores: ["dist/**", "build/**"],
   },
   {
     plugins: {
@@ -21,6 +19,6 @@ const eslintConfig = [
       "@typescript-eslint/no-empty-object-type": "error",
     },
   },
-];
+);
 
 export default eslintConfig;
