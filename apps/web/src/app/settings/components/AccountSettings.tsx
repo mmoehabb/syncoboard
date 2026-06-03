@@ -26,6 +26,17 @@ export function AccountSettings({
   const [cancelCountdown, setCancelCountdown] = useState(5);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const daysRemaining = subscription?.currentPeriodEnd
+    ? Math.max(
+        0,
+        Math.ceil(
+          (new Date(subscription.currentPeriodEnd).getTime() -
+            new Date().getTime()) /
+            (1000 * 60 * 60 * 24),
+        ),
+      )
+    : null;
+
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (isDeactivateDialogOpen && deactivateCountdown > 0) {
@@ -111,6 +122,12 @@ export function AccountSettings({
                   {subscription.cancelAtPeriodEnd &&
                     " (Canceling at period end)"}
                 </div>
+                {daysRemaining !== null &&
+                  subscription.price?.plan?.name !== "Free" && (
+                    <div className="text-sm font-mono text-syntax-grey mt-1">
+                      Days remaining to renew: {daysRemaining}
+                    </div>
+                  )}
               </div>
             </div>
 
