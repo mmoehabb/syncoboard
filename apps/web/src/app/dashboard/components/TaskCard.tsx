@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { MainBoardTask, UnregisteredUser } from "./types";
 import { formatRelativeOrAbsoluteDate } from "@/lib/utils/date";
 
@@ -102,11 +103,12 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                       title={`Assignee: ${user.name || user.email || "Unknown"}`}
                     >
                       {user.image ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
+                        <Image
+                          fill
+                          sizes="20px"
                           src={user.image}
                           alt="Avatar"
-                          className="w-full h-full object-cover"
+                          className="object-cover"
                         />
                       ) : (
                         <div className="w-full h-full bg-neon-pulse/20 text-neon-pulse flex items-center justify-center text-[10px] font-bold">
@@ -124,11 +126,12 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                       title={`Assignee: Anonymous (${u.login}) - Not registered on Syncoboard`}
                     >
                       {u.avatar_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
+                        <Image
+                          fill
+                          sizes="20px"
                           src={u.avatar_url}
                           alt="Avatar"
-                          className="w-full h-full object-cover grayscale opacity-80"
+                          className="object-cover grayscale opacity-80"
                         />
                       ) : (
                         <div className="w-full h-full bg-syntax-grey/20 text-syntax-grey flex items-center justify-center text-[10px] font-bold">
@@ -154,11 +157,12 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                         title={`Reviewer: ${user.name || user.email || "Unknown"}`}
                       >
                         {user.image ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
+                          <Image
+                            fill
+                            sizes="20px"
                             src={user.image}
                             alt="Avatar"
-                            className="w-full h-full object-cover"
+                            className="object-cover"
                           />
                         ) : (
                           <div className="w-full h-full bg-git-green/20 text-git-green flex items-center justify-center text-[10px] font-bold">
@@ -176,11 +180,12 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                         title={`Reviewer: Anonymous (${u.login}) - Not registered on Syncoboard`}
                       >
                         {u.avatar_url ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
+                          <Image
+                            fill
+                            sizes="20px"
                             src={u.avatar_url}
                             alt="Avatar"
-                            className="w-full h-full object-cover grayscale opacity-80"
+                            className="object-cover grayscale opacity-80"
                           />
                         ) : (
                           <div className="w-full h-full bg-syntax-grey/20 text-syntax-grey flex items-center justify-center text-[10px] font-bold">

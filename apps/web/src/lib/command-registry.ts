@@ -1,7 +1,9 @@
 import { Command } from "../types/commands";
 import { NORMAL_ACTIONS_REGISTRY } from "./normal-actions-registry";
+import { extractErrorMessage } from "./error";
 
 import { resolvePath } from "@syncoboard/shared";
+import { TASK_STATUSES } from "@syncoboard/types";
 
 export const COMMAND_REGISTRY: Record<string, Command> = {
   ls: {
@@ -325,7 +327,7 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
     name: "restore-workspace",
     description:
       "Restore a soft-deleted workspace (usage: /restore-workspace <workspace_name>)",
-    action: ({ args, printOutput, updatePrompt }: any) => {
+    action: ({ args, printOutput, updatePrompt }) => {
       if (!args || args.length === 0) {
         printOutput([
           "Error: Missing arguments. Usage: /restore-workspace <workspace_name>",
@@ -354,11 +356,11 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
               setTimeout(() => {
                 window.location.reload();
               }, 1000);
-            } catch (err: any) {
-              const errorMessage =
-                err.response?.data?.error?.message ||
-                err.message ||
-                "Failed to restore workspace.";
+            } catch (err) {
+              const errorMessage = extractErrorMessage(
+                err,
+                "Failed to restore workspace.",
+              );
               printOutput([`Error: ${errorMessage}`]);
             }
           },
@@ -812,18 +814,10 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
       const statusRaw = args.slice(1).join(" ");
       const status = statusRaw.replace(/[\s-]+/g, "_").toUpperCase();
 
-      const validStatuses = [
-        "TODO",
-        "IN_PROGRESS",
-        "IN_REVIEW",
-        "CHANGES_REQUESTED",
-        "DONE",
-        "CLOSED",
-      ];
-      if (!validStatuses.includes(status)) {
+      if (!TASK_STATUSES.some((s) => s === status)) {
         printOutput([
           `Error: Invalid status '${statusRaw}'.`,
-          `Allowed statuses: ${validStatuses.join(", ")}`,
+          `Allowed statuses: ${TASK_STATUSES.join(", ")}`,
         ]);
         return;
       }

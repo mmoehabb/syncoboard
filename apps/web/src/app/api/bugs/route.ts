@@ -4,16 +4,14 @@ import { API_ERRORS, apiError } from "@/lib/api/error";
 import { prisma } from "@syncoboard/db";
 import { RateLimiter } from "@/lib/api/rate-limit";
 import type { BugReportPayload, BugReportResponse } from "@syncoboard/types";
+import { getClientIp } from "@/lib/utils/ip";
+import type { NextRequest } from "next/server";
 
 // Limit to 5 requests per minute per IP
 const rateLimiter = new RateLimiter(60 * 1000, 5);
 
-export async function POST(req: Request) {
-  // Simple IP extraction (this is basic and might need adjustment if behind a proxy like Cloudflare)
-  const ip =
-    req.headers.get("x-forwarded-for") ||
-    req.headers.get("x-real-ip") ||
-    "unknown";
+export async function POST(req: NextRequest) {
+  const ip = getClientIp(req);
 
   if (rateLimiter.isLimited(ip)) {
     return apiError(

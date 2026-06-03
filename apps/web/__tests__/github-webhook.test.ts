@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterAll, mock } from "bun:test";
 import { POST } from "@/app/api/github/hook/route";
 import { NextRequest } from "next/server";
 import crypto from "crypto";
+import { TaskStatus } from "@prisma/client";
 
 // We need to bypass the secret for tests if GITHUB_WEBHOOK_SECRET is not set,
 // or set it explicitly so we can test signature verification.
@@ -167,7 +168,7 @@ describe("GitHub Webhook", () => {
         boardId: testBoard.id,
         title: "Add awesome feature",
         description: "Initial plan",
-        status: "TODO",
+        status: TaskStatus.TODO,
       },
     ]);
     prismaMock.task.update.mockResolvedValueOnce({ id: "task-1" });
@@ -205,7 +206,7 @@ describe("GitHub Webhook", () => {
       id: "task-1",
       boardId: testBoard.id,
       title: "Existing PR",
-      status: "IN_PROGRESS",
+      status: TaskStatus.IN_PROGRESS,
       prNumber: 3,
       branchName: "existing-branch",
     });

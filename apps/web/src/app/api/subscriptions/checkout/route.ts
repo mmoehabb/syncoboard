@@ -48,7 +48,9 @@ export async function POST(req: Request) {
     }
 
     if (!price.providerPlanId) {
-      return apiError(API_ERRORS.customInternal("Could not sync provider plan"));
+      return apiError(
+        API_ERRORS.customInternal("Could not sync provider plan"),
+      );
     }
 
     const user = {
@@ -84,7 +86,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ approvalUrl });
   } catch (error: unknown) {
-    console.error("Checkout Error:", error instanceof Error ? error.message : "Unknown error");
+    console.error(
+      "Checkout Error:",
+      error instanceof Error ? error.message : "Unknown error",
+    );
     return apiError(API_ERRORS.INTERNAL_SERVER_ERROR);
   }
 }
