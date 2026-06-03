@@ -1,12 +1,12 @@
 export type SerializedBigInt<T> = T extends bigint
   ? string
   : T extends Date
-  ? T
-  : T extends Array<infer U>
-  ? Array<SerializedBigInt<U>>
-  : T extends object
-  ? { [K in keyof T]: SerializedBigInt<T[K]> }
-  : T;
+    ? T
+    : T extends Array<infer U>
+      ? Array<SerializedBigInt<U>>
+      : T extends object
+        ? { [K in keyof T]: SerializedBigInt<T[K]> }
+        : T;
 
 export function serializeBigInt<T>(obj: T): SerializedBigInt<T> {
   if (obj === null || obj === undefined) {
