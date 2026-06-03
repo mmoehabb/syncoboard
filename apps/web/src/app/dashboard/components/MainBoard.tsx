@@ -208,10 +208,16 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
 
   if (!board) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-obsidian-night transition-all cmd-container">
+      <div className="flex-1 flex flex-col items-center justify-center bg-obsidian-night transition-all cmd-container gap-4">
         <div className="text-syntax-grey font-mono text-sm">
           Select a board to view tasks
         </div>
+        <button
+          onClick={() => router.push("/settings")}
+          className="border border-neon-pulse text-neon-pulse font-bold font-mono py-2 px-4 hover:bg-neon-pulse hover:text-obsidian-night transition-colors rounded"
+        >
+          Add Board
+        </button>
         <span className="absolute top-4 right-4 text-neon-pulse font-mono text-xs opacity-0 [.cmd-active-container_&]:opacity-100 transition-opacity">
           focused
         </span>
