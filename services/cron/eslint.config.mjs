@@ -17,9 +17,9 @@ const eslintConfig = [
       "unused-imports/no-unused-imports": "warn",
       "no-unused-vars": "warn",
       "@typescript-eslint/no-unused-vars": "warn",
-      "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/no-empty-object-type": "off",
-      "@next/next/no-html-link-for-pages": "off",
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-empty-object-type": "error",
+      "@next/next/no-html-link-for-pages": "error"
     },
   },
 ];
