@@ -31,13 +31,16 @@ async function getEcosystemApps(): Promise<string[]> {
       return config.apps
         .map((app: any) => app.name)
         .filter(
-          (name: string) => name !== "deployer" && name !== "maintenance",
+          (name: string) =>
+            name !== "deployer" &&
+            name !== "maintenance" &&
+            name !== "webhook",
         );
     }
   } catch (error) {
     console.error("Failed to load ecosystem.config.js", error);
   }
-  return ["web", "dashboard", "websocket", "cron", "webhook"]; // fallback
+  return ["web", "dashboard", "websocket", "cron"]; // fallback
 }
 
 async function runDeployment() {
