@@ -330,7 +330,6 @@ export function AccountSettings({
           </div>
         </div>
       )}
-
     </div>
   );
 }
