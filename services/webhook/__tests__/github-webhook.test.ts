@@ -1,4 +1,4 @@
-import { handleGithubWebhook } from "../src/index";
+import { handleGithubWebhook } from "../src/handlers/github";
 import { describe, it, expect, beforeEach, afterAll, mock } from "bun:test";
 import crypto from "crypto";
 
