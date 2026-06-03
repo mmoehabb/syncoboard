@@ -6,7 +6,7 @@
   "scripts": {
     "start": "bun run index.ts",
     "dev": "bun run --watch index.ts",
-    "build": "bun build index.ts --target=bun"
+    "build": "echo no build command for deployer"
   },
   "dependencies": {},
   "devDependencies": {
