@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { apiError, API_ERRORS } from "@/lib/api/error";
 import { prisma } from "@syncoboard/db";
 import { PayPalProvider } from "@syncoboard/payment";
-import { API_ERRORS, apiError } from "@/lib/api/error";
 
 export async function POST(req: Request) {
   try {
@@ -85,8 +85,11 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ approvalUrl });
-  } catch (error) {
-    console.error("Checkout Error:", error);
+  } catch (error: unknown) {
+    console.error(
+      "Checkout Error:",
+      error instanceof Error ? error.message : "Unknown error",
+    );
     return apiError(API_ERRORS.INTERNAL_SERVER_ERROR);
   }
 }
