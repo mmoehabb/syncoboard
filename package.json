@@ -31,6 +31,7 @@
     "utils": "bun --filter @syncoboard/utils",
     "cron": "bun --filter @syncoboard/cron",
     "websocket": "bun --filter websocket",
+    "webhook": "bun --filter @syncoboard/webhook",
     "deployer": "bun --filter @syncoboard/deployer",
     "lint": "bun run --filter \"*\" lint",
     "format": "bun prettier --write .",

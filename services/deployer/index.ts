@@ -37,7 +37,7 @@ async function getEcosystemApps(): Promise<string[]> {
   } catch (error) {
     console.error("Failed to load ecosystem.config.js", error);
   }
-  return ["web", "dashboard", "websocket", "cron"]; // fallback
+  return ["web", "dashboard", "websocket", "cron", "webhook"]; // fallback
 }
 
 async function runDeployment() {

@@ -1,8 +1,7 @@
+import { handleGithubWebhook } from "../src/index";
 import { describe, it, expect, beforeEach, afterAll, mock } from "bun:test";
-import { POST } from "@/app/api/github/hook/route";
-import { NextRequest } from "next/server";
 import crypto from "crypto";
-import { TaskStatus } from "@prisma/client";
+import type { TaskStatus } from "@prisma/client";
 
 // We need to bypass the secret for tests if GITHUB_WEBHOOK_SECRET is not set,
 // or set it explicitly so we can test signature verification.
@@ -66,7 +65,7 @@ describe("GitHub Webhook", () => {
     );
     const signature = `sha256=${hmac.update(bodyText).digest("hex")}`;
 
-    return new NextRequest("http://localhost:3000/api/github/hook", {
+    return new Request("http://localhost:4002/github/hook", {
       method: "POST",
       headers: {
         "x-hub-signature-256": signature,
@@ -77,7 +76,7 @@ describe("GitHub Webhook", () => {
   }
 
   it("should return 401 for invalid signature", async () => {
-    const req = new NextRequest("http://localhost:3000/api/github/hook", {
+    const req = new Request("http://localhost:4002/github/hook", {
       method: "POST",
       headers: {
         "x-hub-signature-256": "sha256=invalid",
@@ -86,15 +85,15 @@ describe("GitHub Webhook", () => {
       body: JSON.stringify({}),
     });
 
-    const response = await POST(req);
+    const response = await handleGithubWebhook(req);
     expect(response.status).toBe(401);
     const data = await response.json();
-    expect(data.error).toBe("Invalid signature");
+    expect(data.message).toBe("Invalid signature");
   });
 
   it("should ignore non-pull_request events", async () => {
     const req = createSignedRequest({}, "push");
-    const response = await POST(req);
+    const response = await handleGithubWebhook(req);
 
     expect(response.status).toBe(200);
     const data = await response.json();
@@ -103,11 +102,11 @@ describe("GitHub Webhook", () => {
 
   it("should return 400 for invalid payload", async () => {
     const req = createSignedRequest({ action: "opened" });
-    const response = await POST(req);
+    const response = await handleGithubWebhook(req);
 
     expect(response.status).toBe(400);
     const data = await response.json();
-    expect(data.error).toBe("Invalid payload");
+    expect(data.message).toBe("Invalid payload");
   });
 
   it("should create a new task when PR is opened and no unlinked task matches", async () => {
@@ -134,7 +133,7 @@ describe("GitHub Webhook", () => {
     prismaMock.task.create.mockResolvedValueOnce({ id: "task-1" });
 
     const req = createSignedRequest(payload);
-    const response = await POST(req);
+    const response = await handleGithubWebhook(req);
 
     expect(response.status).toBe(200);
     const data = await response.json();
@@ -168,13 +167,13 @@ describe("GitHub Webhook", () => {
         boardId: testBoard.id,
         title: "Add awesome feature",
         description: "Initial plan",
-        status: TaskStatus.TODO,
+        status: "TODO",
       },
     ]);
     prismaMock.task.update.mockResolvedValueOnce({ id: "task-1" });
 
     const req = createSignedRequest(payload);
-    const response = await POST(req);
+    const response = await handleGithubWebhook(req);
 
     expect(response.status).toBe(200);
     const data = await response.json();
@@ -206,14 +205,14 @@ describe("GitHub Webhook", () => {
       id: "task-1",
       boardId: testBoard.id,
       title: "Existing PR",
-      status: TaskStatus.IN_PROGRESS,
+      status: "IN_PROGRESS",
       prNumber: 3,
       branchName: "existing-branch",
     });
     prismaMock.task.update.mockResolvedValueOnce({ id: "task-1" });
 
     const req = createSignedRequest(payload);
-    const response = await POST(req);
+    const response = await handleGithubWebhook(req);
 
     expect(response.status).toBe(200);
     const data = await response.json();
@@ -245,12 +244,12 @@ describe("GitHub Webhook", () => {
     prismaMock.task.create.mockResolvedValueOnce({ id: "task-2" });
 
     const req = createSignedRequest(payload);
-    const res = await POST(req);
+    const res = await handleGithubWebhook(req);
     expect(res.status).toBe(200);
     expect(prismaMock.task.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          status: TaskStatus.TODO,
+          status: "TODO",
         }),
       }),
     );
@@ -280,14 +279,14 @@ describe("GitHub Webhook", () => {
       id: "task-3",
       boardId: testBoard.id,
       title: "Assigned PR",
-      status: TaskStatus.IN_PROGRESS,
+      status: "IN_PROGRESS",
       prNumber: 5,
       branchName: "assigned-branch",
     });
     prismaMock.task.update.mockResolvedValueOnce({ id: "task-3" });
 
     const req = createSignedRequest(payload);
-    const res = await POST(req);
+    const res = await handleGithubWebhook(req);
     expect(res.status).toBe(200);
 
     // Status should not be included in the update data
@@ -324,20 +323,20 @@ describe("GitHub Webhook", () => {
       id: "task-4",
       boardId: testBoard.id,
       title: "Ready PR",
-      status: TaskStatus.TODO,
+      status: "TODO",
       prNumber: 6,
       branchName: "ready-branch",
     });
     prismaMock.task.update.mockResolvedValueOnce({ id: "task-4" });
 
     const req = createSignedRequest(payload);
-    const res = await POST(req);
+    const res = await handleGithubWebhook(req);
     expect(res.status).toBe(200);
 
     expect(prismaMock.task.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          status: TaskStatus.IN_REVIEW,
+          status: "IN_REVIEW",
         }),
       }),
     );
@@ -367,20 +366,20 @@ describe("GitHub Webhook", () => {
       id: "task-5",
       boardId: testBoard.id,
       title: "Review removed PR",
-      status: TaskStatus.IN_REVIEW,
+      status: "IN_REVIEW",
       prNumber: 7,
       branchName: "review-removed-branch",
     });
     prismaMock.task.update.mockResolvedValueOnce({ id: "task-5" });
 
     const req = createSignedRequest(payload);
-    const res = await POST(req);
+    const res = await handleGithubWebhook(req);
     expect(res.status).toBe(200);
 
     expect(prismaMock.task.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          status: TaskStatus.IN_PROGRESS,
+          status: "IN_PROGRESS",
         }),
       }),
     );
@@ -413,20 +412,20 @@ describe("GitHub Webhook", () => {
       id: "task-6",
       boardId: testBoard.id,
       title: "Changes requested PR",
-      status: TaskStatus.IN_REVIEW,
+      status: "IN_REVIEW",
       prNumber: 8,
       branchName: "changes-requested-branch",
     });
     prismaMock.task.update.mockResolvedValueOnce({ id: "task-6" });
 
     const req = createSignedRequest(payload, "pull_request_review");
-    const res = await POST(req);
+    const res = await handleGithubWebhook(req);
     expect(res.status).toBe(200);
 
     expect(prismaMock.task.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          status: TaskStatus.CHANGES_REQUESTED,
+          status: "CHANGES_REQUESTED",
         }),
       }),
     );

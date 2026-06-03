@@ -1,0 +1,28 @@
+{
+  "name": "@syncoboard/webhook",
+  "version": "1.0.0",
+  "description": "Webhook service for Syncoboard",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build src/index.ts --target=bun",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@octokit/webhooks-types": "^7.6.1",
+    "@prisma/client": "7.7.0",
+    "@syncoboard/db": "workspace:*",
+    "@syncoboard/shared": "workspace:*",
+    "string-similarity": "^4.0.4"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^20",
+    "@types/string-similarity": "^4.0.2",
+    "typescript": "^5",
+    "eslint": "8.57.0",
+    "eslint-config-next": "^16.2.4",
+    "eslint-plugin-unused-imports": "4.4.1"
+  }
+}

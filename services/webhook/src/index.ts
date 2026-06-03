@@ -1,8 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { serve } from "bun";
 import { Prisma, prisma } from "@syncoboard/db";
 import stringSimilarity from "string-similarity";
-import { TaskStatus } from "@prisma/client";
-import { SIMILARITY_THRESHOLD } from "@/lib/constants";
+import type { TaskStatus } from "@prisma/client";
 import {
   PullRequestEvent,
   PullRequestReviewEvent,
@@ -12,13 +11,11 @@ import {
   Team,
   PullRequestReview,
 } from "@octokit/webhooks-types";
-import { API_ERRORS, apiError } from "@/lib/api/error";
-import {
-  verifySignature,
-  determineTaskStatus,
-} from "@/lib/utils/github/webhook";
+import { verifySignature, determineTaskStatus } from "./utils";
 
-type GitHubUser = { login: string; avatar_url: string; id: number };
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 4002;
+// Constant moved from apps/web/src/lib/constants.ts for threshold
+const SIMILARITY_THRESHOLD = 0.9;
 
 function isGitHubUser(reviewer: User | Team): reviewer is User {
   return "login" in reviewer && "avatar_url" in reviewer && "id" in reviewer;
@@ -58,19 +55,28 @@ async function resolveUsers(githubUsers: User[]): Promise<{
   return { registeredIds, unregisteredUsers };
 }
 
-export async function POST(req: NextRequest) {
+export async function handleGithubWebhook(req: Request): Promise<Response> {
   try {
     const bodyText = await req.text();
 
     if (!verifySignature(req, bodyText)) {
-      return apiError(API_ERRORS.customUnauthorized("Invalid signature"));
+      return new Response(
+        JSON.stringify({
+          error: "Unauthorized",
+          message: "Invalid signature",
+        }),
+        { status: 401, headers: { "Content-Type": "application/json" } },
+      );
     }
 
     const payload = JSON.parse(bodyText);
     const event = req.headers.get("x-github-event");
 
     if (event !== "pull_request" && event !== "pull_request_review") {
-      return NextResponse.json({ message: "Ignored event type" });
+      return new Response(JSON.stringify({ message: "Ignored event type" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     let action: string;
@@ -92,7 +98,13 @@ export async function POST(req: NextRequest) {
     }
 
     if (!pr || !repo) {
-      return apiError(API_ERRORS.customBadRequest("Invalid payload"));
+      return new Response(
+        JSON.stringify({
+          error: "Bad Request",
+          message: "Invalid payload",
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
+      );
     }
 
     const repoIdStr = String(repo.id);
@@ -102,7 +114,10 @@ export async function POST(req: NextRequest) {
     });
 
     if (!board) {
-      return NextResponse.json({ message: "Board not found for repo" });
+      return new Response(
+        JSON.stringify({ message: "Board not found for repo" }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
     }
 
     const status = determineTaskStatus(event, action, pr, review);
@@ -153,7 +168,10 @@ export async function POST(req: NextRequest) {
         where: { id: existingTask.id },
         data: updateData,
       });
-      return NextResponse.json({ message: "Task updated" });
+      return new Response(JSON.stringify({ message: "Task updated" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     // Action is created/opened, try to find 90% matching unlinked task
@@ -182,7 +200,13 @@ export async function POST(req: NextRequest) {
             where: { id: matchedTask.id },
             data: linkedUpdateData,
           });
-          return NextResponse.json({ message: "Task linked and updated" });
+          return new Response(
+            JSON.stringify({ message: "Task linked and updated" }),
+            {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            },
+          );
         }
       }
     }
@@ -190,7 +214,7 @@ export async function POST(req: NextRequest) {
     // Otherwise create a new task
     let createStatus = status;
     if (createStatus === undefined) {
-      createStatus = pr.draft ? TaskStatus.TODO : TaskStatus.IN_PROGRESS;
+      createStatus = pr.draft ? "TODO" : "IN_PROGRESS";
     }
 
     await prisma.task.create({
@@ -212,9 +236,36 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ message: "Task created" });
+    return new Response(JSON.stringify({ message: "Task created" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (err: unknown) {
-    const errorMessage = err instanceof Error ? err.message : "Unknown error";
-    return apiError(API_ERRORS.customInternal(errorMessage));
+    console.error("Webhook error:", err);
+    return new Response(
+      JSON.stringify({
+        error: "Internal Server Error",
+        message: err instanceof Error ? err.message : "Unknown error",
+      }),
+      { status: 500, headers: { "Content-Type": "application/json" } },
+    );
   }
 }
+
+const server = serve({
+  port: PORT,
+  async fetch(req) {
+    const url = new URL(req.url);
+
+    if (req.method === "POST" && url.pathname === "/github/hook") {
+      return handleGithubWebhook(req);
+    }
+
+    return new Response(JSON.stringify({ error: "Not found" }), {
+      status: 404,
+      headers: { "Content-Type": "application/json" },
+    });
+  },
+});
+
+console.log(`[Webhook Service] Listening on port ${server.port}`);
