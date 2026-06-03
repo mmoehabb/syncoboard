@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { apiError, API_ERRORS } from "@/lib/api/error";
 import { prisma } from "@syncoboard/db";
 import { PayPalProvider } from "@syncoboard/payment";
 
@@ -8,16 +9,13 @@ export async function POST(req: Request) {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return apiError(API_ERRORS.UNAUTHORIZED);
     }
 
     const { priceId } = await req.json();
 
     if (!priceId) {
-      return NextResponse.json(
-        { error: "priceId is required" },
-        { status: 400 },
-      );
+      return apiError(API_ERRORS.customBadRequest("priceId is required"));
     }
 
     const price = await prisma.price.findUnique({
@@ -26,7 +24,7 @@ export async function POST(req: Request) {
     });
 
     if (!price) {
-      return NextResponse.json({ error: "Price not found" }, { status: 404 });
+      return apiError(API_ERRORS.customNotFound("Price"));
     }
 
     const provider = new PayPalProvider();
@@ -50,10 +48,7 @@ export async function POST(req: Request) {
     }
 
     if (!price.providerPlanId) {
-      return NextResponse.json(
-        { error: "Could not sync provider plan" },
-        { status: 500 },
-      );
+      return apiError(API_ERRORS.customInternal("Could not sync provider plan"));
     }
 
     const user = {
@@ -88,11 +83,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ approvalUrl });
-  } catch (error: any) {
-    console.error("Checkout Error:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error", details: error.message },
-      { status: 500 },
-    );
+  } catch (error: unknown) {
+    console.error("Checkout Error:", error instanceof Error ? error.message : "Unknown error");
+    return apiError(API_ERRORS.INTERNAL_SERVER_ERROR);
   }
 }
