@@ -8,9 +8,10 @@ const execAsync = promisify(exec);
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 4001;
 const DEPLOYER_SECRET = process.env.DEPLOYER_SECRET;
 if (!DEPLOYER_SECRET) {
-  console.warn(
-    "[Deployer] WARNING: DEPLOYER_SECRET is not set. Service will reject all requests.",
+  console.error(
+    "[Deployer] FATAL: DEPLOYER_SECRET is not set. Exiting to prevent unauthorized access.",
   );
+  process.exit(1);
 }
 
 // Rate limiting state
