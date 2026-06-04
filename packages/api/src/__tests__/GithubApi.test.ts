@@ -14,9 +14,9 @@ describe("GithubApi", () => {
       data: {
         repos: [
           { id: "1", name: "repo1", fullName: "user/repo1" },
-          { id: "2", name: "repo2", fullName: "user/repo2" }
-        ]
-      }
+          { id: "2", name: "repo2", fullName: "user/repo2" },
+        ],
+      },
     });
   });
 
@@ -32,7 +32,7 @@ describe("GithubApi", () => {
       expect((githubApi as any).get).toHaveBeenCalledWith("/repos?");
       expect(repos).toEqual([
         { id: "1", name: "repo1", fullName: "user/repo1" },
-        { id: "2", name: "repo2", fullName: "user/repo2" }
+        { id: "2", name: "repo2", fullName: "user/repo2" },
       ] as any);
     });
 
@@ -40,10 +40,12 @@ describe("GithubApi", () => {
       const repos = await githubApi.getRepos("workspace-123");
 
       expect((githubApi as any).get).toHaveBeenCalledTimes(1);
-      expect((githubApi as any).get).toHaveBeenCalledWith("/repos?workspaceId=workspace-123");
+      expect((githubApi as any).get).toHaveBeenCalledWith(
+        "/repos?workspaceId=workspace-123",
+      );
       expect(repos).toEqual([
         { id: "1", name: "repo1", fullName: "user/repo1" },
-        { id: "2", name: "repo2", fullName: "user/repo2" }
+        { id: "2", name: "repo2", fullName: "user/repo2" },
       ] as any);
     });
   });
