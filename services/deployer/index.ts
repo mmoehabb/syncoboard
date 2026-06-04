@@ -2,8 +2,25 @@ import { serve } from "bun";
 import { exec } from "child_process";
 import { promisify } from "util";
 import path from "path";
+import { timingSafeEqual } from "crypto";
 
 const execAsync = promisify(exec);
+
+function secureCompare(a: string, b: string): boolean {
+  if (typeof a !== "string" || typeof b !== "string") {
+    return false;
+  }
+  const aBuffer = Buffer.from(a, "utf8");
+  const bBuffer = Buffer.from(b, "utf8");
+
+  if (aBuffer.length !== bBuffer.length) {
+    // Prevent timing attacks based on length early exit by doing a dummy comparison
+    timingSafeEqual(aBuffer, aBuffer);
+    return false;
+  }
+
+  return timingSafeEqual(aBuffer, bBuffer);
+}
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 4001;
 const DEPLOYER_SECRET = process.env.DEPLOYER_SECRET;
@@ -169,7 +186,11 @@ const server = serve({
     if (req.method === "POST" && url.pathname === "/deploy") {
       // 1. Authentication
       const authHeader = req.headers.get("Authorization");
-      if (!authHeader || authHeader !== `Bearer ${DEPLOYER_SECRET}`) {
+      if (
+        !authHeader ||
+        !DEPLOYER_SECRET ||
+        !secureCompare(authHeader, `Bearer ${DEPLOYER_SECRET}`)
+      ) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
           status: 401,
           headers: { "Content-Type": "application/json" },
