@@ -44,6 +44,17 @@ async function getEcosystemApps(): Promise<string[]> {
 async function runDeployment() {
   const rootDir = path.resolve(__dirname, "../..");
 
+  // CRUCIAL FIX: Explicitly pass the parent environment and set INIT_CWD
+  // This prevents Next.js and Bun workspaces from losing path context in the subshell.
+  const execOpts = {
+    cwd: rootDir,
+    env: {
+      ...process.env,
+      INIT_CWD: rootDir,
+      NODE_ENV: "production",
+    },
+  };
+
   try {
     console.log("[Deployer] Starting deployment process...");
 
@@ -53,16 +64,17 @@ async function runDeployment() {
 
     // Save current commit hash in case we need to rollback
     console.log("[Deployer] Saving current commit hash...");
-    const { stdout: commitHashOutput } = await execAsync("git rev-parse HEAD", {
-      cwd: rootDir,
-    });
+    const { stdout: commitHashOutput } = await execAsync(
+      "git rev-parse HEAD",
+      execOpts,
+    );
     const currentCommit = commitHashOutput.trim();
     console.log(`[Deployer] Current commit: ${currentCommit}`);
 
     // Stop PM2 services except deployer and maintenance
     console.log(`[Deployer] Stopping PM2 services: ${appsList}`);
     try {
-      await execAsync(`bunx pm2 stop ${appsList}`, { cwd: rootDir });
+      await execAsync(`bunx pm2 stop ${appsList}`, execOpts);
     } catch (e) {
       console.log(
         `[Deployer] Warning: Failed to stop pm2 services. Maybe they are not running?`,
@@ -72,9 +84,10 @@ async function runDeployment() {
     // Start maintenance app
     console.log(`[Deployer] Starting maintenance app...`);
     try {
-      await execAsync(`bunx pm2 start ecosystem.config.js --only maintenance`, {
-        cwd: rootDir,
-      });
+      await execAsync(
+        `bunx pm2 start ecosystem.config.js --only maintenance`,
+        execOpts,
+      );
     } catch (e) {
       console.log(`[Deployer] Warning: Failed to start maintenance app.`);
     }
@@ -82,17 +95,18 @@ async function runDeployment() {
     try {
       // Pull latest from main
       console.log("[Deployer] Pulling latest code from origin/main...");
-      await execAsync("git pull origin main", { cwd: rootDir });
+      await execAsync("git restore .", execOpts);
+      await execAsync("git pull origin main", execOpts);
 
       // Install dependencies
       console.log("[Deployer] Installing dependencies...");
-      await execAsync("bun install", { cwd: rootDir });
+      await execAsync("bun install", execOpts);
 
       // Clean and build
       console.log("[Deployer] Running clean and build...");
-      await execAsync("bun run clean", { cwd: rootDir });
-      await execAsync("bun run db migrate:deploy", { cwd: rootDir });
-      await execAsync("bun run build:low-spec", { cwd: rootDir });
+      await execAsync("bun run clean", execOpts);
+      await execAsync("bun run db migrate:deploy", execOpts);
+      await execAsync("bun run build:low-spec", execOpts);
 
       console.log("[Deployer] Build successful!");
     } catch (buildError) {
@@ -100,18 +114,18 @@ async function runDeployment() {
 
       // Rollback
       console.log(`[Deployer] Resetting to previous commit: ${currentCommit}`);
-      await execAsync(`git reset --hard ${currentCommit}`, { cwd: rootDir });
+      await execAsync(`git reset --hard ${currentCommit}`, execOpts);
 
       // Install dependencies for the previous commit
       console.log("[Deployer] Installing dependencies for rollback...");
-      await execAsync("bun install", { cwd: rootDir });
+      await execAsync("bun install", execOpts);
 
       console.log(
         "[Deployer] Re-running clean and build for previous commit...",
       );
-      await execAsync("bun run clean", { cwd: rootDir });
-      await execAsync("bun run db migrate:deploy", { cwd: rootDir });
-      await execAsync("bun run build:low-spec", { cwd: rootDir });
+      await execAsync("bun run clean", execOpts);
+      await execAsync("bun run db migrate:deploy", execOpts);
+      await execAsync("bun run build:low-spec", execOpts);
 
       console.log("[Deployer] Rollback build successful.");
     }
@@ -119,7 +133,7 @@ async function runDeployment() {
     // Stop maintenance app
     console.log(`[Deployer] Stopping maintenance app...`);
     try {
-      await execAsync(`bunx pm2 stop maintenance`, { cwd: rootDir });
+      await execAsync(`bunx pm2 stop maintenance`, execOpts);
     } catch (e) {
       console.log(`[Deployer] Warning: Failed to stop maintenance app.`);
     }
@@ -127,14 +141,14 @@ async function runDeployment() {
     // Restart PM2 services
     console.log(`[Deployer] Restarting PM2 services: ${appsList}`);
     try {
-      await execAsync(`bunx pm2 restart ${appsList}`, { cwd: rootDir });
+      await execAsync(`bunx pm2 restart ${appsList}`, execOpts);
     } catch (e) {
       console.log(
         `[Deployer] Warning: pm2 restart failed, trying pm2 start...`,
       );
       await execAsync(
         `bunx pm2 start ecosystem.config.js --only ${appsList.replace(/ /g, ",")}`,
-        { cwd: rootDir },
+        execOpts,
       );
     }
 
