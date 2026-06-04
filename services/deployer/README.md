@@ -1,10 +1,15 @@
 # deployer
 
-A simple deployment service that listens for authorized webhooks, pulls the latest code, builds, and restarts the PM2 applications.
+A HTTP-based deployment service (bash + socat) that listens for authenticated
+webhooks, pulls the latest code, builds, and restarts PM2 applications.
+
+## Requirements
+
+- `socat` — install with your package manager (`apt install socat`, `brew install socat`)
+- `bun` — project runtime
+- `pm2` — process manager (installed globally or via bunx)
 
 ## Configuration
-
-Before running the service, you need to configure the required environment variables. Copy the example file and update it with your actual settings:
 
 ```bash
 cp .env.example .env
@@ -12,23 +17,34 @@ cp .env.example .env
 
 ### Environment Variables
 
-- `PORT` (optional): The port the deployment server will listen on. Defaults to `4001`.
-- `DEPLOYER_SECRET` (required): A secure secret used to authenticate incoming webhook requests. The service expects this to be passed as a Bearer token in the `Authorization` header (`Authorization: Bearer <your_secret>`).
+- `PORT` (optional): HTTP listen port. Defaults to `4001`.
+- `DEPLOYER_SECRET` (required): Bearer token for authenticating deploy requests.
 
-## Installation
+## Running
 
-To install dependencies:
-
-```bash
-bun install
-```
-
-## Running the Service
-
-To run:
+Via PM2 (production):
 
 ```bash
-bun run index.ts
+bun run deployer start
 ```
 
-This project was created using `bun init` in bun v1.2.14. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+Directly:
+
+```bash
+PORT=4001 DEPLOYER_SECRET=mysecret bash services/deployer/deploy.sh server
+```
+
+Manual deploy (without HTTP server):
+
+```bash
+bash services/deployer/deploy.sh deploy
+```
+
+## API
+
+```
+POST /deploy
+Authorization: Bearer <DEPLOYER_SECRET>
+```
+
+Returns `202 Accepted` and runs deployment asynchronously.

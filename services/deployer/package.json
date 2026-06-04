@@ -4,12 +4,9 @@
   "description": "Deployment service",
   "main": "index.ts",
   "scripts": {
-    "start": "bun run index.ts",
-    "dev": "bun run --watch index.ts",
+    "start": "bash deploy.sh server",
     "build": "echo no build command for deployer"
   },
   "dependencies": {},
-  "devDependencies": {
-    "@types/bun": "latest"
-  }
+  "devDependencies": {}
 }
