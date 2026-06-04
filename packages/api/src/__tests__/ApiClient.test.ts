@@ -2,13 +2,18 @@ import { expect, test, describe, beforeEach, afterEach } from "bun:test";
 import { ApiClient, setGlobalApiToken } from "../ApiClient";
 import { InternalAxiosRequestConfig, AxiosResponse } from "axios";
 
+// Define the shape of our mock response data
+interface MockResponseData {
+  headers: Record<string, string | number | boolean>;
+}
+
 class MockApiClient extends ApiClient {
   constructor() {
     super();
     // Use a custom adapter so we don't actually make network requests
     this.client.defaults.adapter = async (
       config: InternalAxiosRequestConfig,
-    ): Promise<AxiosResponse> => {
+    ): Promise<AxiosResponse<MockResponseData>> => {
       // The headers object might be an instance of AxiosHeaders,
       // let's convert it to a plain object to easily test it.
       const headers = config.headers
@@ -22,12 +27,12 @@ class MockApiClient extends ApiClient {
         headers: {},
         config,
         request: {},
-      };
+      } as AxiosResponse<MockResponseData>; // Force type casting to fix Axios matching type error
     };
   }
 
   public getTest(url: string) {
-    return super.get(url);
+    return super.get<MockResponseData>(url);
   }
 }
 
