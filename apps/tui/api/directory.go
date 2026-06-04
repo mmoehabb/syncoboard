@@ -14,11 +14,11 @@ type DirectoryEntry struct {
 }
 
 type DirectoryResponse struct {
-	Path              string                       `json:"path"`
-	Type              string                       `json:"type"`
-	ID                string                       `json:"id,omitempty"`
-	Entries           []DirectoryEntry             `json:"entries"`
-	HasMoreByStatus   map[string]bool              `json:"hasMoreByStatus,omitempty"`
+	Path            string           `json:"path"`
+	Type            string           `json:"type"`
+	ID              string           `json:"id,omitempty"`
+	Entries         []DirectoryEntry `json:"entries"`
+	HasMoreByStatus map[string]bool  `json:"hasMoreByStatus,omitempty"`
 }
 
 func GetDirectory(path string) (*DirectoryResponse, error) {

@@ -17,7 +17,7 @@ type Model struct {
 	textInput textinput.Model
 	viewport  viewport.Model
 
-	outputHistory []string
+	outputHistory  []string
 	commandHistory []string
 	historyIndex   int
 
@@ -25,9 +25,9 @@ type Model struct {
 	height int
 
 	// UI State for layout
-	workspaces   []string
-	tasks        []string
-	taskDetails  string
+	workspaces  []string
+	tasks       []string
+	taskDetails string
 
 	err error
 }
@@ -58,14 +58,14 @@ func (m Model) Init() tea.Cmd {
 
 var (
 	panelStyle = lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("62")).
-		Padding(0, 1)
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("62")).
+			Padding(0, 1)
 
 	titleStyle = lipgloss.NewStyle().
-		Bold(true).
-		Foreground(lipgloss.Color("86")).
-		Underline(true)
+			Bold(true).
+			Foreground(lipgloss.Color("86")).
+			Underline(true)
 
 	promptStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("42"))
 	pathStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("39"))
