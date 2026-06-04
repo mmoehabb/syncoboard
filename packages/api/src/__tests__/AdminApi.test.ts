@@ -9,7 +9,12 @@ describe("AdminApi", () => {
     adminApi = new AdminApi();
 
     // We can spy on the protected method 'post' which is used by changePassword
-    postSpy = spyOn(adminApi as any, "post");
+    postSpy = spyOn(
+      adminApi as unknown as {
+        post: (url: string, data?: unknown) => Promise<unknown>;
+      },
+      "post",
+    );
   });
 
   afterEach(() => {
@@ -23,7 +28,7 @@ describe("AdminApi", () => {
         newPassword: "new",
       };
       const mockResponse = { data: { success: true } };
-      postSpy.mockResolvedValue(mockResponse as any);
+      postSpy.mockResolvedValue(mockResponse);
 
       const result = await adminApi.changePassword(mockData);
 
@@ -47,9 +52,9 @@ describe("AdminApi", () => {
     });
 
     it("should allow partial data like only newPassword", async () => {
-      const mockData: AdminChangePasswordRequest = { newPassword: "new" };
+      const mockData = { newPassword: "new" } as AdminChangePasswordRequest;
       const mockResponse = { data: { success: true } };
-      postSpy.mockResolvedValue(mockResponse as any);
+      postSpy.mockResolvedValue(mockResponse);
 
       const result = await adminApi.changePassword(mockData);
 
@@ -59,9 +64,9 @@ describe("AdminApi", () => {
     });
 
     it("should allow empty data payload", async () => {
-      const mockData: AdminChangePasswordRequest = {};
+      const mockData = {} as AdminChangePasswordRequest;
       const mockResponse = { data: { success: false } };
-      postSpy.mockResolvedValue(mockResponse as any);
+      postSpy.mockResolvedValue(mockResponse);
 
       const result = await adminApi.changePassword(mockData);
 
