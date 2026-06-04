@@ -18,8 +18,10 @@
     color-scheme: dark;
   }
 
-  * {
-    cursor: none !important;
+  @media (min-width: 768px) {
+    * {
+      cursor: none !important;
+    }
   }
 
   h1,
