@@ -28,7 +28,7 @@ export function SettingsTabs({
   return (
     <>
       {/* Left Nav */}
-      <div className="w-64 border-r border-white/10 bg-void-grey/50 p-6 flex flex-col gap-4 cmd-container relative">
+      <div className="w-full md:w-64 border-b md:border-b-0 md:border-r border-white/10 bg-void-grey/50 p-4 md:p-6 flex flex-col gap-4 cmd-container relative shrink-0">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <Link
@@ -44,10 +44,10 @@ export function SettingsTabs({
           </div>
           <FocusedLabel />
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-row md:flex-col gap-2 overflow-x-auto no-scrollbar pb-2 md:pb-0">
           <button
             onClick={() => setActiveTab("add-board")}
-            className={`text-left px-3 py-2 border-l-2 text-sm transition-colors cmd-selectable ${
+            className={`whitespace-nowrap md:w-full text-center md:text-left px-3 py-2 border-b-2 md:border-b-0 md:border-l-2 text-sm transition-colors cmd-selectable ${
               activeTab === "add-board"
                 ? "bg-white/10 border-git-green text-white"
                 : "border-transparent text-syntax-grey hover:bg-white/5 hover:text-white"
@@ -57,7 +57,7 @@ export function SettingsTabs({
           </button>
           <button
             onClick={() => setActiveTab("add-workspace")}
-            className={`text-left px-3 py-2 border-l-2 text-sm transition-colors cmd-selectable ${
+            className={`whitespace-nowrap md:w-full text-center md:text-left px-3 py-2 border-b-2 md:border-b-0 md:border-l-2 text-sm transition-colors cmd-selectable ${
               activeTab === "add-workspace"
                 ? "bg-white/10 border-git-green text-white"
                 : "border-transparent text-syntax-grey hover:bg-white/5 hover:text-white"
@@ -67,7 +67,7 @@ export function SettingsTabs({
           </button>
           <button
             onClick={() => setActiveTab("account")}
-            className={`text-left px-3 py-2 border-l-2 text-sm transition-colors cmd-selectable ${
+            className={`whitespace-nowrap md:w-full text-center md:text-left px-3 py-2 border-b-2 md:border-b-0 md:border-l-2 text-sm transition-colors cmd-selectable ${
               activeTab === "account"
                 ? "bg-white/10 border-git-green text-white"
                 : "border-transparent text-syntax-grey hover:bg-white/5 hover:text-white"
@@ -79,8 +79,8 @@ export function SettingsTabs({
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-8 overflow-y-auto cmd-container relative">
-        <div className="flex justify-end mb-4">
+      <div className="flex-1 p-4 sm:p-8 overflow-y-auto cmd-container relative">
+        <div className="hidden md:flex justify-end mb-4">
           <FocusedLabel />
         </div>
         {activeTab === "add-board" && <AddBoard workspaces={workspaces} />}

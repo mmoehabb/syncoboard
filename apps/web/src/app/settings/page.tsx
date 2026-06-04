@@ -15,7 +15,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-obsidian-night text-white font-mono">
-      <div className="flex flex-1 border-t border-white/10 overflow-hidden">
+      <div className="flex flex-col md:flex-row flex-1 border-t border-white/10 overflow-hidden">
         <SettingsTabs
           workspaces={workspaces}
           userId={session.user.id}
