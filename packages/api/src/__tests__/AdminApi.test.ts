@@ -1,6 +1,5 @@
-import { describe, it, expect, mock, spyOn, beforeEach, afterEach } from "bun:test";
-import { AdminApi } from "../AdminApi";
-import { ApiClient } from "../ApiClient";
+import { describe, it, expect, spyOn, beforeEach, afterEach } from "bun:test";
+import { AdminApi, AdminChangePasswordRequest } from "../AdminApi";
 
 describe("AdminApi", () => {
   let adminApi: AdminApi;
@@ -19,7 +18,10 @@ describe("AdminApi", () => {
 
   describe("changePassword", () => {
     it("should call post with the correct URL and data", async () => {
-      const mockData = { currentPassword: "old", newPassword: "new" };
+      const mockData: AdminChangePasswordRequest = {
+        currentPassword: "old",
+        newPassword: "new",
+      };
       const mockResponse = { data: { success: true } };
       postSpy.mockResolvedValue(mockResponse as any);
 
@@ -31,22 +33,21 @@ describe("AdminApi", () => {
     });
 
     it("should handle error if API call fails", async () => {
-      const mockData = { currentPassword: "old", newPassword: "new" };
+      const mockData: AdminChangePasswordRequest = {
+        currentPassword: "old",
+        newPassword: "new",
+      };
       const mockError = new Error("API Error");
       postSpy.mockRejectedValue(mockError);
 
-      try {
-        await adminApi.changePassword(mockData);
-        expect(true).toBe(false); // Should not reach here
-      } catch (error) {
-        expect(error).toBe(mockError);
-      }
+      await expect(adminApi.changePassword(mockData)).rejects.toBe(mockError);
+
       expect(postSpy).toHaveBeenCalledTimes(1);
       expect(postSpy).toHaveBeenCalledWith("/auth/password", mockData);
     });
 
     it("should allow partial data like only newPassword", async () => {
-      const mockData = { newPassword: "new" };
+      const mockData: AdminChangePasswordRequest = { newPassword: "new" };
       const mockResponse = { data: { success: true } };
       postSpy.mockResolvedValue(mockResponse as any);
 
@@ -58,7 +59,7 @@ describe("AdminApi", () => {
     });
 
     it("should allow empty data payload", async () => {
-      const mockData = {};
+      const mockData: AdminChangePasswordRequest = {};
       const mockResponse = { data: { success: false } };
       postSpy.mockResolvedValue(mockResponse as any);
 
