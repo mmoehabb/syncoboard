@@ -16,36 +16,48 @@ func GetDeletedBoards() ([]DeletedBoard, error) {
 }
 
 func DeleteBoard(workspaceName, boardName string) error {
-	endpoint := fmt.Sprintf("/workspaces/%s/boards/%s", workspaceName, boardName)
+	endpoint := fmt.Sprintf("/boards?workspace=%s&board=%s", workspaceName, boardName)
 	return doRequest("DELETE", endpoint, nil, nil)
 }
 
 func RestoreBoard(workspaceName, boardName string) error {
-	endpoint := fmt.Sprintf("/workspaces/%s/boards/%s/restore", workspaceName, boardName)
-	return doRequest("POST", endpoint, nil, nil)
+	endpoint := fmt.Sprintf("/boards/restore?workspace=%s&board=%s", workspaceName, boardName)
+	return doRequest("PUT", endpoint, nil, nil)
 }
 
 type UpdateBoardStatusBody struct {
-	IsActive bool `json:"isActive"`
+	WorkspaceName string `json:"workspaceName"`
+	BoardName     string `json:"boardName"`
+	IsActive      bool   `json:"isActive"`
 }
 
 func UpdateBoardStatus(workspaceName, boardName string, isActive bool) error {
-	endpoint := fmt.Sprintf("/workspaces/%s/boards/%s/status", workspaceName, boardName)
-	body := UpdateBoardStatusBody{IsActive: isActive}
+	endpoint := "/boards/status"
+	body := UpdateBoardStatusBody{
+		WorkspaceName: workspaceName,
+		BoardName:     boardName,
+		IsActive:      isActive,
+	}
 	return doRequest("PUT", endpoint, body, nil)
 }
 
 type InviteMemberBody struct {
-	Identifier string `json:"identifier"`
+	WorkspaceName string `json:"workspaceName"`
+	BoardName     string `json:"boardName"`
+	Identifier    string `json:"identifier"`
 }
 
 func InviteMember(workspaceName, boardName, identifier string) error {
-	endpoint := fmt.Sprintf("/workspaces/%s/boards/%s/members/invite", workspaceName, boardName)
-	body := InviteMemberBody{Identifier: identifier}
+	endpoint := "/boards/members"
+	body := InviteMemberBody{
+		WorkspaceName: workspaceName,
+		BoardName:     boardName,
+		Identifier:    identifier,
+	}
 	return doRequest("POST", endpoint, body, nil)
 }
 
 func RemoveMember(workspaceName, boardName, identifier string) error {
-	endpoint := fmt.Sprintf("/workspaces/%s/boards/%s/members/%s", workspaceName, boardName, identifier)
+	endpoint := fmt.Sprintf("/boards/members?workspace=%s&board=%s&identifier=%s", workspaceName, boardName, identifier)
 	return doRequest("DELETE", endpoint, nil, nil)
 }
