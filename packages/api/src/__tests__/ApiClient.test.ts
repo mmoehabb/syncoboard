@@ -1,11 +1,14 @@
 import { expect, test, describe, beforeEach, afterEach } from "bun:test";
 import { ApiClient, setGlobalApiToken } from "../ApiClient";
+import { InternalAxiosRequestConfig, AxiosResponse } from "axios";
 
 class MockApiClient extends ApiClient {
   constructor() {
     super();
     // Use a custom adapter so we don't actually make network requests
-    this.client.defaults.adapter = async (config) => {
+    this.client.defaults.adapter = async (
+      config: InternalAxiosRequestConfig,
+    ): Promise<AxiosResponse> => {
       // The headers object might be an instance of AxiosHeaders,
       // let's convert it to a plain object to easily test it.
       const headers = config.headers
@@ -19,7 +22,7 @@ class MockApiClient extends ApiClient {
         headers: {},
         config,
         request: {},
-      } as any;
+      };
     };
   }
 
