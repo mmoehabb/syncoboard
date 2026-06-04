@@ -14,15 +14,21 @@ export function CommandBar() {
     handleKeyDown,
   } = useCommandBar();
 
-  if (mode === "normal" && outputHistory.length === 0) {
-    return null; // Don't show anything if in normal mode and no output
-  }
+  const isDesktopHidden = mode === "normal" && outputHistory.length === 0;
+  const isCommandMode = mode === "command";
 
   return (
     <div
-      className={`fixed bottom-0 left-0 w-full z-50 flex flex-col justify-end transition-transform duration-300 ${
-        mode === "command" ? "translate-y-0" : "translate-y-full"
-      }`}
+      className={`fixed bottom-0 left-0 w-full z-50 flex flex-col justify-end transition-transform duration-300
+        translate-y-0 /* always stick at the bottom on mobile */
+        ${
+          isDesktopHidden
+            ? "md:translate-y-full md:pointer-events-none"
+            : isCommandMode
+              ? "md:translate-y-0 md:pointer-events-auto"
+              : "md:translate-y-full md:pointer-events-auto"
+        }
+      `}
     >
       {/* Terminal Output Area */}
       {outputHistory.length > 0 && mode === "command" && (
