@@ -8,7 +8,9 @@ class MockApiClient extends ApiClient {
     this.client.defaults.adapter = async (config) => {
       // The headers object might be an instance of AxiosHeaders,
       // let's convert it to a plain object to easily test it.
-      const headers = config.headers ? Object.fromEntries(Object.entries(config.headers)) : {};
+      const headers = config.headers
+        ? Object.fromEntries(Object.entries(config.headers))
+        : {};
 
       return {
         data: { headers },
@@ -16,7 +18,7 @@ class MockApiClient extends ApiClient {
         statusText: "OK",
         headers: {},
         config,
-        request: {}
+        request: {},
       } as any;
     };
   }
