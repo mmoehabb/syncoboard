@@ -23,9 +23,13 @@ type FlatItem = {
 export function Sidebar({
   workspaces,
   activeBoardId,
+  isOpen,
+  onClose,
 }: {
   workspaces: DashboardWorkspace[];
   activeBoardId?: string;
+  isOpen?: boolean;
+  onClose?: () => void;
 }) {
   const router = useRouter();
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
@@ -74,84 +78,100 @@ export function Sidebar({
   };
 
   return (
-    <div className="w-64 border-r border-white/10 bg-void-grey/50 flex flex-col font-mono text-sm transition-all cmd-container">
-      <div className="p-4 border-b border-white/10 text-syntax-grey flex items-center justify-between">
-        <span className="font-bold">Explorer</span>
-        <FocusedLabel />
-      </div>
-      <div className="flex-1 overflow-y-auto py-2">
-        {flatItems.length === 0 && (
-          <div className="px-4 py-2 text-syntax-grey italic">
-            No workspaces found
-          </div>
-        )}
-        {flatItems.map((item) => {
-          if (item.type === "workspace") {
+    <>
+      {/* Mobile backdrop */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 z-30 md:hidden"
+          onClick={onClose}
+        />
+      )}
+      <div
+        className={`fixed inset-y-0 left-0 z-40 transform transition-transform duration-200 ease-in-out bg-void-grey md:relative md:translate-x-0 md:bg-void-grey/50 w-64 border-r border-white/10 flex flex-col font-mono text-sm cmd-container ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="p-4 border-b border-white/10 text-syntax-grey flex items-center justify-between">
+          <span className="font-bold">Explorer</span>
+          <FocusedLabel />
+        </div>
+        <div className="flex-1 overflow-y-auto py-2">
+          {flatItems.length === 0 && (
+            <div className="px-4 py-2 text-syntax-grey italic">
+              No workspaces found
+            </div>
+          )}
+          {flatItems.map((item) => {
+            if (item.type === "workspace") {
+              return (
+                <div
+                  key={`ws-${item.id}`}
+                  className={`group relative ${!item.isActive ? "opacity-50" : ""} ${item.isDeleted ? "line-through opacity-40 text-syntax-grey/50" : ""}`}
+                >
+                  <button
+                    onClick={() => toggleWorkspace(item.id)}
+                    className="w-full text-left px-4 py-1.5 flex items-center gap-2 hover:bg-white/5 text-syntax-grey [&.cmd-selected]:bg-white/10 [&.cmd-selected]:text-white cmd-selectable"
+                  >
+                    {collapsed[item.id] ? (
+                      <ChevronRight size={14} />
+                    ) : (
+                      <ChevronDown size={14} />
+                    )}
+                    <span className="font-bold flex-1">{item.label}</span>
+                    {item.isActive ? (
+                      <div title="Active Workspace" className="mr-6">
+                        <Lightbulb size={12} className="text-neon-pulse/80" />
+                      </div>
+                    ) : (
+                      <div title="Inactive Workspace" className="mr-6">
+                        <LightbulbOff
+                          size={12}
+                          className="text-syntax-grey/50"
+                        />
+                      </div>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => router.push("/settings")}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-1 hover:bg-white/10 rounded text-syntax-grey hover:text-white transition-all"
+                    title="Add Board"
+                  >
+                    <Plus size={14} />
+                  </button>
+                </div>
+              );
+            }
             return (
               <div
-                key={`ws-${item.id}`}
+                key={`b-${item.id}`}
                 className={`group relative ${!item.isActive ? "opacity-50" : ""} ${item.isDeleted ? "line-through opacity-40 text-syntax-grey/50" : ""}`}
               >
                 <button
-                  onClick={() => toggleWorkspace(item.id)}
-                  className="w-full text-left px-4 py-1.5 flex items-center gap-2 hover:bg-white/5 text-syntax-grey [&.cmd-selected]:bg-white/10 [&.cmd-selected]:text-white cmd-selectable"
+                  onClick={() => router.push(`/dashboard/b/${item.id}`)}
+                  className={`w-full text-left pl-10 pr-4 py-1.5 flex items-center gap-2 hover:bg-white/5 ${activeBoardId === item.id ? "bg-white/10 text-white border-l-2 border-git-green" : "text-syntax-grey border-l-2 border-transparent"} [&.cmd-selected]:bg-white/10 [&.cmd-selected]:text-white [&.cmd-selected]:border-git-green cmd-selectable`}
                 >
-                  {collapsed[item.id] ? (
-                    <ChevronRight size={14} />
-                  ) : (
-                    <ChevronDown size={14} />
-                  )}
-                  <span className="font-bold flex-1">{item.label}</span>
+                  <span className="flex-1"># {item.label}</span>
                   {item.isActive ? (
-                    <div title="Active Workspace" className="mr-6">
-                      <Lightbulb size={12} className="text-neon-pulse/80" />
+                    <div title="Active Board">
+                      <Lightbulb
+                        size={12}
+                        className="text-git-green/80 opacity-0 group-hover:opacity-100 transition-opacity"
+                      />
                     </div>
                   ) : (
-                    <div title="Inactive Workspace" className="mr-6">
-                      <LightbulbOff size={12} className="text-syntax-grey/50" />
+                    <div title="Inactive Board">
+                      <LightbulbOff
+                        size={12}
+                        className="text-syntax-grey/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                      />
                     </div>
                   )}
-                </button>
-                <button
-                  onClick={() => router.push("/settings")}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-1 hover:bg-white/10 rounded text-syntax-grey hover:text-white transition-all"
-                  title="Add Board"
-                >
-                  <Plus size={14} />
                 </button>
               </div>
             );
-          }
-          return (
-            <div
-              key={`b-${item.id}`}
-              className={`group relative ${!item.isActive ? "opacity-50" : ""} ${item.isDeleted ? "line-through opacity-40 text-syntax-grey/50" : ""}`}
-            >
-              <button
-                onClick={() => router.push(`/dashboard/b/${item.id}`)}
-                className={`w-full text-left pl-10 pr-4 py-1.5 flex items-center gap-2 hover:bg-white/5 ${activeBoardId === item.id ? "bg-white/10 text-white border-l-2 border-git-green" : "text-syntax-grey border-l-2 border-transparent"} [&.cmd-selected]:bg-white/10 [&.cmd-selected]:text-white [&.cmd-selected]:border-git-green cmd-selectable`}
-              >
-                <span className="flex-1"># {item.label}</span>
-                {item.isActive ? (
-                  <div title="Active Board">
-                    <Lightbulb
-                      size={12}
-                      className="text-git-green/80 opacity-0 group-hover:opacity-100 transition-opacity"
-                    />
-                  </div>
-                ) : (
-                  <div title="Inactive Board">
-                    <LightbulbOff
-                      size={12}
-                      className="text-syntax-grey/50 opacity-0 group-hover:opacity-100 transition-opacity"
-                    />
-                  </div>
-                )}
-              </button>
-            </div>
-          );
-        })}
+          })}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

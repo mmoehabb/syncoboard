@@ -3,36 +3,48 @@
 import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
 import Image from "next/image";
-import { LogOut, Settings, ChevronDown, Bug } from "lucide-react";
+import { LogOut, Settings, ChevronDown, Bug, Menu } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import Link from "next/link";
 import { AppGuide } from "./AppGuide";
 import { NotificationsDropdown } from "./NotificationsDropdown";
 import { ReportBugModal } from "./ReportBugModal";
 
-export function Header() {
+export function Header({ onToggleSidebar }: { onToggleSidebar?: () => void }) {
   const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const [bugModalOpen, setBugModalOpen] = useState(false);
 
   return (
     <>
-      <header className="h-14 border-b border-white/10 bg-obsidian-night flex items-center justify-between px-6 z-20 relative">
-        <div className="flex items-center gap-2 font-mono font-bold text-white tracking-tight">
-          <Logo className="w-8 h-8" />
-          <span>SYNCOBOARD</span>
+      <header className="h-14 border-b border-white/10 bg-obsidian-night flex items-center justify-between px-4 sm:px-6 z-20 relative">
+        <div className="flex items-center gap-3 font-mono font-bold text-white tracking-tight">
+          {onToggleSidebar && (
+            <button
+              onClick={onToggleSidebar}
+              className="md:hidden p-1.5 hover:bg-white/5 rounded text-syntax-grey hover:text-white transition-colors"
+            >
+              <Menu size={20} />
+            </button>
+          )}
+          <Logo className="w-8 h-8 hidden sm:block" />
+          <span className="text-sm sm:text-base">SYNCOBOARD</span>
         </div>
 
         {session?.user && (
-          <div className="flex items-center gap-2">
-            <AppGuide userCreatedAt={session.user.createdAt as string | Date} />
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className="hidden sm:block">
+              <AppGuide
+                userCreatedAt={session.user.createdAt as string | Date}
+              />
+            </div>
             <NotificationsDropdown />
             <div className="relative">
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="flex items-center gap-3 hover:bg-white/5 p-1.5 rounded transition-colors"
+                className="flex items-center gap-2 sm:gap-3 hover:bg-white/5 p-1 sm:p-1.5 rounded transition-colors"
               >
-                <div className="flex flex-col items-end">
+                <div className="hidden sm:flex flex-col items-end">
                   <span className="text-sm text-white font-mono">
                     {session.user.name || "User"}
                   </span>
