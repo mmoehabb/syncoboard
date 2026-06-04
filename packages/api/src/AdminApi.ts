@@ -1,5 +1,5 @@
 import { ApiClient } from "./ApiClient";
-import { Plan } from "@syncoboard/db";
+import { Plan, BugReport } from "@syncoboard/db";
 
 export interface AdminLoginRequest {
   username: string;
@@ -78,7 +78,7 @@ export class AdminApi extends ApiClient {
     limit?: number;
     search?: string;
   }): Promise<{
-    data: import("@syncoboard/db").BugReport[];
+    data: BugReport[];
     total: number;
     page: number;
     limit: number;

@@ -1,5 +1,7 @@
+import { AxiosResponse } from "axios";
 import { describe, it, expect, spyOn, beforeEach, afterEach } from "bun:test";
 import { AdminApi, AdminChangePasswordRequest } from "../AdminApi";
+import { BugReport } from "@syncoboard/db";
 
 describe("AdminApi", () => {
   let adminApi: AdminApi;
@@ -7,6 +9,7 @@ describe("AdminApi", () => {
   let getSpy: ReturnType<typeof spyOn>;
 
   beforeEach(() => {
+    adminApi = new AdminApi();
     adminApi = new AdminApi();
 
     // We can spy on the protected method 'post' which is used by changePassword
@@ -17,14 +20,19 @@ describe("AdminApi", () => {
       "post",
     );
 
-    getSpy = spyOn(adminApi as any, "get").mockResolvedValue({
+    getSpy = spyOn(
+      adminApi as unknown as {
+        get: (url: string, data?: unknown) => Promise<unknown>;
+      },
+      "get",
+    ).mockResolvedValue({
       data: {
         data: [],
         total: 0,
         page: 1,
         limit: 10,
       },
-    } as any);
+    } as unknown as AxiosResponse);
   });
 
   afterEach(() => {
@@ -131,10 +139,17 @@ describe("AdminApi", () => {
 
       getSpy.mockResolvedValueOnce({
         data: mockResponse,
-      } as any);
+      } as unknown as AxiosResponse);
 
       const result = await adminApi.getBugReports();
-      expect(result).toEqual(mockResponse as any);
+      expect(result).toEqual(
+        mockResponse as unknown as {
+          data: BugReport[];
+          total: number;
+          page: number;
+          limit: number;
+        },
+      );
     });
   });
 });
