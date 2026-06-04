@@ -18,21 +18,25 @@ func GetUserWorkspaces() ([]Workspace, error) {
 }
 
 func DeleteWorkspace(workspaceName string) error {
-	endpoint := fmt.Sprintf("/workspaces/%s", workspaceName)
+	endpoint := fmt.Sprintf("/workspaces?workspace=%s", workspaceName)
 	return doRequest("DELETE", endpoint, nil, nil)
 }
 
 func RestoreWorkspace(workspaceName string) error {
-	endpoint := fmt.Sprintf("/workspaces/%s/restore", workspaceName)
-	return doRequest("POST", endpoint, nil, nil)
+	endpoint := fmt.Sprintf("/workspaces/restore?workspace=%s", workspaceName)
+	return doRequest("PUT", endpoint, nil, nil)
 }
 
 type UpdateWorkspaceStatusBody struct {
-	IsActive bool `json:"isActive"`
+	WorkspaceName string `json:"workspaceName"`
+	IsActive      bool   `json:"isActive"`
 }
 
 func UpdateWorkspaceStatus(workspaceName string, isActive bool) error {
-	endpoint := fmt.Sprintf("/workspaces/%s/status", workspaceName)
-	body := UpdateWorkspaceStatusBody{IsActive: isActive}
+	endpoint := "/workspaces/status"
+	body := UpdateWorkspaceStatusBody{
+		WorkspaceName: workspaceName,
+		IsActive:      isActive,
+	}
 	return doRequest("PUT", endpoint, body, nil)
 }
