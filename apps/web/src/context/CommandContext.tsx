@@ -170,7 +170,7 @@ export function CommandProvider({ children }: { children: ReactNode }) {
     >
       {children}
       {isInputFocused && mode === "normal" && (
-        <div className="fixed bottom-4 left-4 z-50 bg-git-green text-obsidian-night font-mono text-xs px-3 py-2 rounded shadow-lg animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="hidden md:block fixed bottom-4 left-4 z-50 bg-git-green text-obsidian-night font-mono text-xs px-3 py-2 rounded shadow-lg animate-in fade-in slide-in-from-bottom-4 duration-300">
           Press{" "}
           <kbd className="font-bold border border-obsidian-night/20 rounded px-1">
             ESC
