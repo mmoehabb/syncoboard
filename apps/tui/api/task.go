@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"net/url"
 )
 
 type Task struct {
@@ -24,7 +25,8 @@ type ListTasksResponse struct {
 }
 
 func ListTasks(workspaceName, boardName string, page, limit int) (*ListTasksResponse, error) {
-	endpoint := fmt.Sprintf("/workspaces/%s/boards/%s/tasks?page=%d&limit=%d", workspaceName, boardName, page, limit)
+	endpoint := fmt.Sprintf("/tasks?workspace=%s&board=%s&page=%d&limit=%d",
+		url.QueryEscape(workspaceName), url.QueryEscape(boardName), page, limit)
 	var resp ListTasksResponse
 	err := doRequest("GET", endpoint, nil, &resp)
 	return &resp, err

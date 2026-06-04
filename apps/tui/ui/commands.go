@@ -11,9 +11,9 @@ import (
 	"strings"
 	"time"
 
-	"syncoboard-tui/api"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"syncoboard-tui/api"
 )
 
 type Config struct {
@@ -294,9 +294,9 @@ func handleLs(virtualPath string, args []string) tea.Cmd {
 }
 
 type CdResultMsg struct {
-	Path        string
-	Type        string
-	ID          string
+	Path string
+	Type string
+	ID   string
 }
 
 func handleCd(virtualPath string, args []string) tea.Cmd {
@@ -854,7 +854,6 @@ type TabCompletionMsg struct {
 	Input string
 }
 
-
 // Background UI Update Commands
 
 type WorkspacesMsg struct {
@@ -1043,16 +1042,28 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case WorkspacesMsg:
 		if msg.Err == nil {
 			m.workspaces = msg.Names
+		} else {
+			m.outputHistory = append(m.outputHistory, fmt.Sprintf("Error fetching workspaces: %v", msg.Err))
+			m.viewport.SetContent(strings.Join(m.outputHistory, "\n"))
+			m.viewport.GotoBottom()
 		}
 
 	case TasksMsg:
 		if msg.Err == nil {
 			m.tasks = msg.Tasks
+		} else {
+			m.outputHistory = append(m.outputHistory, fmt.Sprintf("Error fetching tasks: %v", msg.Err))
+			m.viewport.SetContent(strings.Join(m.outputHistory, "\n"))
+			m.viewport.GotoBottom()
 		}
 
 	case TaskDetailsMsg:
 		if msg.Err == nil {
 			m.taskDetails = msg.Details
+		} else {
+			m.outputHistory = append(m.outputHistory, fmt.Sprintf("Error fetching task details: %v", msg.Err))
+			m.viewport.SetContent(strings.Join(m.outputHistory, "\n"))
+			m.viewport.GotoBottom()
 		}
 
 	case TabCompletionMsg:

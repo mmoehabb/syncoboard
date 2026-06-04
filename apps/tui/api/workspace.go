@@ -7,10 +7,14 @@ type Workspace struct {
 	Name string `json:"name"`
 }
 
+type WorkspacesResponse struct {
+	Workspaces []Workspace `json:"workspaces"`
+}
+
 func GetUserWorkspaces() ([]Workspace, error) {
-	var workspaces []Workspace
-	err := doRequest("GET", "/workspaces", nil, &workspaces)
-	return workspaces, err
+	var resp WorkspacesResponse
+	err := doRequest("GET", "/workspaces", nil, &resp)
+	return resp.Workspaces, err
 }
 
 func DeleteWorkspace(workspaceName string) error {
