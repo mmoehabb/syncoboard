@@ -26,7 +26,7 @@ export default function ReportsPage() {
   const fetchReports = useCallback(async () => {
     setLoading(true);
     try {
-      const result = await api.getReports({ page, limit, search });
+      const result = await api.getBugReports({ page, limit, search });
       setReports(result.data);
       setTotal(result.total);
     } catch (err: any) {

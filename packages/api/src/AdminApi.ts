@@ -73,7 +73,7 @@ export class AdminApi extends ApiClient {
     return response.data;
   }
 
-  public async getReports(params?: {
+  public async getBugReports(params?: {
     page?: number;
     limit?: number;
     search?: string;
