@@ -1,0 +1,18 @@
+--- services/webhook/__tests__/utils.test.ts
++++ services/webhook/__tests__/utils.test.ts
+@@ -4,13 +4,13 @@
+
+ describe("determineTaskStatus", () => {
+   describe("event: pull_request", () => {
+-    it("should return TODO if PR is a draft, regardless of action", () => {
++    it("should return TODO if PR is a draft, except for closed", () => {
+       const pr = { draft: true } as PullRequest;
+       expect(determineTaskStatus("pull_request", "opened", pr)).toBe("TODO");
+       expect(determineTaskStatus("pull_request", "ready_for_review", pr)).toBe(
+         "TODO",
+       );
+-      expect(determineTaskStatus("pull_request", "closed", pr)).toBe("TODO");
++      expect(determineTaskStatus("pull_request", "closed", pr)).toBe("CLOSED");
+     });
+
+     it("should return IN_PROGRESS when action is opened and not a draft", () => {
