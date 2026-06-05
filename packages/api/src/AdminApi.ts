@@ -17,6 +17,7 @@ export interface AdminUser {
   createdAt: Date;
   workspaceCount: number;
   boardCount: number;
+  lastOnline: Date | null;
 }
 
 export interface AdminPlanCreateRequest {

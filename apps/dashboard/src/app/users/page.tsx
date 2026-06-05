@@ -63,6 +63,7 @@ export default function UsersPage() {
                 <th className="p-4 font-medium">Name</th>
                 <th className="p-4 font-medium">Email</th>
                 <th className="p-4 font-medium">Joined</th>
+                <th className="p-4 font-medium">Last Online</th>
                 <th className="p-4 font-medium text-center">Workspaces</th>
                 <th className="p-4 font-medium text-center">Boards</th>
               </tr>
@@ -70,7 +71,7 @@ export default function UsersPage() {
             <tbody className="divide-y divide-glass-light">
               {users.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-gray-500">
+                  <td colSpan={6} className="p-8 text-center text-gray-500">
                     No users found.
                   </td>
                 </tr>
@@ -86,6 +87,11 @@ export default function UsersPage() {
                     <td className="p-4 text-gray-300">{user.email || "N/A"}</td>
                     <td className="p-4 text-sm text-gray-400">
                       {new Date(user.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="p-4 text-sm text-gray-400">
+                      {user.lastOnline
+                        ? new Date(user.lastOnline).toLocaleDateString()
+                        : "N/A"}
                     </td>
                     <td className="p-4 text-center">
                       <span className="inline-block px-2 py-1 bg-neon-pulse/10 text-neon-pulse rounded text-xs font-medium border border-neon-pulse/20">

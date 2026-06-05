@@ -1,12 +1,13 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { MainBoard } from "./MainBoard";
 import type { DashboardWorkspace, MainBoardData } from "./types";
 import { useState } from "react";
 import { SocketProvider } from "@/context/SocketContext";
+import { UserApi } from "@syncoboard/api";
 
 export function DashboardClient({
   workspaces,
@@ -20,6 +21,23 @@ export function DashboardClient({
   board?: MainBoardData | null;
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    const today = new Date().toISOString().split("T")[0];
+    const storedDate = sessionStorage.getItem("lastOnlineDate");
+
+    if (storedDate !== today) {
+      const api = new UserApi();
+      api
+        .updateLastOnline()
+        .then(() => {
+          sessionStorage.setItem("lastOnlineDate", today);
+        })
+        .catch((err) => {
+          console.error("Failed to update last online activity", err);
+        });
+    }
+  }, []);
 
   return (
     <SocketProvider>

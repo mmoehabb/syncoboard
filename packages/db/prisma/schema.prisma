@@ -49,6 +49,7 @@ model User {
   isActive      Boolean   @default(true)
   createdAt     DateTime  @default(now()) // Serves as the join date
   updatedAt     DateTime  @updatedAt
+  lastOnline    DateTime?
 
   accounts         Account[]
   sessions         Session[]

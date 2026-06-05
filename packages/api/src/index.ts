@@ -10,3 +10,4 @@ export * from "./error";
 export { setGlobalApiToken } from "./ApiClient";
 export * from "./AdminApi";
 export * from "./NotificationApi";
+export * from "./UserApi";

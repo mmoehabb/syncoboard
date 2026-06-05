@@ -53,6 +53,7 @@ func (m Model) Init() tea.Cmd {
 		textinput.Blink,
 		fetchWorkspaces(),
 		fetchTasks(m.virtualPath),
+		updateLastOnlineCmd(),
 	)
 }
 

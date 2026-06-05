@@ -861,6 +861,17 @@ type WorkspacesMsg struct {
 	Err   error
 }
 
+type UpdateLastOnlineMsg struct {
+	Err error
+}
+
+func updateLastOnlineCmd() tea.Cmd {
+	return func() tea.Msg {
+		err := api.UpdateLastOnline()
+		return UpdateLastOnlineMsg{Err: err}
+	}
+}
+
 func fetchWorkspaces() tea.Cmd {
 	return func() tea.Msg {
 		ws, err := api.GetUserWorkspaces()
