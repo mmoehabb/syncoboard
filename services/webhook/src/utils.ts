@@ -36,14 +36,17 @@ export function determineTaskStatus(
   review?: PullRequestReview,
 ): TaskStatus | undefined {
   if (event === "pull_request") {
-    if (pr.draft) return "TODO";
-    if (action === "opened") return "IN_PROGRESS";
+    if (action === "closed") {
+      return "merged" in pr && pr.merged ? "DONE" : "CLOSED";
+    }
+
+    if (pr.draft) {
+      return "TODO";
+    }
+
+    if (action === "opened" || action === "reopened" || action === "review_request_removed") return "IN_PROGRESS";
     if (action === "ready_for_review" || action === "review_requested")
       return "IN_REVIEW";
-    if (action === "review_request_removed") return "IN_PROGRESS";
-    if (action === "closed")
-      return "merged" in pr && pr.merged ? "DONE" : "CLOSED";
-    if (action === "reopened") return "IN_PROGRESS";
   } else if (event === "pull_request_review") {
     if (action === "submitted" && review?.state === "changes_requested") {
       return "CHANGES_REQUESTED";

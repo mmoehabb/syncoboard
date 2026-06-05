@@ -31,7 +31,8 @@ mock.module("@syncoboard/db", () => ({
 
 describe("GitHub Webhook", () => {
   let testBoard: { id: string };
-  let prismaMock: Record<string, Record<string, ReturnType<typeof mock>>>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let prismaMock: any;
 
   beforeEach(async () => {
     const db = await import("@syncoboard/db");
