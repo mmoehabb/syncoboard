@@ -12,6 +12,7 @@ export async function GET(req: Request) {
           name: true,
           email: true,
           createdAt: true,
+          lastOnline: true,
           _count: {
             select: {
               workspaceMembers: true,
@@ -29,6 +30,7 @@ export async function GET(req: Request) {
         createdAt: user.createdAt,
         workspaceCount: user._count.workspaceMembers,
         boardCount: user._count.boardMembers,
+        lastOnline: user.lastOnline,
       }));
 
       return NextResponse.json(formattedUsers);

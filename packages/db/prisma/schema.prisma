@@ -49,25 +49,26 @@ model User {
   isActive      Boolean   @default(true)
   createdAt     DateTime  @default(now()) // Serves as the join date
   updatedAt     DateTime  @updatedAt
+  lastOnline    DateTime?
 
-  accounts         Account[]
-  sessions         Session[]
-  workspaceMembers WorkspaceMember[]
-  boardMembers     BoardMember[]
-  assignedTasks    Task[]             @relation("TaskAssignees")
-  reviewingTasks   Task[]             @relation("TaskReviewers")
-  subscriptions    Subscription[]
-  activityLogs     BoardActivityLog[] @relation("ActorLogs")
-  targetedLogs     BoardActivityLog[] @relation("TargetLogs")
-  readStates       UserLogReadState[]
+  accounts             Account[]
+  sessions             Session[]
+  workspaceMembers     WorkspaceMember[]
+  boardMembers         BoardMember[]
+  assignedTasks        Task[]                @relation("TaskAssignees")
+  reviewingTasks       Task[]                @relation("TaskReviewers")
+  subscriptions        Subscription[]
+  activityLogs         BoardActivityLog[]    @relation("ActorLogs")
+  targetedLogs         BoardActivityLog[]    @relation("TargetLogs")
+  readStates           UserLogReadState[]
   personalAccessTokens PersonalAccessToken[]
 }
 
 model PersonalAccessToken {
-  id        String   @id @default(uuid(7))
-  token     String   @unique
+  id        String    @id @default(uuid(7))
+  token     String    @unique
   userId    String
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   expiresAt DateTime?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -126,33 +127,33 @@ model Plan {
 }
 
 model Price {
-  id            String        @id @default(uuid(7))
-  planId        String
-  amount        Int // Stored in cents (e.g., 999 = $9.99)
-  currency      String        @default("usd")
-  interval      PriceInterval
-  intervalCount Int           @default(1)
+  id             String        @id @default(uuid(7))
+  planId         String
+  amount         Int // Stored in cents (e.g., 999 = $9.99)
+  currency       String        @default("usd")
+  interval       PriceInterval
+  intervalCount  Int           @default(1)
   providerPlanId String?
-  isActive      Boolean       @default(true)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  isActive       Boolean       @default(true)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   plan          Plan           @relation(fields: [planId], references: [id], onDelete: Cascade)
   subscriptions Subscription[]
 }
 
 model Subscription {
-  id                 String             @id @default(uuid(7))
-  userId             String
-  priceId            String
-  provider           PaymentProvider?
+  id                     String             @id @default(uuid(7))
+  userId                 String
+  priceId                String
+  provider               PaymentProvider?
   providerSubscriptionId String?
-  status             SubscriptionStatus @default(ACTIVE)
-  currentPeriodStart DateTime
-  currentPeriodEnd   DateTime
-  cancelAtPeriodEnd  Boolean            @default(false)
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
+  status                 SubscriptionStatus @default(ACTIVE)
+  currentPeriodStart     DateTime
+  currentPeriodEnd       DateTime
+  cancelAtPeriodEnd      Boolean            @default(false)
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   price Price @relation(fields: [priceId], references: [id])
@@ -330,7 +331,7 @@ model BugReport {
 model Admin {
   id          String   @id @default(uuid(7))
   username    String   @unique
-  password    String   // Hashed password
+  password    String // Hashed password
   accessToken String?  @unique // Bearer token for API access
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
