@@ -10,10 +10,21 @@ export async function POST(req: Request) {
       return apiError(API_ERRORS.UNAUTHORIZED);
     }
 
+    const now = new Date();
+    const utcDate = new Date(Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate(),
+      now.getUTCHours(),
+      now.getUTCMinutes(),
+      now.getUTCSeconds(),
+      now.getUTCMilliseconds()
+    ));
+
     await prisma.user.update({
       where: { id: session.user.id },
       data: {
-        lastOnline: new Date(),
+        lastOnline: utcDate,
       },
     });
 
