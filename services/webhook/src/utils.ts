@@ -44,7 +44,12 @@ export function determineTaskStatus(
       return "TODO";
     }
 
-    if (action === "opened" || action === "reopened" || action === "review_request_removed") return "IN_PROGRESS";
+    if (
+      action === "opened" ||
+      action === "reopened" ||
+      action === "review_request_removed"
+    )
+      return "IN_PROGRESS";
     if (action === "ready_for_review" || action === "review_requested")
       return "IN_REVIEW";
   } else if (event === "pull_request_review") {
