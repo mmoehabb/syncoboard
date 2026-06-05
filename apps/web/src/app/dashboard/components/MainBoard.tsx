@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/context-menu/ContextMenu";
 import { SimpleConfirmationModal } from "@/components/modals/SimpleConfirmationModal";
 import { ModifyTaskModal } from "@/components/modals/ModifyTaskModal";
+import { AddTaskModal } from "@/components/modals/AddTaskModal";
 import { useToast } from "@/context/ToastContext";
 import axios from "axios";
 import { useRef } from "react";
@@ -55,6 +56,8 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
     isOpen: boolean;
     task: MainBoardTask | null;
   }>({ isOpen: false, task: null });
+
+  const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
 
   const [simpleConfirmModalState, setSimpleConfirmModalState] = useState<{
     isOpen: boolean;
@@ -110,6 +113,21 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
       router.refresh();
     } catch (error) {
       showToast("Failed to modify task", "error");
+    }
+  };
+
+  const handleAddTask = async (title: string) => {
+    if (!board) return;
+    try {
+      await axios.post("/api/tasks", {
+        boardId: board.id,
+        title,
+      });
+      showToast("Task added successfully", "success");
+      setIsAddTaskModalOpen(false);
+      router.refresh();
+    } catch (error) {
+      showToast("Failed to add task", "error");
     }
   };
 
@@ -230,6 +248,12 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
       <div className="flex-1 flex flex-col bg-obsidian-night transition-all">
         <div className="p-4 border-b border-white/10 flex items-center justify-between">
           <h2 className="text-white font-mono font-bold"># {board.name}</h2>
+          <button
+            onClick={() => setIsAddTaskModalOpen(true)}
+            className="text-syntax-grey hover:text-neon-pulse text-sm font-mono transition-colors border border-syntax-grey/30 hover:border-neon-pulse/50 rounded px-3 py-1 bg-void-grey"
+          >
+            + add task
+          </button>
         </div>
 
         <div className="flex-1 overflow-y-hidden p-6 flex flex-col gap-6">
@@ -365,6 +389,12 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
           onCancel={() => setModifyModalState({ isOpen: false, task: null })}
         />
       )}
+
+      <AddTaskModal
+        isOpen={isAddTaskModalOpen}
+        onConfirm={handleAddTask}
+        onCancel={() => setIsAddTaskModalOpen(false)}
+      />
     </div>
   );
 }
