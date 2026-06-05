@@ -21,9 +21,11 @@ async function main() {
         "--------------------------------------------------------------------------------",
       );
       console.log(`INITIAL ADMIN USERNAME: ${adminUsername}`);
-      console.log(`INITIAL ADMIN PASSWORD: ${adminPassword}`);
       console.log(
-        "PLEASE SAVE THESE CREDENTIALS. YOU CAN ALSO SET THEM VIA ADMIN_USERNAME AND ADMIN_PASSWORD ENV VARS.",
+        "A random initial admin password was generated but is hidden for security.",
+      );
+      console.log(
+        "PLEASE SET ADMIN_USERNAME AND ADMIN_PASSWORD ENV VARS TO CONFIGURE CREDENTIALS.",
       );
       console.log(
         "--------------------------------------------------------------------------------",
