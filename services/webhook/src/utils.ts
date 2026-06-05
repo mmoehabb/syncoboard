@@ -38,8 +38,7 @@ export function determineTaskStatus(
   if (event === "pull_request") {
     if (pr.draft) return "TODO";
     if (action === "opened") return "IN_PROGRESS";
-    if (action === "ready_for_review" || action === "review_requested")
-      return "IN_REVIEW";
+    if (action === "ready_for_review") return "IN_REVIEW";
     if (action === "review_request_removed") return "IN_PROGRESS";
     if (action === "closed")
       return "merged" in pr && pr.merged ? "DONE" : "CLOSED";
