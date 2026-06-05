@@ -1,15 +1,17 @@
 "use client";
 
-import { X } from "lucide-react";
+import { X, ExternalLink } from "lucide-react";
 import { formatRelativeOrAbsoluteDate } from "@/lib/utils/date";
 
 import type { MainBoardTask } from "./types";
 
 export function TaskDetailsPanel({
   task,
+  repositoryName,
   onClose,
 }: {
   task: MainBoardTask;
+  repositoryName?: string | null;
   onClose: () => void;
 }) {
   if (!task) return null;
@@ -49,11 +51,22 @@ export function TaskDetailsPanel({
             <span className="px-2 py-1 rounded bg-white/5 text-xs text-syntax-grey border border-white/10">
               {task.status}
             </span>
-            {task.prNumber && (
-              <span className="px-2 py-1 rounded bg-git-green/10 text-xs text-git-green border border-git-green/20">
-                PR #{task.prNumber}
-              </span>
-            )}
+            {task.prNumber &&
+              (repositoryName ? (
+                <a
+                  href={`https://github.com/${repositoryName}/pull/${task.prNumber}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-2 py-1 rounded bg-git-green/10 text-xs text-git-green border border-git-green/20 hover:bg-git-green/20 transition-colors flex items-center gap-1"
+                >
+                  PR #{task.prNumber}
+                  <ExternalLink size={12} />
+                </a>
+              ) : (
+                <span className="px-2 py-1 rounded bg-git-green/10 text-xs text-git-green border border-git-green/20">
+                  PR #{task.prNumber}
+                </span>
+              ))}
             {task.branchName && (
               <span className="px-2 py-1 rounded bg-neon-pulse/10 text-xs text-neon-pulse border border-neon-pulse/20">
                 {task.branchName}

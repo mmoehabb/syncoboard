@@ -277,6 +277,7 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
       {selectedTask && (
         <TaskDetailsPanel
           task={selectedTask}
+          repositoryName={board?.repositoryName}
           onClose={() => router.push(`/dashboard/b/${board.id}`)}
         />
       )}
