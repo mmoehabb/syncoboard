@@ -13,15 +13,7 @@ export function Footer() {
         </div>
         <div className="flex gap-6 font-mono text-sm text-syntax-grey">
           <a
-            href="https://discord.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-neon-pulse transition-colors"
-          >
-            Discord
-          </a>
-          <a
-            href="https://github.com"
+            href="https://github.com/syncoboard/syncoboard"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-white transition-colors"
