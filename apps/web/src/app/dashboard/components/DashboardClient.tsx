@@ -20,7 +20,7 @@ export function DashboardClient({
   modalComponent: ReactNode;
   board?: MainBoardData | null;
 }) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
