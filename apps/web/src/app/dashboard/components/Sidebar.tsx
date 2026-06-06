@@ -93,17 +93,16 @@ export function Sidebar({
             : "-translate-x-full md:translate-x-0 md:w-16 border-r border-white/10 bg-void-grey md:bg-void-grey/50"
         }`}
       >
-        <div
-          className={`p-4 border-b border-white/10 text-syntax-grey flex items-center ${isOpen ? "justify-between" : "justify-center"}`}
-        >
-          <span className={`font-bold ${isOpen ? "" : "hidden"}`}>
-            Explorer
-          </span>
-          <div className={isOpen ? "" : "hidden"}>
+        {isOpen && (
+          <div
+            className={`p-4 border-b border-white/10 text-syntax-grey flex items-center ${isOpen ? "justify-between" : "justify-center"}`}
+          >
+            <span className={`font-bold ${isOpen ? "" : "hidden"}`}>
+              Explorer
+            </span>
             <FocusedLabel />
           </div>
-          {!isOpen && <span className="font-bold">...</span>}
-        </div>
+        )}
         <div className="flex-1 overflow-y-auto py-2">
           {flatItems.length === 0 && (
             <div
