@@ -87,8 +87,8 @@ export function Sidebar({
         />
       )}
       <div
-        className={`fixed inset-y-0 left-0 z-40 transform transition-transform duration-200 ease-in-out bg-void-grey md:relative md:translate-x-0 md:bg-void-grey/50 w-64 border-r border-white/10 flex flex-col font-mono text-sm cmd-container ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed inset-y-0 left-0 z-40 transform transition-all duration-200 ease-in-out bg-void-grey md:relative flex flex-col font-mono text-sm cmd-container overflow-hidden whitespace-nowrap ${
+          isOpen ? "translate-x-0 w-64 border-r border-white/10 md:bg-void-grey/50" : "-translate-x-full md:translate-x-0 md:w-0 border-r border-white/10 md:border-r-0 bg-void-grey md:bg-transparent"
         }`}
       >
         <div className="p-4 border-b border-white/10 text-syntax-grey flex items-center justify-between">
