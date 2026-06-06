@@ -59,9 +59,9 @@ export const TaskRow: React.FC<TaskRowProps> = ({
       onContextMenu={onContextMenu}
       className={`surface-panel p-2 rounded-md border transition-all cursor-pointer flex items-center justify-between gap-4 ${
         isSelected
-          ? "border-git-green bg-git-green/5 shadow-md scale-[1.01]"
+          ? "border-git-green bg-git-green/5 shadow-md "
           : "border-white/10 bg-void-grey hover:border-white/20"
-      } cmd-selectable [&.cmd-selected]:border-neon-pulse [&.cmd-selected]:bg-neon-pulse/5 [&.cmd-selected]:shadow-md [&.cmd-selected]:scale-[1.01]`}
+      } cmd-selectable [&.cmd-selected]:border-neon-pulse [&.cmd-selected]:bg-neon-pulse/5 [&.cmd-selected]:shadow-md`}
     >
       <div className="flex items-center gap-3 overflow-hidden flex-1">
         <div className="text-syntax-grey font-mono text-xs whitespace-nowrap w-24 flex-shrink-0">
