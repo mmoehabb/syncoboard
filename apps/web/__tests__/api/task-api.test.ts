@@ -1,7 +1,6 @@
 import { describe, expect, it, beforeEach, afterEach, mock } from "bun:test";
 import { mockAxiosInstance } from "../mocks/axios";
 import type { AxiosInstance } from "axios";
-import { TaskStatus } from "@prisma/client";
 import { TaskApi } from "../../../../packages/api/src/TaskApi";
 
 describe("TaskApi", () => {
@@ -26,7 +25,7 @@ describe("TaskApi", () => {
         id: "1",
         boardId: "board-1",
         title: "Test Task",
-        status: TaskStatus.TODO,
+        status: "TODO",
       };
 
       mockAxiosInstance.post.mockResolvedValueOnce({
@@ -65,18 +64,18 @@ describe("TaskApi", () => {
     it("should successfully update a task status", async () => {
       const mockTask = {
         id: "1",
-        status: TaskStatus.DONE,
+        status: "DONE",
       };
 
       mockAxiosInstance.patch.mockResolvedValueOnce({
         data: { task: mockTask },
       });
 
-      const result = await taskApi.updateTaskStatus("1", TaskStatus.DONE);
+      const result = await taskApi.updateTaskStatus("1", "DONE");
 
       expect(mockAxiosInstance.patch).toHaveBeenCalledWith(
         "/1",
-        { status: TaskStatus.DONE },
+        { status: "DONE" },
         undefined,
       );
       expect(result).toEqual(mockTask);

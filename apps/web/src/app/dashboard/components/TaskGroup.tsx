@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { FocusedLabel } from "@/components/ui/FocusedLabel";
 import { TaskCard } from "./TaskCard";
+import { TaskRow } from "./TaskRow";
 import type { MainBoardTask } from "./types";
 
 interface TaskGroupProps {
@@ -14,6 +15,7 @@ interface TaskGroupProps {
   selectedTask: MainBoardTask | null;
   onTaskClick: (taskId: string) => void;
   onContextMenu: (e: React.MouseEvent, task: MainBoardTask) => void;
+  layout?: "list" | "rows" | "kanban";
 }
 
 export function TaskGroup({
@@ -22,6 +24,7 @@ export function TaskGroup({
   selectedTask,
   onTaskClick,
   onContextMenu,
+  layout = "list",
 }: TaskGroupProps) {
   const [visibleLimit, setVisibleLimit] = useState(5);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -64,15 +67,25 @@ export function TaskGroup({
             </div>
           ) : (
             <div className="flex flex-col gap-2">
-              {visibleTasks.map((task: MainBoardTask) => (
-                <TaskCard
-                  key={task.id.toString()}
-                  task={task}
-                  isSelected={selectedTask?.id === task.id}
-                  onClick={() => onTaskClick(task.id.toString())}
-                  onContextMenu={(e) => onContextMenu(e, task)}
-                />
-              ))}
+              {visibleTasks.map((task: MainBoardTask) =>
+                layout === "rows" ? (
+                  <TaskRow
+                    key={task.id.toString()}
+                    task={task}
+                    isSelected={selectedTask?.id === task.id}
+                    onClick={() => onTaskClick(task.id.toString())}
+                    onContextMenu={(e) => onContextMenu(e, task)}
+                  />
+                ) : (
+                  <TaskCard
+                    key={task.id.toString()}
+                    task={task}
+                    isSelected={selectedTask?.id === task.id}
+                    onClick={() => onTaskClick(task.id.toString())}
+                    onContextMenu={(e) => onContextMenu(e, task)}
+                  />
+                ),
+              )}
 
               {hasMore && (
                 <button

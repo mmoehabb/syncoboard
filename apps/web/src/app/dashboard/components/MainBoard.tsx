@@ -4,9 +4,17 @@ import { useMemo, useState, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { TaskDetailsPanel } from "./TaskDetailsPanel";
 import { TaskCard } from "./TaskCard";
-import { Search, ChevronDown, ChevronRight } from "lucide-react";
+import {
+  Search,
+  ChevronDown,
+  ChevronRight,
+  LayoutList,
+  Columns,
+  AlignJustify,
+} from "lucide-react";
 import { VoiceCallPanel } from "./VoiceCallPanel";
 import { TaskGroup } from "./TaskGroup";
+import { KanbanColumn } from "./KanbanColumn";
 import { FocusedLabel } from "@/components/ui/FocusedLabel";
 import { useCommand } from "@/context/CommandContext";
 import type { MainBoardData, MainBoardTask, UnregisteredUser } from "./types";
@@ -41,6 +49,23 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
   const searchQueryParam = searchParams.get("search") || "";
 
   const [searchValue, setSearchValue] = useState(searchQueryParam);
+  const [layout, setLayout] = useState<"list" | "kanban" | "rows">("list");
+
+  useEffect(() => {
+    const savedLayout = localStorage.getItem("boardLayout");
+    if (
+      savedLayout === "list" ||
+      savedLayout === "kanban" ||
+      savedLayout === "rows"
+    ) {
+      setLayout(savedLayout);
+    }
+  }, []);
+
+  const handleLayoutChange = (newLayout: "list" | "kanban" | "rows") => {
+    setLayout(newLayout);
+    localStorage.setItem("boardLayout", newLayout);
+  };
 
   // Context Menu State
   const [contextMenu, setContextMenu] = useState<{
@@ -50,6 +75,7 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
   } | null>(null);
   const [isMoveMenuOpen, setIsMoveMenuOpen] = useState(false);
   const moveMenuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Modals State
   const [modifyModalState, setModifyModalState] = useState<{
@@ -190,6 +216,24 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
     };
   }, [socket, board?.id, isConnected, router]);
 
+  const handleKanbanScroll = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (layout !== "kanban" || !scrollContainerRef.current) return;
+
+    // Only scroll horizontally if there is no vertical scrolling happening inside a column
+    // We check if the event target is a column's scrollable area
+    const target = e.target as HTMLElement;
+    const isColumnScrollable = target.closest(".overflow-y-auto");
+
+    if (isColumnScrollable) {
+      // If the target is scrollable vertically and we are scrolling vertically, let it scroll
+      const isScrollingVertically = Math.abs(e.deltaY) > Math.abs(e.deltaX);
+      if (isScrollingVertically) return;
+    }
+
+    // Convert vertical scroll to horizontal scroll
+    scrollContainerRef.current.scrollLeft += e.deltaY;
+  };
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setSearchValue(val);
@@ -245,9 +289,34 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
 
   return (
     <div className="flex-1 flex overflow-hidden h-full">
-      <div className="flex-1 flex flex-col bg-obsidian-night transition-all">
+      <div className="flex-1 flex flex-col bg-obsidian-night transition-all min-w-0">
         <div className="p-4 border-b border-white/10 flex items-center justify-between">
-          <h2 className="text-white font-mono font-bold"># {board.name}</h2>
+          <div className="flex items-center gap-4">
+            <h2 className="text-white font-mono font-bold"># {board.name}</h2>
+            <div className="flex items-center gap-1 bg-void-grey border border-white/10 rounded px-1 py-1">
+              <button
+                onClick={() => handleLayoutChange("list")}
+                className={`p-1 rounded transition-colors ${layout === "list" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
+                title="List Layout"
+              >
+                <LayoutList size={16} />
+              </button>
+              <button
+                onClick={() => handleLayoutChange("kanban")}
+                className={`p-1 rounded transition-colors ${layout === "kanban" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
+                title="Kanban Layout"
+              >
+                <Columns size={16} />
+              </button>
+              <button
+                onClick={() => handleLayoutChange("rows")}
+                className={`p-1 rounded transition-colors ${layout === "rows" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
+                title="Rows Layout"
+              >
+                <AlignJustify size={16} />
+              </button>
+            </div>
+          </div>
           <button
             onClick={() => setIsAddTaskModalOpen(true)}
             className="text-syntax-grey hover:text-neon-pulse text-sm font-mono transition-colors border border-syntax-grey/30 hover:border-neon-pulse/50 rounded px-3 py-1 bg-void-grey"
@@ -256,7 +325,7 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-hidden p-6 flex flex-col gap-6">
+        <div className="flex-1 overflow-hidden p-6 flex flex-col gap-6">
           <div className="flex items-center gap-2 px-3 py-2 bg-void-grey border border-white/10 rounded-md focus-within:border-git-green transition-colors">
             <Search size={16} className="text-syntax-grey" />
             <input
@@ -268,12 +337,29 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
             />
           </div>
 
-          <div className="flex flex-col gap-4 h-full overflow-y-auto p-2 no-scrollbar">
+          <div
+            ref={scrollContainerRef}
+            onWheel={handleKanbanScroll}
+            className={`flex ${layout === "kanban" ? "flex-row overflow-x-auto h-full gap-4 pb-4" : "flex-col gap-4 h-full overflow-y-auto p-2 no-scrollbar"}`}
+          >
             {tasks.length > 0 &&
               TASK_STATUS_GROUPS.map((group) => {
                 const groupTasks = tasks.filter(
                   (t: MainBoardTask) => t.status === group.status,
                 );
+
+                if (layout === "kanban") {
+                  return (
+                    <KanbanColumn
+                      key={group.status}
+                      group={group}
+                      groupTasks={groupTasks}
+                      selectedTask={selectedTask}
+                      onTaskClick={(taskId) => router.push(`?taskId=${taskId}`)}
+                      onContextMenu={handleContextMenu}
+                    />
+                  );
+                }
 
                 return (
                   <TaskGroup
@@ -283,6 +369,7 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
                     selectedTask={selectedTask}
                     onTaskClick={(taskId) => router.push(`?taskId=${taskId}`)}
                     onContextMenu={handleContextMenu}
+                    layout={layout}
                   />
                 );
               })}
