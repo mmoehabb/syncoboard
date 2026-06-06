@@ -22,7 +22,14 @@ const mockPrisma = {
 
 mock.module("@syncoboard/db", () => ({
   prisma: mockPrisma,
-  TaskStatus: { TODO: "TODO", IN_PROGRESS: "IN_PROGRESS", IN_REVIEW: "IN_REVIEW", DONE: "DONE", CHANGES_REQUESTED: "CHANGES_REQUESTED", CLOSED: "CLOSED" },
+  TaskStatus: {
+    TODO: "TODO",
+    IN_PROGRESS: "IN_PROGRESS",
+    IN_REVIEW: "IN_REVIEW",
+    DONE: "DONE",
+    CHANGES_REQUESTED: "CHANGES_REQUESTED",
+    CLOSED: "CLOSED",
+  },
 }));
 
 mock.module("@/lib/auth", () => ({
