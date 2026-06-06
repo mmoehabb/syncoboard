@@ -22,7 +22,7 @@ export function Header({ onToggleSidebar }: { onToggleSidebar?: () => void }) {
           {onToggleSidebar && (
             <button
               onClick={onToggleSidebar}
-              className="md:hidden p-1.5 hover:bg-white/5 rounded text-syntax-grey hover:text-white transition-colors"
+              className="p-1.5 hover:bg-white/5 rounded text-syntax-grey hover:text-white transition-colors"
             >
               <Menu size={20} />
             </button>
