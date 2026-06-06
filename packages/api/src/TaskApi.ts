@@ -1,6 +1,6 @@
 import { ApiClient } from "./ApiClient";
 import { AxiosRequestConfig } from "axios";
-import { TaskStatus } from "@syncoboard/db";
+import type { TaskStatus } from "@syncoboard/db";
 import type { Task } from "@syncoboard/db";
 import type { CreateTaskPayload, ListTasksResponse } from "@syncoboard/types";
 

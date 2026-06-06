@@ -4,7 +4,14 @@ import { useMemo, useState, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { TaskDetailsPanel } from "./TaskDetailsPanel";
 import { TaskCard } from "./TaskCard";
-import { Search, ChevronDown, ChevronRight, LayoutList, Columns, AlignJustify } from "lucide-react";
+import {
+  Search,
+  ChevronDown,
+  ChevronRight,
+  LayoutList,
+  Columns,
+  AlignJustify,
+} from "lucide-react";
 import { VoiceCallPanel } from "./VoiceCallPanel";
 import { TaskGroup } from "./TaskGroup";
 import { KanbanColumn } from "./KanbanColumn";
