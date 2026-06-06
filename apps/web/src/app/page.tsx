@@ -2,6 +2,7 @@ import { Header } from "@/components/landing/Header";
 import { Hero } from "@/components/landing/Hero";
 import { MatrixBackground } from "@/components/landing/MatrixBackground";
 import { Idea } from "@/components/landing/Idea";
+import { CliAd } from "@/components/landing/CliAd";
 import { Plans } from "@/components/landing/Plans";
 import { Footer } from "@/components/landing/Footer";
 import { auth } from "@/lib/auth";
@@ -37,6 +38,7 @@ export default async function Home(props: {
         <main className="flex flex-col w-full">
           <Hero />
           <Idea />
+          <CliAd />
           <Plans plans={plans} isLoggedIn={!!session?.user} />
         </main>
         <Footer />
