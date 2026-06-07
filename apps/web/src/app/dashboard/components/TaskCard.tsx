@@ -63,29 +63,29 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           : "border-white/10 bg-void-grey hover:border-white/20"
       } cmd-selectable [&.cmd-selected]:border-neon-pulse [&.cmd-selected]:bg-neon-pulse/5 [&.cmd-selected]:shadow-md `}
     >
-      <div className="flex items-start justify-between">
-        <div className="flex flex-col">
-          <div className="text-syntax-grey font-mono text-xs mb-1">
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-start justify-between gap-2">
+          <div className="text-syntax-grey font-mono text-xs shrink-0 mt-0.5">
             SYNC-{task.id.toString()}{" "}
             {task.prNumber && `| PR #${task.prNumber}`}
           </div>
-          <div
-            className={`font-mono text-sm leading-relaxed ${
-              task.status === "DONE" || task.status === "CLOSED"
-                ? "text-syntax-grey line-through"
-                : "text-white"
-            }`}
-          >
-            {task.title}
-          </div>
+          {task.branchName && (
+            <div className="flex items-center min-w-0">
+              <span className="px-2 py-0.5 rounded-full bg-neon-pulse/10 text-neon-pulse text-[10px] font-mono lowercase truncate">
+                {task.branchName}
+              </span>
+            </div>
+          )}
         </div>
-        {task.branchName && (
-          <div className="flex items-center gap-2 ml-2 shrink-0 mt-1">
-            <span className="px-2 py-0.5 rounded-full bg-neon-pulse/10 text-neon-pulse text-[10px] font-mono lowercase">
-              {task.branchName}
-            </span>
-          </div>
-        )}
+        <div
+          className={`font-mono text-sm leading-relaxed break-words ${
+            task.status === "DONE" || task.status === "CLOSED"
+              ? "text-syntax-grey line-through"
+              : "text-white"
+          }`}
+        >
+          {task.title}
+        </div>
       </div>
 
       <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5">
