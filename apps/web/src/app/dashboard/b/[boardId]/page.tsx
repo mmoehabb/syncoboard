@@ -33,21 +33,84 @@ export default async function BoardPage({
   // Verify access to the board
   const board = await prisma.board.findUnique({
     where: { id: boardId },
-    include: {
-      tasks: {
-        where: searchQuery
-          ? {
-              title: {
-                contains: searchQuery,
-                mode: "insensitive",
-              },
-            }
-          : undefined,
-        orderBy: { updatedAt: "desc" },
-        include: { assignees: true, reviewers: true },
-      },
-    },
   });
+
+  // Fetch only up to 10 tasks initially per status to limit the initial payload
+  // Also fetch the total counts of tasks per status based on the search query
+  const TASK_STATUSES = [
+    "TODO",
+    "IN_PROGRESS",
+    "IN_REVIEW",
+    "CHANGES_REQUESTED",
+    "DONE",
+    "CLOSED",
+  ] as const;
+
+  const tasksData = await Promise.all(
+    TASK_STATUSES.map(async (status) => {
+      const [tasks, count] = await Promise.all([
+        prisma.task.findMany({
+          where: {
+            boardId,
+            status,
+            ...(searchQuery
+              ? {
+                  title: {
+                    contains: searchQuery,
+                    mode: "insensitive",
+                  },
+                }
+              : {}),
+          },
+          orderBy: { updatedAt: "desc" },
+          take: 10,
+          include: { assignees: true, reviewers: true },
+        }),
+        prisma.task.count({
+          where: {
+            boardId,
+            status,
+            ...(searchQuery
+              ? {
+                  title: {
+                    contains: searchQuery,
+                    mode: "insensitive",
+                  },
+                }
+              : {}),
+          },
+        }),
+      ]);
+      return { status, tasks, count };
+    }),
+  );
+
+  const initialTasks = tasksData.flatMap((d) => d.tasks);
+  const taskCounts = tasksData.reduce(
+    (acc, d) => {
+      acc[d.status] = d.count;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+
+  if (!board) {
+    redirect("/dashboard");
+  }
+
+  // Extend the board object with tasks for the client
+  const boardWithTasks = {
+    id: board.id,
+    workspaceId: board.workspaceId,
+    name: board.name,
+    repositoryName: board.repositoryName,
+    githubRepoId: board.githubRepoId,
+    isActive: board.isActive,
+    isDeleted: board.isDeleted,
+    createdAt: board.createdAt,
+    updatedAt: board.updatedAt,
+    tasks: initialTasks,
+  };
 
   if (!board) {
     redirect("/dashboard");
@@ -119,7 +182,10 @@ export default async function BoardPage({
             bottomText="Return to dashboard &rarr;"
           />
         }
-        board={board}
+        board={boardWithTasks}
+        taskCounts={taskCounts}
+        boardId={boardId}
+        searchQuery={searchQuery}
       />
     </SessionProvider>
   );

@@ -4,7 +4,7 @@ import { ReactNode, useEffect } from "react";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { MainBoard } from "./MainBoard";
-import type { DashboardWorkspace, MainBoardData } from "./types";
+import type { DashboardWorkspace, MainBoardData, TaskCounts } from "./types";
 import { useState } from "react";
 import { SocketProvider } from "@/context/SocketContext";
 import { UserApi } from "@syncoboard/api";
@@ -14,11 +14,17 @@ export function DashboardClient({
   hasActiveSubscription,
   modalComponent,
   board,
+  taskCounts,
+  boardId,
+  searchQuery,
 }: {
   workspaces: DashboardWorkspace[];
   hasActiveSubscription: boolean;
   modalComponent: ReactNode;
   board?: MainBoardData | null;
+  taskCounts?: TaskCounts;
+  boardId?: string;
+  searchQuery?: string;
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -51,7 +57,12 @@ export function DashboardClient({
             isOpen={isSidebarOpen}
             onClose={() => setIsSidebarOpen(false)}
           />
-          <MainBoard board={board} />
+          <MainBoard
+            board={board}
+            taskCounts={taskCounts}
+            boardId={boardId}
+            searchQuery={searchQuery}
+          />
           {!hasActiveSubscription && modalComponent}
         </div>
       </div>
