@@ -202,10 +202,10 @@ export async function GET(req: Request) {
       hasMoreByStatus[status] = false;
     }
 
-    // Run queries in parallel
-    await Promise.all(
-      TASK_STATUSES.map(async (status) => {
-        const tasksForStatus = await prisma.task.findMany({
+    // Wrap the parallel requests in a transaction to minimize DB round trips
+    const results = await prisma.$transaction(
+      TASK_STATUSES.map((status) =>
+        prisma.task.findMany({
           where: {
             boardId: board.id,
             status: status,
@@ -215,17 +215,20 @@ export async function GET(req: Request) {
           },
           skip,
           take: limit + 1, // Fetch one extra to determine if there's more
-        });
-
-        if (tasksForStatus.length > limit) {
-          hasMoreByStatus[status] = true;
-          tasksByStatus[status] = tasksForStatus.slice(0, limit);
-        } else {
-          hasMoreByStatus[status] = false;
-          tasksByStatus[status] = tasksForStatus;
-        }
-      }),
+        }),
+      ),
     );
+
+    TASK_STATUSES.forEach((status, index) => {
+      const tasksForStatus = results[index];
+      if (tasksForStatus.length > limit) {
+        hasMoreByStatus[status] = true;
+        tasksByStatus[status] = tasksForStatus.slice(0, limit);
+      } else {
+        hasMoreByStatus[status] = false;
+        tasksByStatus[status] = tasksForStatus;
+      }
+    });
 
     const response = {
       tasksByStatus,
