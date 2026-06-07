@@ -23,6 +23,12 @@ export function DashboardClient({
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
+    if (board?.id) {
+      document.cookie = `lastSelectedBoardId=${board.id}; path=/; max-age=31536000`; // 1 year
+    }
+  }, [board?.id]);
+
+  useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
     const storedDate = sessionStorage.getItem("lastOnlineDate");
 

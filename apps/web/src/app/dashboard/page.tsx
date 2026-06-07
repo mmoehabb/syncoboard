@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@syncoboard/db";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { getUserWorkspacesAndBoards } from "./actions";
 import { SubscriptionModal } from "./components/SubscriptionModal";
 import { DashboardClient } from "./components/DashboardClient";
@@ -57,6 +58,19 @@ export default async function DashboardPage() {
       const githubAppName =
         process.env.NEXT_PUBLIC_GITHUB_APP_NAME || "syncoboard";
       redirect(`https://github.com/apps/${githubAppName}/installations/new`);
+    }
+
+    const cookieStore = await cookies();
+    const lastSelectedBoardId = cookieStore.get("lastSelectedBoardId")?.value;
+
+    if (lastSelectedBoardId) {
+      const hasAccess = workspaces.some((ws) =>
+        ws.boards.some((b) => b.id === lastSelectedBoardId && !b.isDeleted),
+      );
+
+      if (hasAccess) {
+        redirect(`/dashboard/b/${lastSelectedBoardId}`);
+      }
     }
   } else {
     // If they don't have a subscription, we still want to render the dashboard
