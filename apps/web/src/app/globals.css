@@ -71,3 +71,39 @@
     scrollbar-width: none;
   }
 }
+
+@layer utilities {
+  @keyframes spin-border {
+    100% {
+      transform: rotate(1turn);
+    }
+  }
+
+  .animated-border {
+    position: relative;
+    border-radius: 0.5rem;
+    background: var(--color-void-grey);
+    background-clip: padding-box;
+    border: 1px solid transparent;
+  }
+
+  .animated-border::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: 0.5rem;
+    padding: 1px;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0 340deg,
+      var(--color-neon-pulse) 360deg
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: spin-border 1.5s linear infinite;
+  }
+}
