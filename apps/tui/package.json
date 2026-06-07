@@ -1,9 +1,0 @@
-{
-  "name": "tui",
-  "private": true,
-  "scripts": {
-    "start": "go run main.go",
-    "build": "go build",
-    "dev": "go run main.go"
-  }
-}
