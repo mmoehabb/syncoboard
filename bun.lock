@@ -208,6 +208,7 @@
         "@octokit/webhooks-types": "^7.6.1",
         "@prisma/client": "7.7.0",
         "@syncoboard/db": "workspace:*",
+        "@syncoboard/payment": "workspace:*",
         "@syncoboard/shared": "workspace:*",
         "string-similarity": "^4.0.4",
       },

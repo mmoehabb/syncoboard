@@ -1,5 +1,6 @@
 import { serve } from "bun";
 import { handleGithubWebhook } from "./handlers/github";
+import { handlePaypalWebhook } from "./handlers/paypal";
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 4002;
 
@@ -10,6 +11,10 @@ const server = serve({
 
     if (req.method === "POST" && url.pathname === "/github/hook") {
       return handleGithubWebhook(req);
+    }
+
+    if (req.method === "POST" && url.pathname === "/paypal/hook") {
+      return handlePaypalWebhook(req);
     }
 
     return new Response(JSON.stringify({ error: "Not found" }), {

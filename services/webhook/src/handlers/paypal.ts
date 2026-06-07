@@ -1,10 +1,7 @@
-// TODO: Move to webhook service
-import { NextResponse } from "next/server";
 import { prisma } from "@syncoboard/db";
 import { PayPalProvider } from "@syncoboard/payment";
-import { apiError, API_ERRORS } from "@/lib/api/error";
 
-export async function POST(req: Request) {
+export async function handlePaypalWebhook(req: Request): Promise<Response> {
   try {
     const rawBody = await req.text();
     const headers = Object.fromEntries(req.headers.entries());
@@ -14,11 +11,14 @@ export async function POST(req: Request) {
     let event;
     try {
       event = await provider.handleWebhook(rawBody, headers);
-    } catch (err: any) {
-      console.error("Webhook signature verification failed:", err.message);
-      return NextResponse.json(
-        { error: "Webhook signature verification failed" },
-        { status: 400 },
+    } catch (err: unknown) {
+      console.error(
+        "Webhook signature verification failed:",
+        err instanceof Error ? err.message : err,
+      );
+      return new Response(
+        JSON.stringify({ error: "Webhook signature verification failed" }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -28,7 +28,10 @@ export async function POST(req: Request) {
     const providerSubscriptionId = resource.id;
 
     if (!providerSubscriptionId) {
-      return NextResponse.json({ received: true });
+      return new Response(JSON.stringify({ received: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     const subscription = await prisma.subscription.findFirst({
@@ -36,7 +39,10 @@ export async function POST(req: Request) {
     });
 
     if (!subscription) {
-      return NextResponse.json({ received: true });
+      return new Response(JSON.stringify({ received: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     if (event_type === "BILLING.SUBSCRIPTION.ACTIVATED") {
@@ -74,9 +80,15 @@ export async function POST(req: Request) {
       });
     }
 
-    return NextResponse.json({ received: true });
-  } catch (error: any) {
+    return new Response(JSON.stringify({ received: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error: unknown) {
     console.error("Webhook Error:", error);
-    return apiError(API_ERRORS.INTERNAL_SERVER_ERROR);
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }

@@ -24,7 +24,7 @@ To receive updates about subscription statuses (e.g., activations, cancellations
 1.  Navigate to your App in the PayPal Developer Dashboard.
 2.  Scroll down to the **Webhooks** section and click **Add Webhook**.
 3.  Set the **Webhook URL** to your application's public URL followed by the webhook endpoint.
-    - Example: `https://your-domain.com/api/subscriptions/webhook/paypal`
+    - Example: `https://your-webhook-domain.com/paypal/hook`
     - _Note: For local development, use a tool like Ngrok to expose your local server to the internet._
 4.  Select the following events:
     - `Billing subscription activated`
@@ -44,7 +44,7 @@ The integration leverages the abstract `PaymentProvider` interface defined in `@
 
 - **Plans & Prices:** The `syncPlans` method automatically maps local `Plan` and `Price` models to PayPal Products and Billing Plans, saving the `providerPlanId` to the database.
 - **Checkout:** When a user subscribes, the application calls `/api/subscriptions/checkout`, generates a PayPal checkout session using `createSubscription`, and redirects the user to the approval URL.
-- **Webhooks:** The `/api/subscriptions/webhook/paypal` endpoint receives PayPal events, verifies the cryptographic signature, and updates the local subscription status (`ACTIVE`, `CANCELED`, `EXPIRED`, `PAST_DUE`) accordingly.
+- **Webhooks:** The standalone webhook service (handling `/paypal/hook`) receives PayPal events, verifies the cryptographic signature, and updates the local subscription status (`ACTIVE`, `CANCELED`, `EXPIRED`, `PAST_DUE`) accordingly.
 
 ## Troubleshooting
 

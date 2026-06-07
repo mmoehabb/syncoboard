@@ -14,7 +14,8 @@
     "@prisma/client": "7.7.0",
     "@syncoboard/db": "workspace:*",
     "@syncoboard/shared": "workspace:*",
-    "string-similarity": "^4.0.4"
+    "string-similarity": "^4.0.4",
+    "@syncoboard/payment": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "latest",
