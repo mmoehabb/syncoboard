@@ -28,36 +28,38 @@ export class PayPalProvider implements PaymentProvider<PayPalWebhookEvent> {
         }
       }
 
-      for (const price of plan.prices) {
-        if (!price.providerPlanId && price.amount > 0) {
-          try {
-            const paypalPlan = await createPayPalPlan(
-              plan.id,
-              `${plan.name} - ${price.interval}`,
-              price.interval as "WEEK" | "MONTH" | "YEAR" | "LIFETIME",
-              price.amount,
-              price.currency,
-            );
+      await Promise.all(
+        plan.prices.map(async (price) => {
+          if (!price.providerPlanId && price.amount > 0) {
+            try {
+              const paypalPlan = await createPayPalPlan(
+                plan.id,
+                `${plan.name} - ${price.interval}`,
+                price.interval as "WEEK" | "MONTH" | "YEAR" | "LIFETIME",
+                price.amount,
+                price.currency,
+              );
 
-            await prisma.price.update({
-              where: { id: price.id },
-              data: { providerPlanId: paypalPlan.id },
-            });
-            console.log(
-              `Synced PayPal plan for Price ${price.id}: ${paypalPlan.id}`,
-            );
-          } catch (err: unknown) {
-            const paypalErr = err as {
-              response?: { data?: unknown };
-              message?: string;
-            };
-            console.error(
-              `Error creating PayPal plan for price ${price.id}`,
-              paypalErr.response?.data || paypalErr.message,
-            );
+              await prisma.price.update({
+                where: { id: price.id },
+                data: { providerPlanId: paypalPlan.id },
+              });
+              console.log(
+                `Synced PayPal plan for Price ${price.id}: ${paypalPlan.id}`,
+              );
+            } catch (err: unknown) {
+              const paypalErr = err as {
+                response?: { data?: unknown };
+                message?: string;
+              };
+              console.error(
+                `Error creating PayPal plan for price ${price.id}`,
+                paypalErr.response?.data || paypalErr.message,
+              );
+            }
           }
-        }
-      }
+        }),
+      );
     }
   }
 
