@@ -105,9 +105,17 @@ export function KanbanColumn({
         {hasMore && (
           <button
             onClick={loadMore}
-            className="mt-2 py-2 px-4 rounded-md border border-white/10 text-syntax-grey font-mono text-xs hover:border-neon-pulse hover:text-neon-pulse transition-colors cmd-selectable [&.cmd-selected]:border-neon-pulse [&.cmd-selected]:text-neon-pulse [&.cmd-selected]:bg-neon-pulse/5 shrink-0"
+            disabled={isLoading}
+            className="mt-2 py-2 px-4 rounded-md border border-white/10 text-syntax-grey font-mono text-xs hover:border-neon-pulse hover:text-neon-pulse transition-colors cmd-selectable [&.cmd-selected]:border-neon-pulse [&.cmd-selected]:text-neon-pulse [&.cmd-selected]:bg-neon-pulse/5 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            [VIEW MORE]
+            {isLoading ? (
+              <span className="flex items-center gap-2">
+                <span className="animate-spin border-2 border-syntax-grey border-t-neon-pulse rounded-full w-3 h-3 inline-block" />
+                LOADING
+              </span>
+            ) : (
+              "[VIEW MORE]"
+            )}
           </button>
         )}
       </div>
