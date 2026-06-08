@@ -34,3 +34,5 @@ export type PlanWithPrices = Prisma.PlanGetPayload<{
     prices: true;
   };
 }>;
+
+export type TaskCounts = Record<string, number>;

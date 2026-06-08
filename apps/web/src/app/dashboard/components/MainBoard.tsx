@@ -37,7 +37,19 @@ import { useToast } from "@/context/ToastContext";
 import axios from "axios";
 import { useRef } from "react";
 
-export function MainBoard({ board }: { board?: MainBoardData | null }) {
+import type { TaskCounts } from "./types";
+
+export function MainBoard({
+  board,
+  taskCounts,
+  boardId,
+  searchQuery,
+}: {
+  board?: MainBoardData | null;
+  taskCounts?: TaskCounts;
+  boardId?: string;
+  searchQuery?: string;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const { showToast } = useToast();
@@ -248,11 +260,33 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
     router.replace(`${pathname}?${params.toString()}`);
   };
 
+  const [paginatedTasks, setPaginatedTasks] = useState<MainBoardTask[]>([]);
+
+  // Clear paginated tasks if the search query changes or board changes
+  useEffect(() => {
+    setPaginatedTasks([]);
+  }, [searchQuery, board?.id]);
+
   const tasks = useMemo(() => {
-    if (!board?.tasks) return [];
+    if (!board?.tasks && paginatedTasks.length === 0) return [];
+
+    // Combine server-provided tasks with our locally fetched paginated ones
+    const combinedMap = new Map();
+    if (board?.tasks) {
+      board.tasks.forEach((t) => combinedMap.set(t.id.toString(), t));
+    }
+
+    paginatedTasks.forEach((t) => {
+      // Don't overwrite newer server tasks with older paginated ones
+      if (!combinedMap.has(t.id.toString())) {
+        combinedMap.set(t.id.toString(), t);
+      }
+    });
+
+    const combinedTasks = Array.from(combinedMap.values());
 
     // Sort tasks by status to match the visual grouping
-    return [...board.tasks].sort((a: MainBoardTask, b: MainBoardTask) => {
+    return combinedTasks.sort((a: MainBoardTask, b: MainBoardTask) => {
       const orderA = TASK_STATUS_ORDER[a.status] ?? 99;
       const orderB = TASK_STATUS_ORDER[b.status] ?? 99;
       if (orderA !== orderB) return orderA - orderB;
@@ -357,6 +391,11 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
                       selectedTask={selectedTask}
                       onTaskClick={(taskId) => router.push(`?taskId=${taskId}`)}
                       onContextMenu={handleContextMenu}
+                      totalCount={
+                        taskCounts?.[group.status] ?? groupTasks.length
+                      }
+                      boardId={boardId}
+                      searchQuery={searchQuery}
                     />
                   );
                 }
@@ -370,6 +409,12 @@ export function MainBoard({ board }: { board?: MainBoardData | null }) {
                     onTaskClick={(taskId) => router.push(`?taskId=${taskId}`)}
                     onContextMenu={handleContextMenu}
                     layout={layout}
+                    totalCount={taskCounts?.[group.status] ?? groupTasks.length}
+                    boardId={boardId}
+                    searchQuery={searchQuery}
+                    onLoadMore={(newTasks) =>
+                      setPaginatedTasks((prev) => [...prev, ...newTasks])
+                    }
                   />
                 );
               })}
