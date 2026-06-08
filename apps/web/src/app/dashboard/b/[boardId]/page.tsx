@@ -35,7 +35,7 @@ export default async function BoardPage({
     where: { id: boardId },
   });
 
-  // Fetch only up to 10 tasks initially per status to limit the initial payload
+  // Fetch only up to 5 tasks initially per status to limit the initial payload
   // Also fetch the total counts of tasks per status based on the search query
   const TASK_STATUSES = [
     "TODO",
@@ -63,7 +63,7 @@ export default async function BoardPage({
               : {}),
           },
           orderBy: { updatedAt: "desc" },
-          take: 10,
+          take: 5,
           include: { assignees: true, reviewers: true },
         }),
         prisma.task.count({

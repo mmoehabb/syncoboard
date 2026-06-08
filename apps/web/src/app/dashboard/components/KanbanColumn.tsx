@@ -47,7 +47,7 @@ export function KanbanColumn({
         boardId,
         status: group.status as TaskStatus,
         skip: tasks.length,
-        take: 10,
+        take: 5,
         searchQuery,
       });
       const newTasks = newTasksRaw as unknown as MainBoardTask[];
@@ -58,6 +58,11 @@ export function KanbanColumn({
       );
 
       setTasks((prev) => [...prev, ...filteredNewTasks]);
+
+      // Notify parent to append these tasks to the global board list
+      if (onLoadMore && filteredNewTasks.length > 0) {
+        onLoadMore(filteredNewTasks);
+      }
     } catch (error) {
       console.error("Failed to load more tasks:", error);
     } finally {

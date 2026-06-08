@@ -268,11 +268,14 @@ export function MainBoard({
   }, [searchQuery, board?.id]);
 
   const tasks = useMemo(() => {
-    if (!board?.tasks) return [];
+    if (!board?.tasks && paginatedTasks.length === 0) return [];
 
     // Combine server-provided tasks with our locally fetched paginated ones
     const combinedMap = new Map();
-    board.tasks.forEach((t) => combinedMap.set(t.id.toString(), t));
+    if (board?.tasks) {
+      board.tasks.forEach((t) => combinedMap.set(t.id.toString(), t));
+    }
+
     paginatedTasks.forEach((t) => {
       // Don't overwrite newer server tasks with older paginated ones
       if (!combinedMap.has(t.id.toString())) {

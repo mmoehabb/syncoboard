@@ -54,7 +54,7 @@ export function TaskGroup({
         boardId,
         status: group.status as TaskStatus,
         skip: tasks.length,
-        take: 10,
+        take: 5,
         searchQuery,
       });
       // The newTasks come back as serialized bigints. They should match MainBoardTask type loosely for rendering.
@@ -67,6 +67,11 @@ export function TaskGroup({
       );
 
       setTasks((prev) => [...prev, ...filteredNewTasks]);
+
+      // Notify parent to append these tasks to the global board list
+      if (onLoadMore && filteredNewTasks.length > 0) {
+        onLoadMore(filteredNewTasks);
+      }
     } catch (error) {
       console.error("Failed to load more tasks:", error);
     } finally {
