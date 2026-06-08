@@ -20,6 +20,11 @@ interface KanbanColumnProps {
   totalCount?: number;
   boardId?: string;
   searchQuery?: string;
+  assignee?: string;
+  reviewer?: string;
+  startDate?: string;
+  endDate?: string;
+  take?: number;
   onLoadMore?: (tasks: MainBoardTask[]) => void;
 }
 
@@ -32,6 +37,11 @@ export function KanbanColumn({
   totalCount,
   boardId,
   searchQuery,
+  assignee,
+  reviewer,
+  startDate,
+  endDate,
+  take,
   onLoadMore,
 }: KanbanColumnProps) {
   const [tasks, setTasks] = useState<MainBoardTask[]>(groupTasks);
@@ -47,8 +57,12 @@ export function KanbanColumn({
         boardId,
         status: group.status as TaskStatus,
         skip: tasks.length,
-        take: 5,
+        take: take || 5,
         searchQuery,
+        assignee,
+        reviewer,
+        startDate,
+        endDate,
       });
       const newTasks = newTasksRaw as unknown as MainBoardTask[];
 

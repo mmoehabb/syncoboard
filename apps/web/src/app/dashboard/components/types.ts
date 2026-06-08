@@ -36,3 +36,10 @@ export type PlanWithPrices = Prisma.PlanGetPayload<{
 }>;
 
 export type TaskCounts = Record<string, number>;
+
+export type AvailableMember = {
+  id: string;
+  name: string | null;
+  email: string | null;
+  image: string | null;
+};
