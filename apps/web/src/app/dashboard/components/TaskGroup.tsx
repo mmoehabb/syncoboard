@@ -97,18 +97,18 @@ export function TaskGroup({
           <FocusedLabel className="ml-2" />
         </div>
         <span className="bg-white/5 px-2 py-0.5 rounded text-syntax-grey text-xs">
-          {totalCount ?? groupTasks.length}
+          {totalCount ?? tasks.length}
         </span>
       </div>
       {!isCollapsed && (
         <>
-          {groupTasks.length === 0 ? (
+          {tasks.length === 0 ? (
             <div className="text-syntax-grey font-mono text-sm italic py-2 text-center border border-dashed border-white/10 rounded">
               No tasks in this status
             </div>
           ) : (
             <div className="flex flex-col gap-2">
-              {groupTasks.map((task: MainBoardTask) =>
+              {tasks.map((task: MainBoardTask) =>
                 layout === "rows" ? (
                   <TaskRow
                     key={task.id.toString()}

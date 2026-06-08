@@ -82,17 +82,17 @@ export function KanbanColumn({
           <FocusedLabel className="ml-2" />
         </div>
         <span className="bg-white/5 px-2 py-0.5 rounded text-syntax-grey text-xs">
-          {totalCount ?? groupTasks.length}
+          {totalCount ?? tasks.length}
         </span>
       </div>
 
       <div className="flex flex-col gap-2 overflow-y-auto no-scrollbar flex-1 pb-4">
-        {groupTasks.length === 0 ? (
+        {tasks.length === 0 ? (
           <div className="text-syntax-grey font-mono text-xs italic py-4 text-center border border-dashed border-white/10 rounded m-1 opacity-50">
             No tasks
           </div>
         ) : (
-          groupTasks.map((task: MainBoardTask) => (
+          tasks.map((task: MainBoardTask) => (
             <TaskCard
               key={task.id.toString()}
               task={task}
