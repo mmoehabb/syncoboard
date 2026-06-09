@@ -38,7 +38,7 @@ export async function POST(req: Request) {
     // Find the workspace that the user is a member of
     const workspace = await prisma.workspace.findFirst({
       where: {
-        name: workspaceName,
+        name: { equals: workspaceName, mode: "insensitive" },
         members: {
           some: {
             userId: userId,
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
     const board = await prisma.board.findFirst({
       where: {
         workspaceId: workspace.id,
-        name: boardName,
+        name: { equals: boardName, mode: "insensitive" },
         OR: [
           {
             members: {
@@ -225,7 +225,7 @@ export async function DELETE(req: Request) {
     // Find the workspace that the user is a member of
     const workspace = await prisma.workspace.findFirst({
       where: {
-        name: workspaceName,
+        name: { equals: workspaceName, mode: "insensitive" },
         members: {
           some: {
             userId: userId,
@@ -242,7 +242,7 @@ export async function DELETE(req: Request) {
     const board = await prisma.board.findFirst({
       where: {
         workspaceId: workspace.id,
-        name: boardName,
+        name: { equals: boardName, mode: "insensitive" },
         OR: [
           {
             members: {

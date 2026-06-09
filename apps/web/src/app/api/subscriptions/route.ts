@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSessionOrPat } from "@/lib/auth";
 import { prisma } from "@syncoboard/db";
 import { API_ERRORS, apiError } from "@/lib/api/error";
+import { enforceSubscriptionLimits } from "@syncoboard/utils";
 
 export async function POST() {
   const userId = await getSessionOrPat();
@@ -42,7 +43,14 @@ export async function POST() {
         ),
         cancelAtPeriodEnd: false,
       },
+      include: {
+        price: {
+          include: { plan: true },
+        },
+      },
     });
+
+    await enforceSubscriptionLimits(userId, subscription as any);
 
     return NextResponse.json({ subscription }, { status: 201 });
   } catch (error) {

@@ -31,7 +31,7 @@ export async function PUT(req: Request) {
 
     const workspace = await prisma.workspace.findFirst({
       where: {
-        name: workspaceName,
+        name: { equals: workspaceName, mode: "insensitive" },
         members: {
           some: {
             userId: userId,
@@ -47,7 +47,7 @@ export async function PUT(req: Request) {
     const board = await prisma.board.findFirst({
       where: {
         workspaceId: workspace.id,
-        name: boardName,
+        name: { equals: boardName, mode: "insensitive" },
       },
     });
 

@@ -31,7 +31,7 @@ export async function PUT(req: Request) {
 
     const workspace = await prisma.workspace.findFirst({
       where: {
-        name: workspaceName,
+        name: { equals: workspaceName, mode: "insensitive" },
         members: {
           some: {
             userId: userId,
