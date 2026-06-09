@@ -71,7 +71,8 @@ export async function subscribeToTrialPlan(planId: string) {
 
   if (pastTrials) {
     return {
-      error: "You have already used your free trial. Please select another plan.",
+      error:
+        "You have already used your free trial. Please select another plan.",
     };
   }
 
