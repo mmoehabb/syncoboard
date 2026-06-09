@@ -21,6 +21,11 @@ interface TaskGroupProps {
   totalCount?: number;
   boardId?: string;
   searchQuery?: string;
+  assignee?: string;
+  reviewer?: string;
+  startDate?: string;
+  endDate?: string;
+  take?: number;
   onLoadMore?: (tasks: MainBoardTask[]) => void;
 }
 
@@ -34,6 +39,11 @@ export function TaskGroup({
   totalCount,
   boardId,
   searchQuery,
+  assignee,
+  reviewer,
+  startDate,
+  endDate,
+  take,
   onLoadMore,
 }: TaskGroupProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -54,8 +64,12 @@ export function TaskGroup({
         boardId,
         status: group.status as TaskStatus,
         skip: tasks.length,
-        take: 5,
+        take: take || 5,
         searchQuery,
+        assignee,
+        reviewer,
+        startDate,
+        endDate,
       });
       // The newTasks come back as serialized bigints. They should match MainBoardTask type loosely for rendering.
       const newTasks = newTasksRaw as unknown as MainBoardTask[];

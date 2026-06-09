@@ -4,7 +4,12 @@ import { ReactNode, useEffect } from "react";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { MainBoard } from "./MainBoard";
-import type { DashboardWorkspace, MainBoardData, TaskCounts } from "./types";
+import type {
+  DashboardWorkspace,
+  MainBoardData,
+  TaskCounts,
+  AvailableMember,
+} from "./types";
 import { useState } from "react";
 import { SocketProvider } from "@/context/SocketContext";
 import { UserApi } from "@syncoboard/api";
@@ -17,6 +22,8 @@ export function DashboardClient({
   taskCounts,
   boardId,
   searchQuery,
+  availableMembers,
+  initialLimit,
 }: {
   workspaces: DashboardWorkspace[];
   hasActiveSubscription: boolean;
@@ -25,6 +32,8 @@ export function DashboardClient({
   taskCounts?: TaskCounts;
   boardId?: string;
   searchQuery?: string;
+  availableMembers?: AvailableMember[];
+  initialLimit?: number;
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -68,6 +77,8 @@ export function DashboardClient({
             taskCounts={taskCounts}
             boardId={boardId}
             searchQuery={searchQuery}
+            availableMembers={availableMembers}
+            initialLimit={initialLimit}
           />
           {!hasActiveSubscription && modalComponent}
         </div>

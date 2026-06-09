@@ -20,6 +20,24 @@ export default async function BoardPage({
     ? String(resolvedSearchParams.search)
     : undefined;
 
+  const assigneeParam = resolvedSearchParams?.assignee
+    ? String(resolvedSearchParams.assignee)
+    : undefined;
+  const reviewerParam = resolvedSearchParams?.reviewer
+    ? String(resolvedSearchParams.reviewer)
+    : undefined;
+  const startDateParam = resolvedSearchParams?.startDate
+    ? String(resolvedSearchParams.startDate)
+    : undefined;
+  const endDateParam = resolvedSearchParams?.endDate
+    ? String(resolvedSearchParams.endDate)
+    : undefined;
+
+  const limitParam = resolvedSearchParams?.limit
+    ? Number(resolvedSearchParams.limit)
+    : 5;
+  const limit = isNaN(limitParam) ? 5 : limitParam;
+
   const session = await auth();
 
   if (!session?.user?.id) {
@@ -48,37 +66,53 @@ export default async function BoardPage({
 
   const tasksData = await Promise.all(
     TASK_STATUSES.map(async (status) => {
+      const whereClause: any = {
+        boardId,
+        status,
+        ...(searchQuery
+          ? {
+              title: {
+                contains: searchQuery,
+                mode: "insensitive",
+              },
+            }
+          : {}),
+      };
+
+      if (assigneeParam) {
+        whereClause.assignees = {
+          some: { id: assigneeParam },
+        };
+      }
+
+      if (reviewerParam) {
+        whereClause.reviewers = {
+          some: { id: reviewerParam },
+        };
+      }
+
+      if (startDateParam || endDateParam) {
+        const dateFilter: any = {};
+        if (startDateParam) {
+          dateFilter.gte = new Date(startDateParam);
+        }
+        if (endDateParam) {
+          const end = new Date(endDateParam);
+          end.setUTCHours(23, 59, 59, 999);
+          dateFilter.lte = end;
+        }
+        whereClause.OR = [{ createdAt: dateFilter }, { updatedAt: dateFilter }];
+      }
+
       const [tasks, count] = await Promise.all([
         prisma.task.findMany({
-          where: {
-            boardId,
-            status,
-            ...(searchQuery
-              ? {
-                  title: {
-                    contains: searchQuery,
-                    mode: "insensitive",
-                  },
-                }
-              : {}),
-          },
+          where: whereClause,
           orderBy: { updatedAt: "desc" },
-          take: 5,
+          take: limit === -1 ? undefined : limit,
           include: { assignees: true, reviewers: true },
         }),
         prisma.task.count({
-          where: {
-            boardId,
-            status,
-            ...(searchQuery
-              ? {
-                  title: {
-                    contains: searchQuery,
-                    mode: "insensitive",
-                  },
-                }
-              : {}),
-          },
+          where: whereClause,
         }),
       ]);
       return { status, tasks, count };
@@ -158,6 +192,22 @@ export default async function BoardPage({
     userWithSubscriptions?.subscriptions &&
     userWithSubscriptions.subscriptions.length > 0;
 
+  // Fetch available members for filtering
+  const members = await prisma.user.findMany({
+    where: {
+      OR: [
+        { boardMembers: { some: { boardId: boardId } } },
+        { workspaceMembers: { some: { workspaceId: board.workspaceId } } },
+      ],
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+    },
+  });
+
   // We only load workspaces for the sidebar, no complex redirect logic needed here
   // though realistically users shouldn't reach here without a subscription.
   const workspaces = hasActiveSubscription
@@ -186,6 +236,8 @@ export default async function BoardPage({
         taskCounts={taskCounts}
         boardId={boardId}
         searchQuery={searchQuery}
+        availableMembers={members}
+        initialLimit={limit}
       />
     </SessionProvider>
   );

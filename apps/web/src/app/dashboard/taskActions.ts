@@ -10,12 +10,20 @@ export async function getMoreTasks({
   skip,
   take = 10,
   searchQuery,
+  assignee,
+  reviewer,
+  startDate,
+  endDate,
 }: {
   boardId: string;
   status: TaskStatus;
   skip: number;
   take?: number;
   searchQuery?: string;
+  assignee?: string;
+  reviewer?: string;
+  startDate?: string;
+  endDate?: string;
 }) {
   const session = await auth();
 
@@ -57,19 +65,47 @@ export async function getMoreTasks({
     }
   }
 
+  const whereClause: any = {
+    boardId,
+    status,
+    ...(searchQuery
+      ? {
+          title: {
+            contains: searchQuery,
+            mode: "insensitive",
+          },
+        }
+      : {}),
+  };
+
+  if (assignee) {
+    whereClause.assignees = {
+      some: { id: assignee },
+    };
+  }
+
+  if (reviewer) {
+    whereClause.reviewers = {
+      some: { id: reviewer },
+    };
+  }
+
+  if (startDate || endDate) {
+    const dateFilter: any = {};
+    if (startDate) {
+      dateFilter.gte = new Date(startDate);
+    }
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setUTCHours(23, 59, 59, 999);
+      dateFilter.lte = end;
+    }
+
+    whereClause.OR = [{ createdAt: dateFilter }, { updatedAt: dateFilter }];
+  }
+
   const tasks = await prisma.task.findMany({
-    where: {
-      boardId,
-      status,
-      ...(searchQuery
-        ? {
-            title: {
-              contains: searchQuery,
-              mode: "insensitive",
-            },
-          }
-        : {}),
-    },
+    where: whereClause,
     orderBy: { updatedAt: "desc" },
     include: { assignees: true, reviewers: true },
     skip,
