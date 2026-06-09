@@ -12,14 +12,6 @@ mock.module("@/lib/auth", () => ({
       return null;
     }
   }),
-  getSessionOrPat: mock().mockImplementation(async () => {
-    try {
-      const s = await mockAuth();
-      return s?.user?.id;
-    } catch {
-      return null;
-    }
-  }),
 }));
 
 mock.module("next/server", () => ({
@@ -48,6 +40,11 @@ mock.module("@syncoboard/db", () => ({
   prisma: mockPrisma,
 }));
 
+const mockEnforceSubscriptionLimits = mock();
+mock.module("@syncoboard/utils", () => ({
+  enforceSubscriptionLimits: mockEnforceSubscriptionLimits,
+}));
+
 // We must import the module dynamically to make sure the mocks above are applied
 let POST: any;
 let originalConsoleError: any;
@@ -58,11 +55,12 @@ describe("POST /api/subscriptions", () => {
     mockPrisma.user.findFirst.mockReset();
     mockPrisma.plan.findFirst.mockReset();
     mockPrisma.subscription.create.mockReset();
+    mockEnforceSubscriptionLimits.mockReset();
 
     originalConsoleError = console.error;
     console.error = mock();
 
-    const imported = await import("@/app/api/subscriptions/route");
+    const imported = await import("../../src/app/api/subscriptions/route");
     POST = imported.POST;
   });
 
@@ -105,7 +103,7 @@ describe("POST /api/subscriptions", () => {
     expect(data.error).toBe("Free plan not found");
   });
 
-  it("should create a subscription if everything is correct", async () => {
+  it("should create a subscription if everything is correct and downgrade limits", async () => {
     mockAuth.mockResolvedValueOnce({ user: { id: "user-1" } });
     mockPrisma.user.findFirst.mockResolvedValueOnce({
       id: "user-1",
@@ -127,6 +125,7 @@ describe("POST /api/subscriptions", () => {
     mockPrisma.subscription.create.mockResolvedValueOnce(
       mockCreatedSubscription,
     );
+    mockEnforceSubscriptionLimits.mockResolvedValueOnce(undefined);
 
     const response = await POST();
     const data = await response.json();
@@ -140,6 +139,11 @@ describe("POST /api/subscriptions", () => {
     expect(createArgs.data.priceId).toBe("price-1");
     expect(createArgs.data.status).toBe("ACTIVE");
     expect(createArgs.data.cancelAtPeriodEnd).toBe(false);
+
+    expect(mockEnforceSubscriptionLimits).toHaveBeenCalledTimes(1);
+    const enforceArgs = mockEnforceSubscriptionLimits.mock.calls[0];
+    expect(enforceArgs[0]).toBe("user-1");
+    expect(enforceArgs[1]).toEqual(mockCreatedSubscription);
   });
 
   it("should return internal server error if an exception occurs", async () => {

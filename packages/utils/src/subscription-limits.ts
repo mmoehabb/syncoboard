@@ -8,10 +8,8 @@ import type { Plan, Subscription } from "@syncoboard/db";
  */
 export async function enforceSubscriptionLimits(
   userId: string,
-  activeSubscription?: (Subscription & { price?: { plan: Plan } }) | null,
+  subscription?: (Subscription & { price?: { plan: Plan } }) | null,
 ) {
-  let subscription = activeSubscription;
-
   // If undefined, we fetch it. If null, we know they have no active sub.
   if (subscription === undefined) {
     subscription = await prisma.subscription.findFirst({

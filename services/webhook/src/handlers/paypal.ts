@@ -1,5 +1,6 @@
 import { prisma } from "@syncoboard/db";
 import { PayPalProvider } from "@syncoboard/payment";
+import { enforceSubscriptionLimits } from "@syncoboard/utils";
 
 export async function handlePaypalWebhook(req: Request): Promise<Response> {
   try {
@@ -46,7 +47,7 @@ export async function handlePaypalWebhook(req: Request): Promise<Response> {
     }
 
     if (event_type === "BILLING.SUBSCRIPTION.ACTIVATED") {
-      await prisma.subscription.update({
+      const updatedSubscription = await prisma.subscription.update({
         where: { id: subscription.id },
         data: {
           status: "ACTIVE",
@@ -55,7 +56,13 @@ export async function handlePaypalWebhook(req: Request): Promise<Response> {
             resource.billing_info?.next_billing_time || new Date(),
           ),
         },
+        include: {
+          price: {
+            include: { plan: true },
+          },
+        },
       });
+      await enforceSubscriptionLimits(subscription.userId, updatedSubscription);
     } else if (event_type === "BILLING.SUBSCRIPTION.CANCELLED") {
       await prisma.subscription.update({
         where: { id: subscription.id },
@@ -64,6 +71,7 @@ export async function handlePaypalWebhook(req: Request): Promise<Response> {
           cancelAtPeriodEnd: true,
         },
       });
+      await enforceSubscriptionLimits(subscription.userId, null);
     } else if (event_type === "BILLING.SUBSCRIPTION.EXPIRED") {
       await prisma.subscription.update({
         where: { id: subscription.id },
@@ -71,6 +79,7 @@ export async function handlePaypalWebhook(req: Request): Promise<Response> {
           status: "EXPIRED",
         },
       });
+      await enforceSubscriptionLimits(subscription.userId, null);
     } else if (event_type === "BILLING.SUBSCRIPTION.PAYMENT.FAILED") {
       await prisma.subscription.update({
         where: { id: subscription.id },
@@ -78,6 +87,7 @@ export async function handlePaypalWebhook(req: Request): Promise<Response> {
           status: "PAST_DUE",
         },
       });
+      await enforceSubscriptionLimits(subscription.userId, null);
     }
 
     return new Response(JSON.stringify({ received: true }), {
