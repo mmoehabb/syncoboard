@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { subscribeToFreePlan, subscribeToTrialPlan } from "../actions";
 import type { PlanWithPrices } from "./types";
 import Link from "next/link";
@@ -15,6 +16,24 @@ export function SubscriptionModal({
   bottomLink,
   bottomText,
 }: SubscriptionModalProps) {
+  const [error, setError] = useState<string | null>(null);
+
+  const handleFreePlan = async () => {
+    setError(null);
+    const res = await subscribeToFreePlan();
+    if (res?.error) {
+      setError(res.error);
+    }
+  };
+
+  const handleTrialPlan = async (planId: string) => {
+    setError(null);
+    const res = await subscribeToTrialPlan(planId);
+    if (res?.error) {
+      setError(res.error);
+    }
+  };
+
   return (
     <div className="absolute inset-0 bg-obsidian-night/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="max-w-5xl w-full surface-panel p-8 bg-void-grey border border-neon-pulse/50 shadow-2xl rounded-md flex flex-col gap-8 max-h-[90vh] overflow-y-auto">
@@ -27,6 +46,12 @@ export function SubscriptionModal({
             continue using Syncoboard.
           </p>
         </div>
+
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-4 rounded-md text-sm font-mono text-center">
+            {error}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {allPlans.map((plan) => {
@@ -139,22 +164,25 @@ export function SubscriptionModal({
                 </ul>
 
                 {isFree && (
-                  <form action={subscribeToFreePlan} className="mt-auto">
-                    <button className="w-full bg-void-grey border border-git-green/30 hover:border-git-green hover:bg-git-green/10 transition-all rounded py-2.5 text-white font-mono text-sm cursor-pointer">
+                  <div className="mt-auto">
+                    <button
+                      onClick={handleFreePlan}
+                      className="w-full bg-void-grey border border-git-green/30 hover:border-git-green hover:bg-git-green/10 transition-all rounded py-2.5 text-white font-mono text-sm cursor-pointer"
+                    >
                       Get Started
                     </button>
-                  </form>
+                  </div>
                 )}
 
                 {isTrial && (
-                  <form
-                    action={subscribeToTrialPlan.bind(null, plan.id)}
-                    className="mt-auto"
-                  >
-                    <button className="w-full bg-void-grey border border-neon-pulse/30 hover:border-neon-pulse hover:bg-neon-pulse/10 transition-all rounded py-2.5 text-white font-mono text-sm cursor-pointer">
+                  <div className="mt-auto">
+                    <button
+                      onClick={() => handleTrialPlan(plan.id)}
+                      className="w-full bg-void-grey border border-neon-pulse/30 hover:border-neon-pulse hover:bg-neon-pulse/10 transition-all rounded py-2.5 text-white font-mono text-sm cursor-pointer"
+                    >
                       Start Trial
                     </button>
-                  </form>
+                  </div>
                 )}
 
                 {requiresPayment && (
