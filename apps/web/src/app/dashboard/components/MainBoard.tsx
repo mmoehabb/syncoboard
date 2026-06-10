@@ -3,12 +3,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { TaskDetailsPanel } from "./TaskDetailsPanel";
-import {
-  Search,
-  LayoutList,
-  Columns,
-  AlignJustify,
-} from "lucide-react";
+import { Search, LayoutList, Columns, AlignJustify } from "lucide-react";
 import { VoiceCallPanel } from "./VoiceCallPanel";
 import { TaskGroup } from "./TaskGroup";
 import { KanbanColumn } from "./KanbanColumn";
@@ -185,10 +180,7 @@ export function MainBoard({
       router.refresh();
     } catch (error: unknown) {
       const e = error as { response?: { data?: { error?: string } } };
-      showToast(
-        e?.response?.data?.error || "Failed to sync board",
-        "error"
-      );
+      showToast(e?.response?.data?.error || "Failed to sync board", "error");
     } finally {
       setIsSyncing(false);
     }
@@ -197,7 +189,8 @@ export function MainBoard({
   const isCurrentUserAdmin =
     board && userId
       ? board.members?.some(
-          (m: { userId: string; role: string }) => m.userId === userId && m.role === "ADMIN"
+          (m: { userId: string; role: string }) =>
+            m.userId === userId && m.role === "ADMIN",
         )
       : false;
 
@@ -416,7 +409,10 @@ export function MainBoard({
                 title="Sync Board with GitHub PRs"
                 className="text-syntax-grey hover:text-neon-pulse text-sm font-mono transition-colors border border-syntax-grey/30 hover:border-neon-pulse/50 rounded px-3 py-1 bg-void-grey disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
-                <RefreshCw size={16} className={isSyncing ? "animate-spin" : ""} />
+                <RefreshCw
+                  size={16}
+                  className={isSyncing ? "animate-spin" : ""}
+                />
               </button>
             )}
             <button

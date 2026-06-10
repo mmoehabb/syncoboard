@@ -15,7 +15,11 @@ export async function POST(req: Request) {
     const { workspaceName, boardName } = body;
 
     if (!workspaceName || !boardName) {
-      return apiError(API_ERRORS.customBadRequest("Workspace name and Board name are required"));
+      return apiError(
+        API_ERRORS.customBadRequest(
+          "Workspace name and Board name are required",
+        ),
+      );
     }
 
     const board = await prisma.board.findFirst({
@@ -51,7 +55,11 @@ export async function POST(req: Request) {
     }
 
     if (!board.repositoryName || !board.workspace.githubInstallationId) {
-      return apiError(API_ERRORS.customBadRequest("Board is not linked to a GitHub repository"));
+      return apiError(
+        API_ERRORS.customBadRequest(
+          "Board is not linked to a GitHub repository",
+        ),
+      );
     }
 
     // Check last synced
@@ -65,7 +73,9 @@ export async function POST(req: Request) {
         now.getUTCDate() === lastSync.getUTCDate();
 
       if (isSameDay) {
-        return apiError(API_ERRORS.customBadRequest("Board has already been synced today"));
+        return apiError(
+          API_ERRORS.customBadRequest("Board has already been synced today"),
+        );
       }
     }
 
@@ -99,9 +109,13 @@ export async function POST(req: Request) {
     });
 
     const openPrs = response.data;
-    const existingPrNumbers = new Set(board.tasks.map(t => t.prNumber).filter((n): n is number => n !== null));
+    const existingPrNumbers = new Set(
+      board.tasks.map((t) => t.prNumber).filter((n): n is number => n !== null),
+    );
 
-    const newPrs = openPrs.filter((pr: { number: number }) => !existingPrNumbers.has(pr.number));
+    const newPrs = openPrs.filter(
+      (pr: { number: number }) => !existingPrNumbers.has(pr.number),
+    );
 
     const tasksToCreate = newPrs.map(
       (pr: {
@@ -133,7 +147,7 @@ export async function POST(req: Request) {
           prNumber: pr.number,
           branchName: pr.head.ref,
         };
-      }
+      },
     );
 
     if (tasksToCreate.length > 0) {
@@ -148,7 +162,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({
-      message: `Synced ${tasksToCreate.length} new pull requests successfully`
+      message: `Synced ${tasksToCreate.length} new pull requests successfully`,
     });
   } catch (error) {
     console.error("Error syncing board:", error);

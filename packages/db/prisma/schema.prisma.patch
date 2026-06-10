@@ -1,9 +1,0 @@
---- packages/db/prisma/schema.prisma
-+++ packages/db/prisma/schema.prisma
-@@ -202,6 +202,7 @@
-   githubRepoId   String? // The internal GitHub repo ID
-   isActive       Boolean  @default(true)
-   isDeleted      Boolean  @default(false)
-+  lastSyncedAt   DateTime?
-   createdAt      DateTime @default(now())
-   updatedAt      DateTime @updatedAt
