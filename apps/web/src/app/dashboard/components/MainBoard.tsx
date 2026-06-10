@@ -3,21 +3,12 @@
 import { useMemo, useState, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { TaskDetailsPanel } from "./TaskDetailsPanel";
-import { TaskCard } from "./TaskCard";
-import {
-  Search,
-  ChevronDown,
-  ChevronRight,
-  LayoutList,
-  Columns,
-  AlignJustify,
-} from "lucide-react";
+import { Search, LayoutList, Columns, AlignJustify } from "lucide-react";
 import { VoiceCallPanel } from "./VoiceCallPanel";
 import { TaskGroup } from "./TaskGroup";
 import { KanbanColumn } from "./KanbanColumn";
-import { FocusedLabel } from "@/components/ui/FocusedLabel";
 import { useCommand } from "@/context/CommandContext";
-import type { MainBoardData, MainBoardTask, UnregisteredUser } from "./types";
+import type { MainBoardData, MainBoardTask } from "./types";
 import { useSocket } from "@/context/SocketContext";
 import { WEBSOCKET_EVENTS } from "@syncoboard/shared";
 import {

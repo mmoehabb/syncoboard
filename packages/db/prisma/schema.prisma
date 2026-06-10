@@ -195,15 +195,16 @@ model WorkspaceMember {
 }
 
 model Board {
-  id             String   @id @default(uuid(7))
+  id             String    @id @default(uuid(7))
   workspaceId    String
   name           String
   repositoryName String? // E.g., "owner/repo" from GitHub
   githubRepoId   String? // The internal GitHub repo ID
-  isActive       Boolean  @default(true)
-  isDeleted      Boolean  @default(false)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  isActive       Boolean   @default(true)
+  isDeleted      Boolean   @default(false)
+  lastSyncedAt   DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   workspace    Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   members      BoardMember[]

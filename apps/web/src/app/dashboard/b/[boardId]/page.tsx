@@ -51,6 +51,14 @@ export default async function BoardPage({
   // Verify access to the board
   const board = await prisma.board.findUnique({
     where: { id: boardId },
+    include: {
+      members: {
+        include: {
+          user: true,
+        },
+      },
+      workspace: true,
+    },
   });
 
   // Fetch only up to 5 tasks initially per status to limit the initial payload
@@ -141,9 +149,12 @@ export default async function BoardPage({
     githubRepoId: board.githubRepoId,
     isActive: board.isActive,
     isDeleted: board.isDeleted,
+    lastSyncedAt: board.lastSyncedAt,
     createdAt: board.createdAt,
     updatedAt: board.updatedAt,
     tasks: initialTasks,
+    members: board.members,
+    workspace: board.workspace,
   };
 
   if (!board) {
