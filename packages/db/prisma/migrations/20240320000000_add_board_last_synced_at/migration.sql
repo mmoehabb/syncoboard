@@ -1,0 +1,1 @@
+ALTER TABLE "Board" ADD COLUMN "lastSyncedAt" TIMESTAMP(3);
