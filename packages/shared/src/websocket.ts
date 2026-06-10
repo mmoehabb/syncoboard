@@ -5,6 +5,9 @@ export const WEBSOCKET_EVENTS = {
   TASK_UPDATED: "task_updated",
   BOARD_UPDATED: "board_updated",
   NOTIFICATION_RECEIVED: "notification_received",
+  VOICE_JOIN: "voice_join",
+  VOICE_LEAVE: "voice_leave",
+  VOICE_SIGNAL: "voice_signal",
 } as const;
 
 export function encodeBoardRoomName(boardId: string): string {
