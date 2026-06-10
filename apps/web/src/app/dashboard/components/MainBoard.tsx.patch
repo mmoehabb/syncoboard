@@ -1,0 +1,89 @@
+--- apps/web/src/app/dashboard/components/MainBoard.tsx
++++ apps/web/src/app/dashboard/components/MainBoard.tsx
+@@ -36,9 +36,11 @@
+ import { useToast } from "@/context/ToastContext";
+ import axios from "axios";
+ import { useRef } from "react";
++import { useSession } from "next-auth/react";
+
+ import type { TaskCounts, AvailableMember } from "./types";
+-import { Filter, Calendar } from "lucide-react";
++import { Filter, Calendar, RefreshCw } from "lucide-react";
++import { boardApi } from "@syncoboard/api";
+
+ export function MainBoard({
+   board,
+@@ -60,6 +62,8 @@
+   const router = useRouter();
+   const pathname = usePathname();
+   const { showToast } = useToast();
++  const { data: session } = useSession();
++  const userId = session?.user?.id;
+   const searchParams = useSearchParams();
+   const taskIdParam = searchParams.get("taskId");
+   const { isVoiceCallActive } = useCommand();
+@@ -178,6 +182,33 @@
+     }
+   };
+
++  const [isSyncing, setIsSyncing] = useState(false);
++
++  const handleSyncBoard = async () => {
++    if (!board || !board.workspace?.name) return;
++    setIsSyncing(true);
++    try {
++      const res = await boardApi.syncBoard(board.workspace.name, board.name);
++      showToast(res.message || "Board synced successfully", "success");
++      router.refresh();
++    } catch (error: unknown) {
++      const e = error as { response?: { data?: { error?: string } } };
++      showToast(
++        e?.response?.data?.error || "Failed to sync board",
++        "error"
++      );
++    } finally {
++      setIsSyncing(false);
++    }
++  };
++
++  const isCurrentUserAdmin =
++    board && userId
++      ? board.members?.some(
++          (m: { userId: string; role: string }) => m.userId === userId && m.role === "ADMIN"
++        )
++      : false;
++
+   const handleDeleteTask = async (task: MainBoardTask) => {
+     try {
+       await axios.delete(`/api/tasks/${task.id}`);
+@@ -411,12 +442,24 @@
+               </button>
+             </div>
+           </div>
+-          <button
+-            onClick={() => setIsAddTaskModalOpen(true)}
+-            className="text-syntax-grey hover:text-neon-pulse text-sm font-mono transition-colors border border-syntax-grey/30 hover:border-neon-pulse/50 rounded px-3 py-1 bg-void-grey"
+-          >
+-            + add task
+-          </button>
++          <div className="flex gap-2 items-center">
++            {board?.isActive && isCurrentUserAdmin && (
++              <button
++                onClick={handleSyncBoard}
++                disabled={isSyncing}
++                title="Sync Board with GitHub PRs"
++                className="text-syntax-grey hover:text-neon-pulse text-sm font-mono transition-colors border border-syntax-grey/30 hover:border-neon-pulse/50 rounded px-3 py-1 bg-void-grey disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
++              >
++                <RefreshCw size={16} className={isSyncing ? "animate-spin" : ""} />
++              </button>
++            )}
++            <button
++              onClick={() => setIsAddTaskModalOpen(true)}
++              className="text-syntax-grey hover:text-neon-pulse text-sm font-mono transition-colors border border-syntax-grey/30 hover:border-neon-pulse/50 rounded px-3 py-1 bg-void-grey"
++            >
++              + add task
++            </button>
++          </div>
+         </div>
+
+         <div className="flex-1 overflow-hidden p-6 flex flex-col gap-6">

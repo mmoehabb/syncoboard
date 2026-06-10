@@ -101,6 +101,17 @@ export class BoardApi extends ApiClient {
     });
     return response.data;
   }
+
+  public async syncBoard(
+    workspaceName: string,
+    boardName: string,
+  ): Promise<{ message: string }> {
+    const response = await this.post<{ message: string }>("/sync", {
+      workspaceName,
+      boardName,
+    });
+    return response.data;
+  }
 }
 
 export const boardApi = new BoardApi();

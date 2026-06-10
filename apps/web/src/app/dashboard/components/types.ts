@@ -20,6 +20,12 @@ export type MainBoardData = Prisma.BoardGetPayload<{
         reviewers: true;
       };
     };
+    members: {
+      include: {
+        user: true;
+      };
+    };
+    workspace: true;
   };
 }>;
 

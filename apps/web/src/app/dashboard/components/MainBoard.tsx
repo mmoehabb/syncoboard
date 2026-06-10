@@ -3,7 +3,12 @@
 import { useMemo, useState, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { TaskDetailsPanel } from "./TaskDetailsPanel";
-import { Search, LayoutList, Columns, AlignJustify } from "lucide-react";
+import {
+  Search,
+  LayoutList,
+  Columns,
+  AlignJustify,
+} from "lucide-react";
 import { VoiceCallPanel } from "./VoiceCallPanel";
 import { TaskGroup } from "./TaskGroup";
 import { KanbanColumn } from "./KanbanColumn";
@@ -27,9 +32,11 @@ import { AddTaskModal } from "@/components/modals/AddTaskModal";
 import { useToast } from "@/context/ToastContext";
 import axios from "axios";
 import { useRef } from "react";
+import { useSession } from "next-auth/react";
 
 import type { TaskCounts, AvailableMember } from "./types";
-import { Filter, Calendar } from "lucide-react";
+import { Filter, Calendar, RefreshCw } from "lucide-react";
+import { boardApi } from "@syncoboard/api";
 
 export function MainBoard({
   board,
@@ -49,6 +56,8 @@ export function MainBoard({
   const router = useRouter();
   const pathname = usePathname();
   const { showToast } = useToast();
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
   const searchParams = useSearchParams();
   const taskIdParam = searchParams.get("taskId");
   const { isVoiceCallActive } = useCommand();
@@ -164,6 +173,33 @@ export function MainBoard({
       showToast("Failed to add task", "error");
     }
   };
+
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const handleSyncBoard = async () => {
+    if (!board || !board.workspace?.name) return;
+    setIsSyncing(true);
+    try {
+      const res = await boardApi.syncBoard(board.workspace.name, board.name);
+      showToast(res.message || "Board synced successfully", "success");
+      router.refresh();
+    } catch (error: unknown) {
+      const e = error as { response?: { data?: { error?: string } } };
+      showToast(
+        e?.response?.data?.error || "Failed to sync board",
+        "error"
+      );
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const isCurrentUserAdmin =
+    board && userId
+      ? board.members?.some(
+          (m: { userId: string; role: string }) => m.userId === userId && m.role === "ADMIN"
+        )
+      : false;
 
   const handleDeleteTask = async (task: MainBoardTask) => {
     try {
@@ -372,12 +408,24 @@ export function MainBoard({
               </button>
             </div>
           </div>
-          <button
-            onClick={() => setIsAddTaskModalOpen(true)}
-            className="text-syntax-grey hover:text-neon-pulse text-sm font-mono transition-colors border border-syntax-grey/30 hover:border-neon-pulse/50 rounded px-3 py-1 bg-void-grey"
-          >
-            + add task
-          </button>
+          <div className="flex gap-2 items-center">
+            {board?.isActive && isCurrentUserAdmin && (
+              <button
+                onClick={handleSyncBoard}
+                disabled={isSyncing}
+                title="Sync Board with GitHub PRs"
+                className="text-syntax-grey hover:text-neon-pulse text-sm font-mono transition-colors border border-syntax-grey/30 hover:border-neon-pulse/50 rounded px-3 py-1 bg-void-grey disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              >
+                <RefreshCw size={16} className={isSyncing ? "animate-spin" : ""} />
+              </button>
+            )}
+            <button
+              onClick={() => setIsAddTaskModalOpen(true)}
+              className="text-syntax-grey hover:text-neon-pulse text-sm font-mono transition-colors border border-syntax-grey/30 hover:border-neon-pulse/50 rounded px-3 py-1 bg-void-grey"
+            >
+              + add task
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-hidden p-6 flex flex-col gap-6">
