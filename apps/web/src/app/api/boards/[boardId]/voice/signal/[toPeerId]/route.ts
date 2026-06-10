@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSessionOrPat } from "@/lib/auth";
 import { prisma } from "@syncoboard/db";
 import { API_ERRORS, apiError } from "@/lib/api/error";
+import { signalStore } from "@syncoboard/shared";
 
 export async function POST(
   req: Request,
@@ -35,13 +36,9 @@ export async function POST(
       return apiError(API_ERRORS.customNotFound("Target peer not found"));
     }
 
-    await prisma.voiceSignal.create({
-      data: {
-        boardId,
-        fromPeerId: boardMember.voicePeerId,
-        toPeerId,
-        signal: { type, data },
-      },
+    signalStore.addSignal(boardId, toPeerId, {
+      peerId: boardMember.voicePeerId,
+      signal: { type, data },
     });
 
     return NextResponse.json({ success: true });
