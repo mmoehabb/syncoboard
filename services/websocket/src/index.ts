@@ -86,6 +86,37 @@ io.on("connection", (socket) => {
     socket.join(encodeUserRoomName(userId));
   });
 
+  // WebRTC Voice Signaling
+  socket.on(WEBSOCKET_EVENTS.VOICE_JOIN, (boardId, peerId) => {
+    console.log(
+      `Socket ${socket.id} (peer: ${peerId}) joining voice on board ${boardId}`,
+    );
+    socket.join(`voice_board_${boardId}`);
+    socket.join(`voice_peer_${peerId}`);
+    socket
+      .to(`voice_board_${boardId}`)
+      .emit(WEBSOCKET_EVENTS.VOICE_JOIN, { peerId });
+  });
+
+  socket.on(WEBSOCKET_EVENTS.VOICE_LEAVE, (boardId, peerId) => {
+    console.log(
+      `Socket ${socket.id} (peer: ${peerId}) leaving voice on board ${boardId}`,
+    );
+    socket.leave(`voice_board_${boardId}`);
+    socket.leave(`voice_peer_${peerId}`);
+    socket
+      .to(`voice_board_${boardId}`)
+      .emit(WEBSOCKET_EVENTS.VOICE_LEAVE, { peerId });
+  });
+
+  socket.on(WEBSOCKET_EVENTS.VOICE_SIGNAL, (data) => {
+    const { toPeerId, fromPeerId, signal } = data;
+    socket.to(`voice_peer_${toPeerId}`).emit(WEBSOCKET_EVENTS.VOICE_SIGNAL, {
+      peerId: fromPeerId,
+      signal,
+    });
+  });
+
   socket.on("disconnect", () => {
     console.log(`Socket disconnected: ${socket.id}`);
   });
