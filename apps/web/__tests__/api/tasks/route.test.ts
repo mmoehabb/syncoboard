@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, afterAll, mock } from "bun:test";
-import { POST } from "@/app/api/tasks/route";
 
 const mockPrisma = {
   boardMember: {
@@ -36,9 +35,6 @@ mock.module("@/lib/auth", () => ({
   getSessionOrPat: mock().mockImplementation(async () => {
     return "test-user-id";
   }),
-  getSessionOrPat: mock().mockImplementation(async () => {
-    return "test-user-id";
-  }),
   auth: mock().mockImplementation(async () => {
     return { user: { id: (global as any).testUserId } };
   }),
@@ -72,6 +68,7 @@ describe("POST /api/tasks (IDOR Fix)", () => {
   });
 
   it("should deny task creation for a non-admin workspace member who is not on the board", async () => {
+    const { POST } = await import("@/app/api/tasks/route");
     mockPrisma.boardMember.findUnique.mockResolvedValueOnce(null);
     mockPrisma.workspaceMember.findUnique.mockResolvedValueOnce({
       role: "MEMBER",
@@ -91,6 +88,7 @@ describe("POST /api/tasks (IDOR Fix)", () => {
   });
 
   it("should allow task creation for a workspace admin even if not directly on the board", async () => {
+    const { POST } = await import("@/app/api/tasks/route");
     mockPrisma.boardMember.findUnique.mockResolvedValueOnce(null);
     mockPrisma.workspaceMember.findUnique.mockResolvedValueOnce({
       role: "ADMIN",
