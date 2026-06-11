@@ -30,7 +30,7 @@ import { useRef } from "react";
 import { useSession } from "next-auth/react";
 
 import type { TaskCounts, AvailableMember } from "./types";
-import { Filter, Calendar, RefreshCw } from "lucide-react";
+import { Filter, Calendar, RefreshCw, Phone } from "lucide-react";
 import { boardApi } from "@syncoboard/api";
 
 export function MainBoard({
@@ -55,7 +55,7 @@ export function MainBoard({
   const userId = session?.user?.id;
   const searchParams = useSearchParams();
   const taskIdParam = searchParams.get("taskId");
-  const { isVoiceCallActive } = useCommand();
+  const { isVoiceCallActive, setIsVoiceCallActive } = useCommand();
   const { socket, isConnected } = useSocket();
 
   const searchQueryParam = searchParams.get("search") || "";
@@ -372,9 +372,9 @@ export function MainBoard({
   }
 
   return (
-    <div className="flex-1 flex overflow-hidden h-full">
+    <div className="flex-1 flex overflow-hidden h-full relative">
       <div className="flex-1 flex flex-col bg-obsidian-night transition-all min-w-0">
-        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+        <div className="p-4 border-b border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 z-50 bg-obsidian-night">
           <div className="flex items-center gap-4">
             <h2 className="text-white font-mono font-bold"># {board.name}</h2>
             <div className="flex items-center gap-1 bg-void-grey border border-white/10 rounded px-1 py-1">
@@ -401,7 +401,18 @@ export function MainBoard({
               </button>
             </div>
           </div>
-          <div className="flex gap-2 items-center">
+          <div className="flex flex-wrap gap-2 items-center w-full md:w-auto justify-end md:justify-start">
+            {board?.isActive && (
+              <button
+                onClick={() => setIsVoiceCallActive(!isVoiceCallActive)}
+                title={
+                  isVoiceCallActive ? "Leave Voice Call" : "Join Voice Call"
+                }
+                className={`text-sm font-mono transition-colors border rounded px-3 py-1 flex items-center justify-center gap-2 ${isVoiceCallActive ? "bg-red-500/20 text-red-400 border-red-500/50 hover:bg-red-500/30" : "bg-void-grey text-syntax-grey border-syntax-grey/30 hover:text-neon-pulse hover:border-neon-pulse/50"}`}
+              >
+                <Phone size={16} />
+              </button>
+            )}
             {board?.isActive && isCurrentUserAdmin && (
               <button
                 onClick={handleSyncBoard}

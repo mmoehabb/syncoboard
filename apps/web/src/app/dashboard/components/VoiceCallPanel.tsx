@@ -200,7 +200,7 @@ export function VoiceCallPanel({ boardId }: { boardId: string }) {
   };
 
   return (
-    <div className="w-80 border-l border-white/10 bg-void-grey/50 p-6 flex flex-col transition-all overflow-y-auto z-10 shadow-[-4px_0_15px_rgba(0,0,0,0.5)]">
+    <div className="absolute right-0 top-16 h-[calc(100%-4rem)] w-80 border-l border-white/10 bg-obsidian-night/95 backdrop-blur-md p-6 flex flex-col transition-all overflow-y-auto z-40 shadow-[-4px_0_25px_rgba(0,0,0,0.5)]">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-white font-mono font-bold text-lg flex items-center gap-2">
           <Users className="w-5 h-5 text-neon-pulse" />
