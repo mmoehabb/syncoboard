@@ -372,9 +372,9 @@ export function MainBoard({
   }
 
   return (
-    <div className="flex-1 flex overflow-hidden h-full">
+    <div className="flex-1 flex overflow-hidden h-full relative">
       <div className="flex-1 flex flex-col bg-obsidian-night transition-all min-w-0">
-        <div className="p-4 border-b border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="p-4 border-b border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 z-50 bg-obsidian-night">
           <div className="flex items-center gap-4">
             <h2 className="text-white font-mono font-bold"># {board.name}</h2>
             <div className="flex items-center gap-1 bg-void-grey border border-white/10 rounded px-1 py-1">
@@ -411,9 +411,6 @@ export function MainBoard({
                 className={`text-sm font-mono transition-colors border rounded px-3 py-1 flex items-center justify-center gap-2 ${isVoiceCallActive ? "bg-red-500/20 text-red-400 border-red-500/50 hover:bg-red-500/30" : "bg-void-grey text-syntax-grey border-syntax-grey/30 hover:text-neon-pulse hover:border-neon-pulse/50"}`}
               >
                 <Phone size={16} />
-                <span className="hidden md:inline">
-                  {isVoiceCallActive ? "Leave Call" : "Join Call"}
-                </span>
               </button>
             )}
             {board?.isActive && isCurrentUserAdmin && (
