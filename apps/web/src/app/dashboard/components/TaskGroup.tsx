@@ -48,6 +48,10 @@ export function TaskGroup({
 }: TaskGroupProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [tasks, setTasks] = useState<MainBoardTask[]>(groupTasks);
+
+  useEffect(() => {
+    setTasks(groupTasks);
+  }, [groupTasks]);
   const [isLoading, setIsLoading] = useState(false);
 
   const hasMore = totalCount !== undefined ? tasks.length < totalCount : false;

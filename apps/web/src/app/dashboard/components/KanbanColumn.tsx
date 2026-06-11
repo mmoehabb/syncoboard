@@ -45,6 +45,10 @@ export function KanbanColumn({
   onLoadMore,
 }: KanbanColumnProps) {
   const [tasks, setTasks] = useState<MainBoardTask[]>(groupTasks);
+
+  useEffect(() => {
+    setTasks(groupTasks);
+  }, [groupTasks]);
   const [isLoading, setIsLoading] = useState(false);
 
   const hasMore = totalCount !== undefined ? tasks.length < totalCount : false;
