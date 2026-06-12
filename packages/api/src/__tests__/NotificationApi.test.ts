@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "bun:test";
 import { NotificationApi } from "../NotificationApi";
 import type { NotificationLog } from "@syncoboard/types";
+import type { AxiosInstance, AxiosRequestConfig } from "axios";
 
 describe("NotificationApi", () => {
   let notificationApi: NotificationApi;
@@ -19,10 +20,10 @@ describe("NotificationApi", () => {
         } as unknown as NotificationLog,
       ];
 
-      let requestConfig: any;
-      (notificationApi as any).client.defaults.adapter = async (
-        config: any,
-      ) => {
+      let requestConfig: AxiosRequestConfig | undefined;
+      (
+        notificationApi as unknown as { client: AxiosInstance }
+      ).client.defaults.adapter = async (config) => {
         requestConfig = config;
         return {
           data: { logs: mockLogs },
@@ -35,13 +36,15 @@ describe("NotificationApi", () => {
 
       const result = await notificationApi.getNotifications();
       expect(result).toEqual({ logs: mockLogs });
-      expect(requestConfig.baseURL).toBe("http://localhost/api/notifications");
-      expect(requestConfig.url).toBe("");
-      expect(requestConfig.method).toBe("get");
+      expect(requestConfig?.baseURL).toBe("http://localhost/api/notifications");
+      expect(requestConfig?.url).toBe("");
+      expect(requestConfig?.method).toBe("get");
     });
 
     it("should handle error if API call fails", async () => {
-      (notificationApi as any).client.defaults.adapter = async () => {
+      (
+        notificationApi as unknown as { client: AxiosInstance }
+      ).client.defaults.adapter = async () => {
         throw new Error("API Error");
       };
 
@@ -53,10 +56,10 @@ describe("NotificationApi", () => {
 
   describe("getReadState", () => {
     it("should call GET /api/notifications/read and return lastRead string", async () => {
-      let requestConfig: any;
-      (notificationApi as any).client.defaults.adapter = async (
-        config: any,
-      ) => {
+      let requestConfig: AxiosRequestConfig | undefined;
+      (
+        notificationApi as unknown as { client: AxiosInstance }
+      ).client.defaults.adapter = async (config) => {
         requestConfig = config;
         return {
           data: { lastRead: "2023-01-01T00:00:00Z" },
@@ -69,16 +72,16 @@ describe("NotificationApi", () => {
 
       const result = await notificationApi.getReadState();
       expect(result).toEqual({ lastRead: "2023-01-01T00:00:00Z" });
-      expect(requestConfig.baseURL).toBe("http://localhost/api/notifications");
-      expect(requestConfig.url).toBe("/read");
-      expect(requestConfig.method).toBe("get");
+      expect(requestConfig?.baseURL).toBe("http://localhost/api/notifications");
+      expect(requestConfig?.url).toBe("/read");
+      expect(requestConfig?.method).toBe("get");
     });
 
     it("should call GET /api/notifications/read and return lastRead null", async () => {
-      let requestConfig: any;
-      (notificationApi as any).client.defaults.adapter = async (
-        config: any,
-      ) => {
+      let requestConfig: AxiosRequestConfig | undefined;
+      (
+        notificationApi as unknown as { client: AxiosInstance }
+      ).client.defaults.adapter = async (config) => {
         requestConfig = config;
         return {
           data: { lastRead: null },
@@ -91,13 +94,15 @@ describe("NotificationApi", () => {
 
       const result = await notificationApi.getReadState();
       expect(result).toEqual({ lastRead: null });
-      expect(requestConfig.baseURL).toBe("http://localhost/api/notifications");
-      expect(requestConfig.url).toBe("/read");
-      expect(requestConfig.method).toBe("get");
+      expect(requestConfig?.baseURL).toBe("http://localhost/api/notifications");
+      expect(requestConfig?.url).toBe("/read");
+      expect(requestConfig?.method).toBe("get");
     });
 
     it("should handle error if API call fails", async () => {
-      (notificationApi as any).client.defaults.adapter = async () => {
+      (
+        notificationApi as unknown as { client: AxiosInstance }
+      ).client.defaults.adapter = async () => {
         throw new Error("API Error");
       };
 
@@ -107,10 +112,10 @@ describe("NotificationApi", () => {
 
   describe("markAsRead", () => {
     it("should call POST /api/notifications/read and return success true", async () => {
-      let requestConfig: any;
-      (notificationApi as any).client.defaults.adapter = async (
-        config: any,
-      ) => {
+      let requestConfig: AxiosRequestConfig | undefined;
+      (
+        notificationApi as unknown as { client: AxiosInstance }
+      ).client.defaults.adapter = async (config) => {
         requestConfig = config;
         return {
           data: { success: true },
@@ -123,16 +128,16 @@ describe("NotificationApi", () => {
 
       const result = await notificationApi.markAsRead();
       expect(result).toEqual({ success: true });
-      expect(requestConfig.baseURL).toBe("http://localhost/api/notifications");
-      expect(requestConfig.url).toBe("/read");
-      expect(requestConfig.method).toBe("post");
+      expect(requestConfig?.baseURL).toBe("http://localhost/api/notifications");
+      expect(requestConfig?.url).toBe("/read");
+      expect(requestConfig?.method).toBe("post");
     });
 
     it("should call POST /api/notifications/read and return success false", async () => {
-      let requestConfig: any;
-      (notificationApi as any).client.defaults.adapter = async (
-        config: any,
-      ) => {
+      let requestConfig: AxiosRequestConfig | undefined;
+      (
+        notificationApi as unknown as { client: AxiosInstance }
+      ).client.defaults.adapter = async (config) => {
         requestConfig = config;
         return {
           data: { success: false },
@@ -145,13 +150,15 @@ describe("NotificationApi", () => {
 
       const result = await notificationApi.markAsRead();
       expect(result).toEqual({ success: false });
-      expect(requestConfig.baseURL).toBe("http://localhost/api/notifications");
-      expect(requestConfig.url).toBe("/read");
-      expect(requestConfig.method).toBe("post");
+      expect(requestConfig?.baseURL).toBe("http://localhost/api/notifications");
+      expect(requestConfig?.url).toBe("/read");
+      expect(requestConfig?.method).toBe("post");
     });
 
     it("should handle error if API call fails", async () => {
-      (notificationApi as any).client.defaults.adapter = async () => {
+      (
+        notificationApi as unknown as { client: AxiosInstance }
+      ).client.defaults.adapter = async () => {
         throw new Error("API Error");
       };
 
