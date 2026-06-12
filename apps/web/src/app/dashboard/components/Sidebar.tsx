@@ -82,12 +82,12 @@ export function Sidebar({
       {/* Mobile backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/60 z-30 md:hidden"
+          className="fixed inset-0 bg-black/60 z-[60] md:hidden"
           onClick={onClose}
         />
       )}
       <div
-        className={`fixed inset-y-0 left-0 z-40 transform transition-all duration-200 ease-in-out bg-void-grey md:relative flex flex-col font-mono text-sm cmd-container overflow-hidden whitespace-nowrap ${
+        className={`fixed inset-y-0 left-0 z-[70] transform transition-all duration-200 ease-in-out bg-void-grey md:relative flex flex-col font-mono text-sm cmd-container overflow-hidden whitespace-nowrap ${
           isOpen
             ? "translate-x-0 w-64 border-r border-white/10 md:bg-void-grey/50"
             : "-translate-x-full md:translate-x-0 md:w-16 border-r border-white/10 bg-void-grey md:bg-void-grey/50"
