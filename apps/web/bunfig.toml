@@ -1,2 +1,2 @@
-[test]
-preload = ["./__tests__/mocks/axios.ts"]
+# Preload moved to web test script (--preload flag) to avoid leaking the
+# axios mock into other workspace packages during monorepo-wide test runs.

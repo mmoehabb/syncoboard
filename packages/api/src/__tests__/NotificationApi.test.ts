@@ -17,7 +17,7 @@ describe("NotificationApi", () => {
   });
 
   afterEach(() => {
-    mock.restore();
+    mock?.restore();
   });
 
   describe("getNotifications", () => {
