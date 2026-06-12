@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach } from "bun:test";
+import { describe, it, expect, beforeEach } from "bun:test";
 import { UserApi } from "../UserApi";
-import { AxiosInstance } from "axios";
+import { AxiosInstance, AxiosRequestConfig } from "axios";
 
 describe("UserApi", () => {
   let userApi: UserApi;
@@ -11,7 +11,7 @@ describe("UserApi", () => {
 
   describe("updateLastOnline", () => {
     it("should call post with the correct URL including baseURL", async () => {
-      let requestConfig: any = null;
+      let requestConfig: AxiosRequestConfig | null = null;
       const client = (userApi as unknown as { client: AxiosInstance }).client;
       client.defaults.adapter = async (config) => {
         requestConfig = config;
@@ -27,11 +27,13 @@ describe("UserApi", () => {
       await userApi.updateLastOnline();
 
       expect(requestConfig).not.toBeNull();
-      // Test that the method is POST
-      expect(requestConfig.method).toBe("post");
-      // The resolved URL should combine baseURL and the specific path
-      expect(requestConfig.baseURL).toMatch(/\/api\/user$/);
-      expect(requestConfig.url).toBe("/activity");
+      if (requestConfig) {
+        // Test that the method is POST
+        expect(requestConfig.method).toBe("post");
+        // The resolved URL should combine baseURL and the specific path
+        expect(requestConfig.baseURL).toMatch(/\/api\/user$/);
+        expect(requestConfig.url).toBe("/activity");
+      }
     });
 
     it("should handle error if API call fails", async () => {
