@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionOrPat } from "@/lib/auth";
-import { prisma, TaskStatus } from "@syncoboard/db";
+import { prisma, TaskStatus, type Task } from "@syncoboard/db";
 import { TASK_STATUSES } from "@syncoboard/types";
 import { API_ERRORS, apiError } from "@/lib/api/error";
 import { hasValidSubscription } from "@/lib/api/with-subscription";
@@ -194,7 +194,7 @@ export async function GET(req: Request) {
 
     const skip = (page - 1) * limit;
 
-    const tasksByStatus = {} as Record<TaskStatus, any[]>;
+    const tasksByStatus = {} as Record<TaskStatus, Task[]>;
     const hasMoreByStatus = {} as Record<TaskStatus, boolean>;
 
     for (const status of TASK_STATUSES) {
