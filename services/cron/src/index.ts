@@ -1,7 +1,7 @@
 import cron from "node-cron";
 import { prisma } from "@syncoboard/db";
 import {
-  enforceSubscriptionLimits,
+  enforceBulkSubscriptionLimits,
   cleanupDeletedEntities,
 } from "@syncoboard/utils";
 
@@ -42,10 +42,8 @@ cron.schedule("0 1 * * *", async () => {
       for (let i = 0; i < expiredSubscriptions.length; i += chunkSize) {
         const chunk = expiredSubscriptions.slice(i, i + chunkSize);
 
-        // Enforce limits (passing null since their subscription is now effectively expired)
-        await Promise.all(
-          chunk.map((sub) => enforceSubscriptionLimits(sub.userId, null)),
-        );
+        // Enforce limits in bulk (since their subscription is now effectively expired)
+        await enforceBulkSubscriptionLimits(chunk.map((sub) => sub.userId));
       }
 
       // Bulk update all expired subscriptions
