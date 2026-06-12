@@ -1,13 +1,23 @@
-import { describe, it, expect, beforeEach } from "bun:test";
+import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import { NotificationApi } from "../NotificationApi";
 import type { NotificationLog } from "@syncoboard/types";
-import type { AxiosInstance, AxiosRequestConfig } from "axios";
+import type { AxiosInstance } from "axios";
+import MockAdapter from "axios-mock-adapter";
 
 describe("NotificationApi", () => {
   let notificationApi: NotificationApi;
+  let mock: MockAdapter;
 
   beforeEach(() => {
     notificationApi = new NotificationApi();
+    // Use an explicitly cast unknown approach to access the underlying axios client instance
+    const client = (notificationApi as unknown as { client: AxiosInstance })
+      .client;
+    mock = new MockAdapter(client);
+  });
+
+  afterEach(() => {
+    mock.restore();
   });
 
   describe("getNotifications", () => {
@@ -20,149 +30,75 @@ describe("NotificationApi", () => {
         } as unknown as NotificationLog,
       ];
 
-      let requestConfig: AxiosRequestConfig | undefined;
-      (
-        notificationApi as unknown as { client: AxiosInstance }
-      ).client.defaults.adapter = async (config) => {
-        requestConfig = config;
-        return {
-          data: { logs: mockLogs },
-          status: 200,
-          statusText: "OK",
-          headers: {},
-          config,
-        };
-      };
+      mock.onGet("").reply(200, { logs: mockLogs });
 
       const result = await notificationApi.getNotifications();
       expect(result).toEqual({ logs: mockLogs });
-      expect(requestConfig?.baseURL).toMatch(/\/api\/notifications$/);
-      expect(requestConfig?.url).toBe("");
-      expect(requestConfig?.method).toBe("get");
+
+      // Verify the request details
+      expect(mock.history.get.length).toBe(1);
+      expect(mock.history.get[0].url).toBe("");
+      expect(mock.history.get[0].baseURL).toMatch(/\/api\/notifications$/);
     });
 
     it("should handle error if API call fails", async () => {
-      (
-        notificationApi as unknown as { client: AxiosInstance }
-      ).client.defaults.adapter = async () => {
-        throw new Error("API Error");
-      };
+      mock.onGet("").networkError();
 
-      await expect(notificationApi.getNotifications()).rejects.toThrow(
-        "API Error",
-      );
+      await expect(notificationApi.getNotifications()).rejects.toThrow();
     });
   });
 
   describe("getReadState", () => {
     it("should call GET /api/notifications/read and return lastRead string", async () => {
-      let requestConfig: AxiosRequestConfig | undefined;
-      (
-        notificationApi as unknown as { client: AxiosInstance }
-      ).client.defaults.adapter = async (config) => {
-        requestConfig = config;
-        return {
-          data: { lastRead: "2023-01-01T00:00:00Z" },
-          status: 200,
-          statusText: "OK",
-          headers: {},
-          config,
-        };
-      };
+      mock.onGet("/read").reply(200, { lastRead: "2023-01-01T00:00:00Z" });
 
       const result = await notificationApi.getReadState();
       expect(result).toEqual({ lastRead: "2023-01-01T00:00:00Z" });
-      expect(requestConfig?.baseURL).toMatch(/\/api\/notifications$/);
-      expect(requestConfig?.url).toBe("/read");
-      expect(requestConfig?.method).toBe("get");
+
+      // Verify the request details
+      expect(mock.history.get.length).toBe(1);
+      expect(mock.history.get[0].url).toBe("/read");
+      expect(mock.history.get[0].baseURL).toMatch(/\/api\/notifications$/);
     });
 
     it("should call GET /api/notifications/read and return lastRead null", async () => {
-      let requestConfig: AxiosRequestConfig | undefined;
-      (
-        notificationApi as unknown as { client: AxiosInstance }
-      ).client.defaults.adapter = async (config) => {
-        requestConfig = config;
-        return {
-          data: { lastRead: null },
-          status: 200,
-          statusText: "OK",
-          headers: {},
-          config,
-        };
-      };
+      mock.onGet("/read").reply(200, { lastRead: null });
 
       const result = await notificationApi.getReadState();
       expect(result).toEqual({ lastRead: null });
-      expect(requestConfig?.baseURL).toMatch(/\/api\/notifications$/);
-      expect(requestConfig?.url).toBe("/read");
-      expect(requestConfig?.method).toBe("get");
     });
 
     it("should handle error if API call fails", async () => {
-      (
-        notificationApi as unknown as { client: AxiosInstance }
-      ).client.defaults.adapter = async () => {
-        throw new Error("API Error");
-      };
+      mock.onGet("/read").networkError();
 
-      await expect(notificationApi.getReadState()).rejects.toThrow("API Error");
+      await expect(notificationApi.getReadState()).rejects.toThrow();
     });
   });
 
   describe("markAsRead", () => {
     it("should call POST /api/notifications/read and return success true", async () => {
-      let requestConfig: AxiosRequestConfig | undefined;
-      (
-        notificationApi as unknown as { client: AxiosInstance }
-      ).client.defaults.adapter = async (config) => {
-        requestConfig = config;
-        return {
-          data: { success: true },
-          status: 200,
-          statusText: "OK",
-          headers: {},
-          config,
-        };
-      };
+      mock.onPost("/read").reply(200, { success: true });
 
       const result = await notificationApi.markAsRead();
       expect(result).toEqual({ success: true });
-      expect(requestConfig?.baseURL).toMatch(/\/api\/notifications$/);
-      expect(requestConfig?.url).toBe("/read");
-      expect(requestConfig?.method).toBe("post");
+
+      // Verify the request details
+      expect(mock.history.post.length).toBe(1);
+      expect(mock.history.post[0].url).toBe("/read");
+      expect(mock.history.post[0].baseURL).toMatch(/\/api\/notifications$/);
     });
 
     it("should call POST /api/notifications/read and return success false", async () => {
-      let requestConfig: AxiosRequestConfig | undefined;
-      (
-        notificationApi as unknown as { client: AxiosInstance }
-      ).client.defaults.adapter = async (config) => {
-        requestConfig = config;
-        return {
-          data: { success: false },
-          status: 200,
-          statusText: "OK",
-          headers: {},
-          config,
-        };
-      };
+      mock.onPost("/read").reply(200, { success: false });
 
       const result = await notificationApi.markAsRead();
       expect(result).toEqual({ success: false });
-      expect(requestConfig?.baseURL).toMatch(/\/api\/notifications$/);
-      expect(requestConfig?.url).toBe("/read");
-      expect(requestConfig?.method).toBe("post");
     });
 
     it("should handle error if API call fails", async () => {
-      (
-        notificationApi as unknown as { client: AxiosInstance }
-      ).client.defaults.adapter = async () => {
-        throw new Error("API Error");
-      };
+      mock.onPost("/read").networkError();
 
-      await expect(notificationApi.markAsRead()).rejects.toThrow("API Error");
+      await expect(notificationApi.markAsRead()).rejects.toThrow();
     });
   });
 });
