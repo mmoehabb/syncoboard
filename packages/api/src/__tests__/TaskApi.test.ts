@@ -51,7 +51,7 @@ describe("TaskApi", () => {
 
     it("should call get with custom parameters correctly", async () => {
       const mockResponseData: ListTasksResponse = {
-        tasks: [{ id: "t1" } as any],
+        tasks: [{ id: "t1" } as unknown as ListTasksResponse["tasks"][0]],
         total: 1,
       };
       getSpy.mockResolvedValue({
