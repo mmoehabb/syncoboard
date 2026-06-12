@@ -374,7 +374,7 @@ export function MainBoard({
   return (
     <div className="flex-1 flex overflow-hidden h-full relative">
       <div className="flex-1 flex flex-col bg-obsidian-night transition-all min-w-0">
-        <div className="p-4 border-b border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 z-50 bg-obsidian-night">
+        <div className="p-4 border-b border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 z-10 bg-obsidian-night">
           <div className="flex items-center gap-4">
             <h2 className="text-white font-mono font-bold"># {board.name}</h2>
             <div className="flex items-center gap-1 bg-void-grey border border-white/10 rounded px-1 py-1">

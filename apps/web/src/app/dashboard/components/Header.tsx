@@ -17,7 +17,7 @@ export function Header({ onToggleSidebar }: { onToggleSidebar?: () => void }) {
 
   return (
     <>
-      <header className="h-14 border-b border-white/10 bg-obsidian-night flex items-center justify-between px-4 sm:px-6 z-20 relative">
+      <header className="h-14 border-b border-white/10 bg-obsidian-night flex items-center justify-between px-4 sm:px-6 z-[60] relative">
         <div className="flex items-center gap-3 font-mono font-bold text-white tracking-tight">
           {onToggleSidebar && (
             <button
@@ -66,7 +66,7 @@ export function Header({ onToggleSidebar }: { onToggleSidebar?: () => void }) {
               </button>
 
               {menuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-void-grey border border-white/10 rounded-md shadow-xl py-1 font-mono text-sm">
+                <div className="absolute right-0 top-full mt-2 w-48 bg-void-grey border border-white/10 rounded-md shadow-xl py-1 font-mono text-sm z-50">
                   <button
                     onClick={() => {
                       setBugModalOpen(true);
