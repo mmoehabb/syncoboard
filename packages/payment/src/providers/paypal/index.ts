@@ -12,55 +12,57 @@ import { PayPalWebhookEvent } from "./types";
 
 export class PayPalProvider implements PaymentProvider<PayPalWebhookEvent> {
   async syncPlans(plans: (Plan & { prices: Price[] })[]): Promise<void> {
-    for (const plan of plans) {
-      try {
-        await createPayPalProduct(plan.id, plan.name);
-      } catch (err: unknown) {
-        const paypalErr = err as {
-          response?: { data?: unknown; status?: number };
-          message?: string;
-        };
-        if (paypalErr.response?.status !== 400) {
-          console.error(
-            `Error creating PayPal product for plan ${plan.id}`,
-            paypalErr.response?.data || paypalErr.message,
-          );
-        }
-      }
-
-      await Promise.all(
-        plan.prices.map(async (price) => {
-          if (!price.providerPlanId && price.amount > 0) {
-            try {
-              const paypalPlan = await createPayPalPlan(
-                plan.id,
-                `${plan.name} - ${price.interval}`,
-                price.interval as "WEEK" | "MONTH" | "YEAR" | "LIFETIME",
-                price.amount,
-                price.currency,
-              );
-
-              await prisma.price.update({
-                where: { id: price.id },
-                data: { providerPlanId: paypalPlan.id },
-              });
-              console.log(
-                `Synced PayPal plan for Price ${price.id}: ${paypalPlan.id}`,
-              );
-            } catch (err: unknown) {
-              const paypalErr = err as {
-                response?: { data?: unknown };
-                message?: string;
-              };
-              console.error(
-                `Error creating PayPal plan for price ${price.id}`,
-                paypalErr.response?.data || paypalErr.message,
-              );
-            }
+    await Promise.all(
+      plans.map(async (plan) => {
+        try {
+          await createPayPalProduct(plan.id, plan.name);
+        } catch (err: unknown) {
+          const paypalErr = err as {
+            response?: { data?: unknown; status?: number };
+            message?: string;
+          };
+          if (paypalErr.response?.status !== 400) {
+            console.error(
+              `Error creating PayPal product for plan ${plan.id}`,
+              paypalErr.response?.data || paypalErr.message,
+            );
           }
-        }),
-      );
-    }
+        }
+
+        await Promise.all(
+          plan.prices.map(async (price) => {
+            if (!price.providerPlanId && price.amount > 0) {
+              try {
+                const paypalPlan = await createPayPalPlan(
+                  plan.id,
+                  `${plan.name} - ${price.interval}`,
+                  price.interval as "WEEK" | "MONTH" | "YEAR" | "LIFETIME",
+                  price.amount,
+                  price.currency,
+                );
+
+                await prisma.price.update({
+                  where: { id: price.id },
+                  data: { providerPlanId: paypalPlan.id },
+                });
+                console.log(
+                  `Synced PayPal plan for Price ${price.id}: ${paypalPlan.id}`,
+                );
+              } catch (err: unknown) {
+                const paypalErr = err as {
+                  response?: { data?: unknown };
+                  message?: string;
+                };
+                console.error(
+                  `Error creating PayPal plan for price ${price.id}`,
+                  paypalErr.response?.data || paypalErr.message,
+                );
+              }
+            }
+          }),
+        );
+      }),
+    );
   }
 
   async createSubscription(
