@@ -5,6 +5,8 @@ import { API_ERRORS, apiError } from "@/lib/api/error";
 import { hasValidSubscription } from "@/lib/api/with-subscription";
 import { FREE_MAX_WORKSPACES } from "@/lib/constants";
 
+let cachedFreePlanMaxWorkspaces: number | null = null;
+
 export async function PUT(req: Request) {
   const userId = await getSessionOrPat();
 
@@ -64,11 +66,16 @@ export async function PUT(req: Request) {
       if (userSubscription?.price?.plan) {
         maxWorkspaces = userSubscription.price.plan.maxWorkspaces;
       } else {
-        const freePlan = await prisma.plan.findFirst({
-          where: { name: "Free" },
-        });
-        if (freePlan) {
-          maxWorkspaces = freePlan.maxWorkspaces;
+        if (cachedFreePlanMaxWorkspaces === null) {
+          const freePlan = await prisma.plan.findFirst({
+            where: { name: "Free" },
+          });
+          if (freePlan) {
+            cachedFreePlanMaxWorkspaces = freePlan.maxWorkspaces;
+          }
+        }
+        if (cachedFreePlanMaxWorkspaces !== null) {
+          maxWorkspaces = cachedFreePlanMaxWorkspaces;
         }
       }
 
