@@ -50,7 +50,7 @@ export async function POST() {
       },
     });
 
-    await enforceSubscriptionLimits(userId, subscription as any);
+    await enforceSubscriptionLimits(userId, subscription);
 
     return NextResponse.json({ subscription }, { status: 201 });
   } catch (error) {
