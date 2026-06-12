@@ -15,13 +15,21 @@ import type { NextRequest } from "next/server";
 export function getClientIp(req: NextRequest): string {
   const forwardedFor = req.headers.get("x-forwarded-for");
   if (forwardedFor) {
-    // x-forwarded-for can be a comma-separated list of IPs.
-    // The leftmost IP is the original client, but it can be spoofed.
-    // The rightmost IP is the one appended by the last proxy.
-    // By taking the rightmost IP, we rely on the IP provided by the proxy we trust.
-    const ips = forwardedFor.split(",").map((ip) => ip.trim());
-    if (ips.length > 0) {
-      return ips[ips.length - 1];
+    const trustedProxies = (process.env.TRUSTED_PROXIES || "")
+      .split(",")
+      .map((ip) => ip.trim())
+      .filter(Boolean);
+
+    if (trustedProxies.length > 0) {
+      // x-forwarded-for can be a comma-separated list of IPs.
+      // The leftmost IP is the original client, but it can be spoofed.
+      // We iterate from right to left, skipping trusted proxies, and return the first non-trusted IP.
+      const ips = forwardedFor.split(",").map((ip) => ip.trim());
+      for (let i = ips.length - 1; i >= 0; i--) {
+        if (!trustedProxies.includes(ips[i])) {
+          return ips[i];
+        }
+      }
     }
   }
 
