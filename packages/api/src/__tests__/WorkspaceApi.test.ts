@@ -23,7 +23,9 @@ describe("WorkspaceApi", () => {
   describe("deleteWorkspace", () => {
     it("should call delete with the correct URL and params", async () => {
       const mockWorkspaceName = "test-workspace";
-      const mockResponse = { data: { message: "Workspace deleted successfully" } };
+      const mockResponse = {
+        data: { message: "Workspace deleted successfully" },
+      };
       deleteSpy.mockResolvedValue(mockResponse);
 
       const result = await workspaceApi.deleteWorkspace(mockWorkspaceName);
