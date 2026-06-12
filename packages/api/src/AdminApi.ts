@@ -33,8 +33,8 @@ export interface AdminPlanCreateRequest {
 export type AdminPlanUpdateRequest = Partial<AdminPlanCreateRequest>;
 
 export interface AdminChangePasswordRequest {
-  currentPassword?: string;
-  newPassword?: string;
+  currentPassword: string;
+  newPassword: string;
 }
 
 export interface AdminChangePasswordResponse {
