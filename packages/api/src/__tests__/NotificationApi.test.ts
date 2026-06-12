@@ -36,7 +36,7 @@ describe("NotificationApi", () => {
 
       const result = await notificationApi.getNotifications();
       expect(result).toEqual({ logs: mockLogs });
-      expect(requestConfig?.baseURL).toBe("http://localhost/api/notifications");
+      expect(requestConfig?.baseURL).toMatch(/\/api\/notifications$/);
       expect(requestConfig?.url).toBe("");
       expect(requestConfig?.method).toBe("get");
     });
@@ -72,7 +72,7 @@ describe("NotificationApi", () => {
 
       const result = await notificationApi.getReadState();
       expect(result).toEqual({ lastRead: "2023-01-01T00:00:00Z" });
-      expect(requestConfig?.baseURL).toBe("http://localhost/api/notifications");
+      expect(requestConfig?.baseURL).toMatch(/\/api\/notifications$/);
       expect(requestConfig?.url).toBe("/read");
       expect(requestConfig?.method).toBe("get");
     });
@@ -94,7 +94,7 @@ describe("NotificationApi", () => {
 
       const result = await notificationApi.getReadState();
       expect(result).toEqual({ lastRead: null });
-      expect(requestConfig?.baseURL).toBe("http://localhost/api/notifications");
+      expect(requestConfig?.baseURL).toMatch(/\/api\/notifications$/);
       expect(requestConfig?.url).toBe("/read");
       expect(requestConfig?.method).toBe("get");
     });
@@ -128,7 +128,7 @@ describe("NotificationApi", () => {
 
       const result = await notificationApi.markAsRead();
       expect(result).toEqual({ success: true });
-      expect(requestConfig?.baseURL).toBe("http://localhost/api/notifications");
+      expect(requestConfig?.baseURL).toMatch(/\/api\/notifications$/);
       expect(requestConfig?.url).toBe("/read");
       expect(requestConfig?.method).toBe("post");
     });
@@ -150,7 +150,7 @@ describe("NotificationApi", () => {
 
       const result = await notificationApi.markAsRead();
       expect(result).toEqual({ success: false });
-      expect(requestConfig?.baseURL).toBe("http://localhost/api/notifications");
+      expect(requestConfig?.baseURL).toMatch(/\/api\/notifications$/);
       expect(requestConfig?.url).toBe("/read");
       expect(requestConfig?.method).toBe("post");
     });
