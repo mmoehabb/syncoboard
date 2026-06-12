@@ -152,7 +152,7 @@ export async function enforceBulkSubscriptionLimits(userIds: string[]) {
 
   // Calculate excess workspaces per user
   if (maxWorkspaces !== -1) {
-    for (const [_, workspaces] of workspacesPerUser.entries()) {
+    for (const workspaces of workspacesPerUser.values()) {
       if (workspaces.length > maxWorkspaces) {
         const excess = workspaces.slice(maxWorkspaces);
         for (const ws of excess) {
@@ -225,7 +225,7 @@ export async function enforceBulkSubscriptionLimits(userIds: string[]) {
 
   // Calculate excess boards per user
   if (maxActiveBoards !== -1) {
-    for (const [_, boards] of boardsPerUser.entries()) {
+    for (const boards of boardsPerUser.values()) {
       if (boards.length > maxActiveBoards) {
         const excess = boards.slice(maxActiveBoards);
         for (const board of excess) {

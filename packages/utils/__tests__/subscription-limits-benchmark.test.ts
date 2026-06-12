@@ -37,7 +37,7 @@ describe("enforceSubscriptionLimits Performance Benchmark", () => {
 
   beforeEach(async () => {
     const db = await import("@syncoboard/db");
-    prismaMock = db.prisma as any;
+    prismaMock = db.prisma as unknown as typeof prismaMock;
     // Reset mocks safely
     if (prismaMock.subscription?.findFirst?.mockClear)
       prismaMock.subscription.findFirst.mockClear();
