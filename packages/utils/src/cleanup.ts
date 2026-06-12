@@ -8,10 +8,6 @@ export async function cleanupDeletedEntities() {
   const threeMonthsAgo = new Date();
   threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
-  console.log(
-    `Cleaning up deleted entities from before ${threeMonthsAgo.toISOString()}`,
-  );
-
   try {
     // We should delete the boards first. Although Cascade delete might be set up,
     // explicitly deleting them ensures any pre-delete hooks or cleanup logs happen.
@@ -24,8 +20,6 @@ export async function cleanupDeletedEntities() {
       },
     });
 
-    console.log(`Permanently deleted ${deletedBoards.count} boards.`);
-
     const deletedWorkspaces = await prisma.workspace.deleteMany({
       where: {
         isDeleted: true,
@@ -34,8 +28,6 @@ export async function cleanupDeletedEntities() {
         },
       },
     });
-
-    console.log(`Permanently deleted ${deletedWorkspaces.count} workspaces.`);
 
     return {
       boards: deletedBoards.count,
