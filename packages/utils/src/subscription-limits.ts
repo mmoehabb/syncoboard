@@ -1,6 +1,8 @@
 import { prisma } from "@syncoboard/db";
 import type { Plan, Subscription } from "@syncoboard/db";
 
+let cachedFreePlan: Plan | null = null;
+
 /**
  * Revokes excess perks (workspaces, boards) when a user's subscription changes
  * (e.g. Trial expires, user downgrades to Free).
@@ -34,12 +36,14 @@ export async function enforceSubscriptionLimits(
     maxWorkspaces = subscription.price.plan.maxWorkspaces;
     maxActiveBoards = subscription.price.plan.maxActiveBoards;
   } else {
-    const freePlan = await prisma.plan.findFirst({
-      where: { name: "Free" },
-    });
-    if (freePlan) {
-      maxWorkspaces = freePlan.maxWorkspaces;
-      maxActiveBoards = freePlan.maxActiveBoards;
+    if (!cachedFreePlan) {
+      cachedFreePlan = await prisma.plan.findFirst({
+        where: { name: "Free" },
+      });
+    }
+    if (cachedFreePlan) {
+      maxWorkspaces = cachedFreePlan.maxWorkspaces;
+      maxActiveBoards = cachedFreePlan.maxActiveBoards;
     }
   }
 
