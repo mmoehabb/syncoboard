@@ -2,6 +2,7 @@ import { AxiosResponse } from "axios";
 import { describe, it, expect, spyOn, beforeEach, afterEach } from "bun:test";
 import { TaskApi } from "../TaskApi";
 import type { ListTasksResponse } from "@syncoboard/types";
+import { Task } from "@syncoboard/db";
 
 describe("TaskApi", () => {
   let taskApi: TaskApi;
@@ -120,6 +121,43 @@ describe("TaskApi", () => {
           limit: 5,
         },
       });
+    });
+  });
+
+  describe("getTask", () => {
+    it("should call get with the correct URL and return task data", async () => {
+      const mockTask = { id: "task-123", title: "Test Task" };
+      const mockResponse = { data: { task: mockTask } };
+      getSpy.mockResolvedValue(mockResponse as unknown as AxiosResponse);
+
+      const result = await taskApi.getTask("task-123");
+
+      expect(getSpy).toHaveBeenCalledTimes(1);
+      expect(getSpy).toHaveBeenCalledWith("/task-123", undefined);
+      expect(result).toEqual(mockTask as unknown as Task);
+    });
+
+    it("should pass config to the get request", async () => {
+      const mockTask = { id: "task-123", title: "Test Task" };
+      const mockResponse = { data: { task: mockTask } };
+      const mockConfig = { headers: { Authorization: "Bearer token" } };
+      getSpy.mockResolvedValue(mockResponse as unknown as AxiosResponse);
+
+      const result = await taskApi.getTask("task-123", mockConfig);
+
+      expect(getSpy).toHaveBeenCalledTimes(1);
+      expect(getSpy).toHaveBeenCalledWith("/task-123", mockConfig);
+      expect(result).toEqual(mockTask as unknown as Task);
+    });
+
+    it("should handle error if API call fails", async () => {
+      const mockError = new Error("API Error");
+      getSpy.mockRejectedValue(mockError);
+
+      await expect(taskApi.getTask("task-123")).rejects.toBe(mockError);
+
+      expect(getSpy).toHaveBeenCalledTimes(1);
+      expect(getSpy).toHaveBeenCalledWith("/task-123", undefined);
     });
   });
 });
