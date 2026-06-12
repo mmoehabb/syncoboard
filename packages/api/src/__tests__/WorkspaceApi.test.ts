@@ -7,6 +7,7 @@ describe("WorkspaceApi", () => {
   let workspaceApi: WorkspaceApi;
   let postSpy: ReturnType<typeof spyOn>;
   let deleteSpy: ReturnType<typeof spyOn>;
+  let putSpy: ReturnType<typeof spyOn>;
 
   beforeEach(() => {
     workspaceApi = new WorkspaceApi();
@@ -24,10 +25,23 @@ describe("WorkspaceApi", () => {
       },
       "delete",
     );
+
+    putSpy = spyOn(
+      workspaceApi as unknown as {
+        put: (
+          url: string,
+          data?: unknown,
+          config?: unknown,
+        ) => Promise<unknown>;
+      },
+      "put",
+    );
   });
 
   afterEach(() => {
     postSpy.mockRestore();
+    deleteSpy.mockRestore();
+    putSpy.mockRestore();
   });
 
   describe("createWorkspace", () => {
@@ -105,6 +119,67 @@ describe("WorkspaceApi", () => {
         params: {
           workspace: mockWorkspaceName,
         },
+      });
+    });
+  });
+
+  describe("updateWorkspaceStatus", () => {
+    it("should call put with correct URL and data for active status", async () => {
+      const mockResponse = {
+        data: {
+          message: "Workspace status updated successfully",
+          isActive: true,
+        },
+      };
+      putSpy.mockResolvedValue(mockResponse);
+
+      const result = await workspaceApi.updateWorkspaceStatus(
+        "test-workspace",
+        true,
+      );
+
+      expect(putSpy).toHaveBeenCalledTimes(1);
+      expect(putSpy).toHaveBeenCalledWith("/status", {
+        workspaceName: "test-workspace",
+        isActive: true,
+      });
+      expect(result).toEqual(mockResponse.data);
+    });
+
+    it("should call put with correct URL and data for inactive status", async () => {
+      const mockResponse = {
+        data: {
+          message: "Workspace status updated successfully",
+          isActive: false,
+        },
+      };
+      putSpy.mockResolvedValue(mockResponse);
+
+      const result = await workspaceApi.updateWorkspaceStatus(
+        "test-workspace",
+        false,
+      );
+
+      expect(putSpy).toHaveBeenCalledTimes(1);
+      expect(putSpy).toHaveBeenCalledWith("/status", {
+        workspaceName: "test-workspace",
+        isActive: false,
+      });
+      expect(result).toEqual(mockResponse.data);
+    });
+
+    it("should handle error if API call fails", async () => {
+      const mockError = new Error("API Error");
+      putSpy.mockRejectedValue(mockError);
+
+      await expect(
+        workspaceApi.updateWorkspaceStatus("test-workspace", true),
+      ).rejects.toBe(mockError);
+
+      expect(putSpy).toHaveBeenCalledTimes(1);
+      expect(putSpy).toHaveBeenCalledWith("/status", {
+        workspaceName: "test-workspace",
+        isActive: true,
       });
     });
   });
