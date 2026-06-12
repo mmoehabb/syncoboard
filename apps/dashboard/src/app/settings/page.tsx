@@ -48,7 +48,6 @@ export default function SettingsPage() {
     setLoading(true);
 
     try {
-      // Cast api to any to bypass TS error until we update AdminApi in the next step
       await api.changePassword({ currentPassword, newPassword });
       setSuccess("Password updated successfully.");
       setCurrentPassword("");
