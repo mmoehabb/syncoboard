@@ -31,7 +31,7 @@ export function TaskDetailsPanel({
   const hasReviewers = reviewers.length > 0 || unregisteredReviewers.length > 0;
 
   return (
-    <div className="absolute inset-0 z-30 sm:relative sm:inset-auto sm:z-auto w-full sm:w-80 border-l border-white/10 bg-void-grey/95 sm:bg-void-grey/80 flex flex-col font-mono text-sm overflow-hidden backdrop-blur-sm sm:backdrop-blur-none">
+    <div className="absolute inset-0 z-[70] sm:relative sm:inset-auto sm:z-auto w-full sm:w-80 border-l border-white/10 bg-void-grey/95 sm:bg-void-grey/80 flex flex-col font-mono text-sm overflow-hidden backdrop-blur-sm sm:backdrop-blur-none">
       <div className="p-4 border-b border-white/10 flex items-center justify-between bg-obsidian-night">
         <span className="font-bold text-white">SYNC-{task.id.toString()}</span>
         <button
