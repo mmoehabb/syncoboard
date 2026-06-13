@@ -117,6 +117,13 @@ export async function handleGithubWebhook(req: Request): Promise<Response> {
       );
     }
 
+    if (!board.isActive) {
+      return new Response(
+        JSON.stringify({ message: "Ignored: Board is inactive" }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
     const status = determineTaskStatus(event, action, pr, review);
 
     // Process assignees and reviewers
