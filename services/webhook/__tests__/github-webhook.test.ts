@@ -154,7 +154,8 @@ describe("GitHub Webhook", () => {
     prismaMock.task.findFirst.mockResolvedValueOnce(null);
     prismaMock.task.findMany.mockResolvedValueOnce([]);
     prismaMock.board.findFirst.mockResolvedValueOnce({
-      id: "board-1", isActive: true,
+      id: "board-1",
+      isActive: true,
       githubRepoId: "1296269",
     });
     prismaMock.account.findMany.mockResolvedValue([]);
@@ -184,7 +185,8 @@ describe("GitHub Webhook", () => {
     };
 
     prismaMock.board.findFirst.mockResolvedValueOnce({
-      id: "board-1", isActive: true,
+      id: "board-1",
+      isActive: true,
       githubRepoId: "1296269",
     });
     prismaMock.account.findMany.mockResolvedValue([]);
@@ -225,7 +227,8 @@ describe("GitHub Webhook", () => {
     };
 
     prismaMock.board.findFirst.mockResolvedValueOnce({
-      id: "board-1", isActive: true,
+      id: "board-1",
+      isActive: true,
       githubRepoId: "1296269",
     });
     prismaMock.account.findMany.mockResolvedValue([]);
@@ -263,7 +266,8 @@ describe("GitHub Webhook", () => {
     };
 
     prismaMock.board.findFirst.mockResolvedValueOnce({
-      id: "board-1", isActive: true,
+      id: "board-1",
+      isActive: true,
       githubRepoId: "1296269",
     });
     prismaMock.account.findMany.mockResolvedValue([]);
@@ -299,7 +303,8 @@ describe("GitHub Webhook", () => {
     };
 
     prismaMock.board.findFirst.mockResolvedValueOnce({
-      id: "board-1", isActive: true,
+      id: "board-1",
+      isActive: true,
       githubRepoId: "1296269",
     });
     prismaMock.account.findMany.mockResolvedValue([]);
@@ -343,7 +348,8 @@ describe("GitHub Webhook", () => {
     };
 
     prismaMock.board.findFirst.mockResolvedValueOnce({
-      id: "board-1", isActive: true,
+      id: "board-1",
+      isActive: true,
       githubRepoId: "1296269",
     });
     prismaMock.account.findMany.mockResolvedValue([]);
@@ -386,7 +392,8 @@ describe("GitHub Webhook", () => {
     };
 
     prismaMock.board.findFirst.mockResolvedValueOnce({
-      id: "board-1", isActive: true,
+      id: "board-1",
+      isActive: true,
       githubRepoId: "1296269",
     });
     prismaMock.account.findMany.mockResolvedValue([]);
@@ -432,7 +439,8 @@ describe("GitHub Webhook", () => {
     };
 
     prismaMock.board.findFirst.mockResolvedValueOnce({
-      id: "board-1", isActive: true,
+      id: "board-1",
+      isActive: true,
       githubRepoId: "1296269",
     });
     prismaMock.account.findMany.mockResolvedValue([]);
