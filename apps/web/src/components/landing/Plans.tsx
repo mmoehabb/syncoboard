@@ -243,6 +243,33 @@ export function Plans({ plans, isLoggedIn }: PlansProps) {
                 >
                   {loadingPriceId === price?.id ? "Loading..." : "Subscribe"}
                 </button>
+              ) : isLoggedIn && isFree ? (
+                <button
+                  onClick={() => (window.location.href = "/dashboard")}
+                  className={`w-full py-2 text-center rounded font-mono transition-colors ${
+                    isStandard
+                      ? "bg-neon-pulse text-obsidian-night font-bold hover:bg-neon-pulse/90"
+                      : "border border-white/20 text-white hover:bg-white/5"
+                  }`}
+                >
+                  Go to Dashboard
+                </button>
+              ) : isLoggedIn && isTrial ? (
+                <button
+                  onClick={() => price && handleSubscribe(price.id)}
+                  disabled={!price || loadingPriceId === price.id}
+                  className={`w-full py-2 text-center rounded font-mono transition-colors ${
+                    loadingPriceId === price?.id ? "opacity-50 cursor-wait" : ""
+                  } ${
+                    isStandard
+                      ? "bg-neon-pulse text-obsidian-night font-bold hover:bg-neon-pulse/90"
+                      : "border border-white/20 text-white hover:bg-white/5"
+                  }`}
+                >
+                  {loadingPriceId === price?.id
+                    ? "Loading..."
+                    : "Start Free Trial"}
+                </button>
               ) : (
                 <Link
                   href="/login"

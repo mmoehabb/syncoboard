@@ -3,6 +3,7 @@ import { PlansHero } from "@/components/landing/PlansHero";
 import { MatrixBackground } from "@/components/landing/MatrixBackground";
 import { Plans } from "@/components/landing/Plans";
 import { Footer } from "@/components/landing/Footer";
+import { auth } from "@/lib/auth";
 import { prisma } from "@syncoboard/db";
 
 export const metadata = {
@@ -14,6 +15,7 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function PlansPage() {
+  const session = await auth();
   const plans = await prisma.plan.findMany({
     include: {
       prices: true,
@@ -30,7 +32,7 @@ export default async function PlansPage() {
         <Header />
         <main className="flex flex-col w-full flex-1">
           <PlansHero />
-          <Plans plans={plans} />
+          <Plans plans={plans} isLoggedIn={!!session?.user} />
         </main>
         <Footer />
       </div>

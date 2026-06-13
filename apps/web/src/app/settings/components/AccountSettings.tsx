@@ -7,6 +7,7 @@ import {
   cancelSubscription,
 } from "../actions";
 import { useRouter } from "next/navigation";
+import { subscriptionApi } from "@syncoboard/api";
 
 interface AccountSettingsProps {
   userId: string;
@@ -89,12 +90,21 @@ export function AccountSettings({
     }
   };
 
-  const handleResubscribe = () => {
-    if (!subscription) {
+  const handleResubscribe = async () => {
+    if (!subscription || !subscription.priceId) {
       router.push("/plans");
     } else {
-      // TODO: Invoke payment provider
-      console.log("TODO: Invoke payment provider");
+      try {
+        setIsSubmitting(true);
+        const data = await subscriptionApi.checkout(subscription.priceId);
+        if (data.approvalUrl) {
+          window.location.href = data.approvalUrl;
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
