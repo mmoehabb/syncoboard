@@ -39,7 +39,7 @@ export default async function Home(props: {
           <Hero />
           <Idea />
           <CliAd />
-          <Plans plans={plans} isLoggedIn={!!session?.user} />
+          <Plans plans={plans} isLoggedIn={false} />
         </main>
         <Footer />
       </div>
