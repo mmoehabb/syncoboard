@@ -457,9 +457,7 @@ export function MainBoard({
                     onConfirm: handleToggleActivation,
                   })
                 }
-                title={
-                  board.isActive ? "Deactivate Board" : "Activate Board"
-                }
+                title={board.isActive ? "Deactivate Board" : "Activate Board"}
                 className="text-syntax-grey hover:text-neon-pulse text-sm font-mono transition-colors border border-syntax-grey/30 hover:border-neon-pulse/50 rounded px-3 py-1 bg-void-grey disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 {board.isActive ? "Deactivate" : "Activate"}
