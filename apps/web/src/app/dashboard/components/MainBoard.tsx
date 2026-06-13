@@ -343,7 +343,7 @@ export function MainBoard({
       // Secondary sort by updatedAt desc
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
-  }, [board]);
+  }, [board, paginatedTasks]);
 
   const selectedTask = useMemo(() => {
     if (!taskIdParam) return null;
