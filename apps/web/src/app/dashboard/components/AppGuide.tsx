@@ -23,6 +23,33 @@ const GUIDE_PAGES = [
     ),
   },
   {
+    title: "Automated Status Updates",
+    content: (
+      <div className="space-y-3">
+        <p>
+          Tasks move automatically between statuses based on GitHub PR events:
+        </p>
+        <ul className="list-disc pl-4 space-y-1">
+          <li>
+            <strong>Draft Pull Request:</strong> TODO
+          </li>
+          <li>
+            <strong>Opened Pull Request:</strong> IN_PROGRESS
+          </li>
+          <li>
+            <strong>Review Requested:</strong> IN_REVIEW
+          </li>
+          <li>
+            <strong>Merged Pull Request:</strong> DONE
+          </li>
+          <li>
+            <strong>Closed Pull Request:</strong> CLOSED
+          </li>
+        </ul>
+      </div>
+    ),
+  },
+  {
     title: "CLI & Navigation",
     content: (
       <div className="space-y-3">
