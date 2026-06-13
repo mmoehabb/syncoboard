@@ -19,7 +19,6 @@ Syncoboard is a powerful, unified productivity application and toolset built spe
 
 - [Getting Started](./docs/get-started.md)
 - [Entity Relationship Diagram (ERD)](./docs/ERD.md)
-- [PayPal Integration](./docs/PAYPAL_INTEGRATION.md)
 - [For Contributors](./docs/for-contributors.md)
 
 ## License
