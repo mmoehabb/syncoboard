@@ -245,7 +245,7 @@ export function Plans({ plans, isLoggedIn }: PlansProps) {
                 </button>
               ) : isLoggedIn && isFree ? (
                 <button
-                  onClick={() => window.location.href = "/dashboard"}
+                  onClick={() => (window.location.href = "/dashboard")}
                   className={`w-full py-2 text-center rounded font-mono transition-colors ${
                     isStandard
                       ? "bg-neon-pulse text-obsidian-night font-bold hover:bg-neon-pulse/90"
@@ -266,7 +266,9 @@ export function Plans({ plans, isLoggedIn }: PlansProps) {
                       : "border border-white/20 text-white hover:bg-white/5"
                   }`}
                 >
-                  {loadingPriceId === price?.id ? "Loading..." : "Start Free Trial"}
+                  {loadingPriceId === price?.id
+                    ? "Loading..."
+                    : "Start Free Trial"}
                 </button>
               ) : (
                 <Link
