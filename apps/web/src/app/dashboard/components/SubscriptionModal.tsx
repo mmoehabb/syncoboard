@@ -4,6 +4,7 @@ import { useState } from "react";
 import { subscribeToFreePlan, subscribeToTrialPlan } from "../actions";
 import type { PlanWithPrices } from "./types";
 import Link from "next/link";
+import { subscriptionApi } from "@syncoboard/api";
 
 interface SubscriptionModalProps {
   allPlans: PlanWithPrices[];
@@ -17,6 +18,23 @@ export function SubscriptionModal({
   bottomText,
 }: SubscriptionModalProps) {
   const [error, setError] = useState<string | null>(null);
+
+  const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
+
+  const handleSubscribe = async (priceId: string) => {
+    try {
+      setError(null);
+      setLoadingPriceId(priceId);
+      const data = await subscriptionApi.checkout(priceId);
+      if (data.approvalUrl) {
+        window.location.href = data.approvalUrl;
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to start checkout");
+    } finally {
+      setLoadingPriceId(null);
+    }
+  };
 
   const handleFreePlan = async () => {
     setError(null);
@@ -186,12 +204,15 @@ export function SubscriptionModal({
                 )}
 
                 {requiresPayment && (
-                  <Link
-                    href="/#pricing"
-                    className="w-full bg-void-grey border border-white/10 hover:border-white/20 rounded py-2.5 text-white hover:text-neon-pulse font-mono text-sm mt-auto transition-colors text-center inline-block"
-                  >
-                    Subscribe
-                  </Link>
+                  <div className="mt-auto">
+                    <button
+                      onClick={() => handleSubscribe(price.id)}
+                      disabled={loadingPriceId === price.id}
+                      className={`w-full bg-void-grey border ${loadingPriceId === price.id ? "opacity-50 border-white/10" : "border-white/10 hover:border-white/20 hover:text-neon-pulse"} rounded py-2.5 text-white font-mono text-sm transition-colors text-center inline-block cursor-pointer`}
+                    >
+                      {loadingPriceId === price.id ? "Loading..." : "Subscribe"}
+                    </button>
+                  </div>
                 )}
               </div>
             );
