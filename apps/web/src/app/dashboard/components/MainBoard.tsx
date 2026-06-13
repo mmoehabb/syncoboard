@@ -107,6 +107,17 @@ export function MainBoard({
     onConfirm: async () => {},
   });
 
+  const [activationConfirmModalState, setActivationConfirmModalState] =
+    useState<{
+      isOpen: boolean;
+      message: string;
+      onConfirm: () => Promise<void>;
+    }>({
+      isOpen: false,
+      message: "",
+      onConfirm: async () => {},
+    });
+
   const { setDeleteModalState } = useCommand();
 
   const handleContextMenu = (e: React.MouseEvent, task: MainBoardTask) => {
@@ -170,6 +181,28 @@ export function MainBoard({
   };
 
   const [isSyncing, setIsSyncing] = useState(false);
+
+  const handleToggleActivation = async () => {
+    if (!board || !board.workspace?.name) return;
+
+    try {
+      await boardApi.updateBoardStatus(
+        board.workspace.name,
+        board.name,
+        !board.isActive,
+      );
+      showToast(
+        "success",
+        `Board successfully ${board.isActive ? "deactivated" : "activated"}`,
+      );
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to toggle board activation:", error);
+      showToast("error", "Failed to update board status");
+    } finally {
+      setActivationConfirmModalState((prev) => ({ ...prev, isOpen: false }));
+    }
+  };
 
   const handleSyncBoard = async () => {
     if (!board || !board.workspace?.name) return;
@@ -411,6 +444,25 @@ export function MainBoard({
                 className={`text-sm font-mono transition-colors border rounded px-3 py-1 flex items-center justify-center gap-2 ${isVoiceCallActive ? "bg-red-500/20 text-red-400 border-red-500/50 hover:bg-red-500/30" : "bg-void-grey text-syntax-grey border-syntax-grey/30 hover:text-neon-pulse hover:border-neon-pulse/50"}`}
               >
                 <Phone size={16} />
+              </button>
+            )}
+            {board && isCurrentUserAdmin && (
+              <button
+                onClick={() =>
+                  setActivationConfirmModalState({
+                    isOpen: true,
+                    message: `Are you sure you want to ${
+                      board.isActive ? "deactivate" : "activate"
+                    } the board ${board.name}?`,
+                    onConfirm: handleToggleActivation,
+                  })
+                }
+                title={
+                  board.isActive ? "Deactivate Board" : "Activate Board"
+                }
+                className="text-syntax-grey hover:text-neon-pulse text-sm font-mono transition-colors border border-syntax-grey/30 hover:border-neon-pulse/50 rounded px-3 py-1 bg-void-grey disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              >
+                {board.isActive ? "Deactivate" : "Activate"}
               </button>
             )}
             {board?.isActive && isCurrentUserAdmin && (
@@ -704,6 +756,15 @@ export function MainBoard({
         onConfirm={simpleConfirmModalState.onConfirm}
         onCancel={() =>
           setSimpleConfirmModalState((prev) => ({ ...prev, isOpen: false }))
+        }
+      />
+
+      <SimpleConfirmationModal
+        isOpen={activationConfirmModalState.isOpen}
+        message={activationConfirmModalState.message}
+        onConfirm={activationConfirmModalState.onConfirm}
+        onCancel={() =>
+          setActivationConfirmModalState((prev) => ({ ...prev, isOpen: false }))
         }
       />
 
