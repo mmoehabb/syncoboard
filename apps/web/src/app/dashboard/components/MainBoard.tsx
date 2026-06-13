@@ -3,7 +3,15 @@
 import { useMemo, useState, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { TaskDetailsPanel } from "./TaskDetailsPanel";
-import { Search, LayoutList, Columns, AlignJustify } from "lucide-react";
+import {
+  Search,
+  LayoutList,
+  Columns,
+  AlignJustify,
+  Power,
+  PowerOff,
+  Plus,
+} from "lucide-react";
 import { VoiceCallPanel } from "./VoiceCallPanel";
 import { TaskGroup } from "./TaskGroup";
 import { KanbanColumn } from "./KanbanColumn";
@@ -192,13 +200,13 @@ export function MainBoard({
         !board.isActive,
       );
       showToast(
-        "success",
         `Board successfully ${board.isActive ? "deactivated" : "activated"}`,
+        "success",
       );
       router.refresh();
     } catch (error) {
       console.error("Failed to toggle board activation:", error);
-      showToast("error", "Failed to update board status");
+      showToast("Failed to update board status", "error");
     } finally {
       setActivationConfirmModalState((prev) => ({ ...prev, isOpen: false }));
     }
@@ -460,7 +468,7 @@ export function MainBoard({
                 title={board.isActive ? "Deactivate Board" : "Activate Board"}
                 className="text-syntax-grey hover:text-neon-pulse text-sm font-mono transition-colors border border-syntax-grey/30 hover:border-neon-pulse/50 rounded px-3 py-1 bg-void-grey disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
-                {board.isActive ? "Deactivate" : "Activate"}
+                {board.isActive ? <PowerOff size={16} /> : <Power size={16} />}
               </button>
             )}
             {board?.isActive && isCurrentUserAdmin && (
@@ -478,9 +486,10 @@ export function MainBoard({
             )}
             <button
               onClick={() => setIsAddTaskModalOpen(true)}
-              className="text-syntax-grey hover:text-neon-pulse text-sm font-mono transition-colors border border-syntax-grey/30 hover:border-neon-pulse/50 rounded px-3 py-1 bg-void-grey"
+              title="Add Task"
+              className="text-syntax-grey hover:text-neon-pulse text-sm font-mono transition-colors border border-syntax-grey/30 hover:border-neon-pulse/50 rounded px-3 py-1 bg-void-grey flex items-center justify-center"
             >
-              + add task
+              <Plus size={16} />
             </button>
           </div>
         </div>
