@@ -19,7 +19,7 @@ export function CommandBar() {
 
   return (
     <div
-      className={`fixed bottom-0 left-0 w-full z-50 hidden lg:flex flex-col justify-end transition-transform duration-300
+      className={`fixed bottom-0 left-0 w-full z-[80] hidden lg:flex flex-col justify-end transition-transform duration-300
         translate-y-0 /* always stick at the bottom on mobile */
         ${
           isDesktopHidden
