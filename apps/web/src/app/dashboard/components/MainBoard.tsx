@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { TaskDetailsPanel } from "./TaskDetailsPanel";
 import {
@@ -11,6 +11,7 @@ import {
   Power,
   PowerOff,
   Plus,
+  MoreHorizontal,
 } from "lucide-react";
 import { VoiceCallPanel } from "./VoiceCallPanel";
 import { TaskGroup } from "./TaskGroup";
@@ -34,7 +35,6 @@ import { ModifyTaskModal } from "@/components/modals/ModifyTaskModal";
 import { AddTaskModal } from "@/components/modals/AddTaskModal";
 import { useToast } from "@/context/ToastContext";
 import axios from "axios";
-import { useRef } from "react";
 import { useSession } from "next-auth/react";
 
 import type { TaskCounts, AvailableMember } from "./types";
@@ -65,6 +65,22 @@ export function MainBoard({
   const taskIdParam = searchParams.get("taskId");
   const { isVoiceCallActive, setIsVoiceCallActive } = useCommand();
   const { socket, isConnected } = useSocket();
+
+  const [isBoardOptionsOpen, setIsBoardOptionsOpen] = useState(false);
+  const boardOptionsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        boardOptionsRef.current &&
+        !boardOptionsRef.current.contains(event.target as Node)
+      ) {
+        setIsBoardOptionsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const searchQueryParam = searchParams.get("search") || "";
 
@@ -442,55 +458,91 @@ export function MainBoard({
               </button>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2 items-center w-full md:w-auto justify-end md:justify-start">
-            {board?.isActive && (
-              <button
-                onClick={() => setIsVoiceCallActive(!isVoiceCallActive)}
-                title={
-                  isVoiceCallActive ? "Leave Voice Call" : "Join Voice Call"
-                }
-                className={`text-sm font-mono transition-colors border rounded px-3 py-1 flex items-center justify-center gap-2 ${isVoiceCallActive ? "bg-red-500/20 text-red-400 border-red-500/50 hover:bg-red-500/30" : "bg-void-grey text-syntax-grey border-syntax-grey/30 hover:text-neon-pulse hover:border-neon-pulse/50"}`}
-              >
-                <Phone size={16} />
-              </button>
-            )}
-            {board && isCurrentUserAdmin && (
-              <button
-                onClick={() =>
-                  setActivationConfirmModalState({
-                    isOpen: true,
-                    message: `Are you sure you want to ${
-                      board.isActive ? "deactivate" : "activate"
-                    } the board ${board.name}?`,
-                    onConfirm: handleToggleActivation,
-                  })
-                }
-                title={board.isActive ? "Deactivate Board" : "Activate Board"}
-                className="text-syntax-grey hover:text-neon-pulse text-sm font-mono transition-colors border border-syntax-grey/30 hover:border-neon-pulse/50 rounded px-3 py-1 bg-void-grey disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-              >
-                {board.isActive ? <PowerOff size={16} /> : <Power size={16} />}
-              </button>
-            )}
-            {board?.isActive && isCurrentUserAdmin && (
-              <button
-                onClick={handleSyncBoard}
-                disabled={isSyncing}
-                title="Sync Board with GitHub PRs"
-                className="text-syntax-grey hover:text-neon-pulse text-sm font-mono transition-colors border border-syntax-grey/30 hover:border-neon-pulse/50 rounded px-3 py-1 bg-void-grey disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-              >
-                <RefreshCw
-                  size={16}
-                  className={isSyncing ? "animate-spin" : ""}
-                />
-              </button>
-            )}
+          <div
+            className="flex flex-wrap gap-2 items-center w-full md:w-auto justify-end md:justify-start relative"
+            ref={boardOptionsRef}
+          >
             <button
-              onClick={() => setIsAddTaskModalOpen(true)}
-              title="Add Task"
-              className="text-syntax-grey hover:text-neon-pulse text-sm font-mono transition-colors border border-syntax-grey/30 hover:border-neon-pulse/50 rounded px-3 py-1 bg-void-grey flex items-center justify-center"
+              onClick={() => setIsBoardOptionsOpen(!isBoardOptionsOpen)}
+              title="Board Options"
+              className={`text-syntax-grey hover:text-neon-pulse text-sm font-mono transition-colors border border-syntax-grey/30 hover:border-neon-pulse/50 rounded px-3 py-1 bg-void-grey flex items-center justify-center ${isBoardOptionsOpen ? "text-neon-pulse border-neon-pulse/50" : ""}`}
             >
-              <Plus size={16} />
+              <MoreHorizontal size={16} />
             </button>
+            {isBoardOptionsOpen && (
+              <div className="absolute top-full right-0 mt-2 bg-void-grey border border-white/20 shadow-2xl rounded-md min-w-[200px] py-1 font-mono text-sm flex flex-col z-50">
+                {board?.isActive && (
+                  <ContextMenuItem
+                    onClick={() => {
+                      setIsVoiceCallActive(!isVoiceCallActive);
+                      setIsBoardOptionsOpen(false);
+                    }}
+                    className={isVoiceCallActive ? "text-red-400" : ""}
+                  >
+                    <span className="flex items-center gap-2">
+                      <Phone size={14} />
+                      {isVoiceCallActive
+                        ? "Leave Voice Call"
+                        : "Join Voice Call"}
+                    </span>
+                  </ContextMenuItem>
+                )}
+                {board && isCurrentUserAdmin && (
+                  <ContextMenuItem
+                    onClick={() => {
+                      setActivationConfirmModalState({
+                        isOpen: true,
+                        message: `Are you sure you want to ${
+                          board.isActive ? "deactivate" : "activate"
+                        } the board ${board.name}?`,
+                        onConfirm: handleToggleActivation,
+                      });
+                      setIsBoardOptionsOpen(false);
+                    }}
+                    className={
+                      board.isActive ? "text-red-400" : "text-green-400"
+                    }
+                  >
+                    <span className="flex items-center gap-2">
+                      {board.isActive ? (
+                        <PowerOff size={14} />
+                      ) : (
+                        <Power size={14} />
+                      )}
+                      {board.isActive ? "Deactivate Board" : "Activate Board"}
+                    </span>
+                  </ContextMenuItem>
+                )}
+                {board?.isActive && isCurrentUserAdmin && (
+                  <ContextMenuItem
+                    onClick={() => {
+                      handleSyncBoard();
+                      setIsBoardOptionsOpen(false);
+                    }}
+                    disabled={isSyncing}
+                  >
+                    <span className="flex items-center gap-2">
+                      <RefreshCw
+                        size={14}
+                        className={isSyncing ? "animate-spin" : ""}
+                      />
+                      Sync Board
+                    </span>
+                  </ContextMenuItem>
+                )}
+                <ContextMenuItem
+                  onClick={() => {
+                    setIsAddTaskModalOpen(true);
+                    setIsBoardOptionsOpen(false);
+                  }}
+                >
+                  <span className="flex items-center gap-2">
+                    <Plus size={14} />
+                    Add Task
+                  </span>
+                </ContextMenuItem>
+              </div>
+            )}
           </div>
         </div>
 
