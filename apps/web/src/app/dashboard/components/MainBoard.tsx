@@ -458,7 +458,10 @@ export function MainBoard({
               </button>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2 items-center w-full md:w-auto justify-end md:justify-start relative" ref={boardOptionsRef}>
+          <div
+            className="flex flex-wrap gap-2 items-center w-full md:w-auto justify-end md:justify-start relative"
+            ref={boardOptionsRef}
+          >
             <button
               onClick={() => setIsBoardOptionsOpen(!isBoardOptionsOpen)}
               title="Board Options"
@@ -478,7 +481,9 @@ export function MainBoard({
                   >
                     <span className="flex items-center gap-2">
                       <Phone size={14} />
-                      {isVoiceCallActive ? "Leave Voice Call" : "Join Voice Call"}
+                      {isVoiceCallActive
+                        ? "Leave Voice Call"
+                        : "Join Voice Call"}
                     </span>
                   </ContextMenuItem>
                 )}
@@ -494,10 +499,16 @@ export function MainBoard({
                       });
                       setIsBoardOptionsOpen(false);
                     }}
-                    className={board.isActive ? "text-red-400" : "text-green-400"}
+                    className={
+                      board.isActive ? "text-red-400" : "text-green-400"
+                    }
                   >
                     <span className="flex items-center gap-2">
-                      {board.isActive ? <PowerOff size={14} /> : <Power size={14} />}
+                      {board.isActive ? (
+                        <PowerOff size={14} />
+                      ) : (
+                        <Power size={14} />
+                      )}
                       {board.isActive ? "Deactivate Board" : "Activate Board"}
                     </span>
                   </ContextMenuItem>
@@ -511,7 +522,10 @@ export function MainBoard({
                     disabled={isSyncing}
                   >
                     <span className="flex items-center gap-2">
-                      <RefreshCw size={14} className={isSyncing ? "animate-spin" : ""} />
+                      <RefreshCw
+                        size={14}
+                        className={isSyncing ? "animate-spin" : ""}
+                      />
                       Sync Board
                     </span>
                   </ContextMenuItem>
