@@ -431,7 +431,7 @@ export function MainBoard({
   return (
     <div className="flex-1 flex overflow-hidden h-full relative">
       <div className="flex-1 flex flex-col bg-obsidian-night transition-all min-w-0">
-        <div className="p-4 border-b border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 z-10 bg-obsidian-night">
+        <div className="p-4 border-b border-white/10 flex flex-row items-center justify-between gap-4 z-10 bg-obsidian-night">
           <div className="flex items-center gap-4">
             <h2 className="text-white font-mono font-bold"># {board.name}</h2>
             <div className="flex items-center gap-1 bg-void-grey border border-white/10 rounded px-1 py-1">
@@ -459,7 +459,7 @@ export function MainBoard({
             </div>
           </div>
           <div
-            className="flex flex-wrap gap-2 items-center w-full md:w-auto justify-end md:justify-start relative"
+            className="flex items-center gap-2 relative"
             ref={boardOptionsRef}
           >
             <button
@@ -477,39 +477,13 @@ export function MainBoard({
                       setIsVoiceCallActive(!isVoiceCallActive);
                       setIsBoardOptionsOpen(false);
                     }}
-                    className={isVoiceCallActive ? "text-red-400" : ""}
+                    className={isVoiceCallActive ? "!text-red-400" : ""}
                   >
                     <span className="flex items-center gap-2">
                       <Phone size={14} />
                       {isVoiceCallActive
                         ? "Leave Voice Call"
                         : "Join Voice Call"}
-                    </span>
-                  </ContextMenuItem>
-                )}
-                {board && isCurrentUserAdmin && (
-                  <ContextMenuItem
-                    onClick={() => {
-                      setActivationConfirmModalState({
-                        isOpen: true,
-                        message: `Are you sure you want to ${
-                          board.isActive ? "deactivate" : "activate"
-                        } the board ${board.name}?`,
-                        onConfirm: handleToggleActivation,
-                      });
-                      setIsBoardOptionsOpen(false);
-                    }}
-                    className={
-                      board.isActive ? "text-red-400" : "text-green-400"
-                    }
-                  >
-                    <span className="flex items-center gap-2">
-                      {board.isActive ? (
-                        <PowerOff size={14} />
-                      ) : (
-                        <Power size={14} />
-                      )}
-                      {board.isActive ? "Deactivate Board" : "Activate Board"}
                     </span>
                   </ContextMenuItem>
                 )}
@@ -541,6 +515,32 @@ export function MainBoard({
                     Add Task
                   </span>
                 </ContextMenuItem>
+                {board && isCurrentUserAdmin && (
+                  <ContextMenuItem
+                    onClick={() => {
+                      setActivationConfirmModalState({
+                        isOpen: true,
+                        message: `Are you sure you want to ${
+                          board.isActive ? "deactivate" : "activate"
+                        } the board ${board.name}?`,
+                        onConfirm: handleToggleActivation,
+                      });
+                      setIsBoardOptionsOpen(false);
+                    }}
+                    className={
+                      board.isActive ? "!text-red-400" : "!text-green-400"
+                    }
+                  >
+                    <span className="flex items-center gap-2">
+                      {board.isActive ? (
+                        <PowerOff size={14} />
+                      ) : (
+                        <Power size={14} />
+                      )}
+                      {board.isActive ? "Deactivate Board" : "Activate Board"}
+                    </span>
+                  </ContextMenuItem>
+                )}
               </div>
             )}
           </div>
