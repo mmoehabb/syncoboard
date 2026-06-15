@@ -126,6 +126,12 @@ export function AccountSettings({
               <div>
                 <h4 className="text-xl font-bold text-white">
                   {subscription.price?.plan?.name || "Unknown Plan"}
+                  {subscription.price && subscription.price.amount > 0 && (
+                    <span className="text-sm font-normal text-syntax-grey ml-2">
+                      - ${subscription.price.amount / 100}
+                      {subscription.price.interval === "MONTH" ? "/mo" : subscription.price.interval === "YEAR" ? "/yr" : subscription.price.interval === "WEEK" ? "/week" : ""}
+                    </span>
+                  )}
                 </h4>
                 <div className="text-sm font-mono text-syntax-grey">
                   Status: {subscription.status}
