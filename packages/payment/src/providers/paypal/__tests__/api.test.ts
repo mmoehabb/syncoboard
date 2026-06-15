@@ -146,7 +146,14 @@ describe("PayPal API", () => {
         return Promise.resolve({ data: {} });
       });
 
-      await createPayPalPlan("PROD-123", "Monthly Plan", "MONTH", 1000, "USD", 3);
+      await createPayPalPlan(
+        "PROD-123",
+        "Monthly Plan",
+        "MONTH",
+        1000,
+        "USD",
+        3,
+      );
 
       expect(axios.post).toHaveBeenCalledWith(
         "https://api-m.sandbox.paypal.com/v1/billing/plans",
