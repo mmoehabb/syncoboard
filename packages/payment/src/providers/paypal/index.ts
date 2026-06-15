@@ -39,6 +39,7 @@ export class PayPalProvider implements PaymentProvider<PayPalWebhookEvent> {
                   price.interval as "WEEK" | "MONTH" | "YEAR" | "LIFETIME",
                   price.amount,
                   price.currency,
+                  price.intervalCount,
                 );
 
                 await prisma.price.update({

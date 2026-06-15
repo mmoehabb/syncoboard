@@ -146,7 +146,7 @@ describe("PayPal API", () => {
         return Promise.resolve({ data: {} });
       });
 
-      await createPayPalPlan("PROD-123", "Monthly Plan", "MONTH", 1000, "USD");
+      await createPayPalPlan("PROD-123", "Monthly Plan", "MONTH", 1000, "USD", 3);
 
       expect(axios.post).toHaveBeenCalledWith(
         "https://api-m.sandbox.paypal.com/v1/billing/plans",
@@ -156,7 +156,7 @@ describe("PayPal API", () => {
             expect.objectContaining({
               frequency: {
                 interval_unit: "MONTH",
-                interval_count: 1,
+                interval_count: 3,
               },
               pricing_scheme: {
                 fixed_price: {
