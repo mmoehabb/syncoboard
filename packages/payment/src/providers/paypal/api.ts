@@ -67,11 +67,12 @@ export async function createPayPalPlan(
   interval: "WEEK" | "MONTH" | "YEAR" | "LIFETIME",
   amount: number,
   currency: string,
+  intervalCount: number = 1,
 ) {
   const token = await getPayPalAccessToken();
 
   let intervalUnit = "MONTH";
-  let intervalCount = 1;
+  let finalIntervalCount = intervalCount;
 
   if (interval === "WEEK") {
     intervalUnit = "WEEK";
@@ -80,7 +81,7 @@ export async function createPayPalPlan(
   } else if (interval === "LIFETIME") {
     // PayPal Subscriptions don't really support 'Lifetime'
     intervalUnit = "YEAR";
-    intervalCount = 100;
+    finalIntervalCount = 100;
   }
 
   const response = await axios.post(
@@ -93,7 +94,7 @@ export async function createPayPalPlan(
         {
           frequency: {
             interval_unit: intervalUnit,
-            interval_count: intervalCount,
+            interval_count: finalIntervalCount,
           },
           tenure_type: "REGULAR",
           sequence: 1,
