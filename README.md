@@ -24,9 +24,3 @@ Syncoboard is a powerful, unified productivity application and toolset built spe
 ## License
 
 This project is licensed under the MIT License. It is entirely vibe coded via Jules. Anyone is welcome to fork the project or [contribute to it!](./docs/for-contributors.md)
-
-## Support
-
-If you like the project and want to support the developer, consider buying a coffee!
-
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/mmoehabb)
