@@ -73,15 +73,19 @@ export async function createPayPalPlan(
 
   let intervalUnit = "MONTH";
   let finalIntervalCount = intervalCount;
+  let totalCycles = 0; // Infinite by default
 
   if (interval === "WEEK") {
     intervalUnit = "WEEK";
   } else if (interval === "YEAR") {
     intervalUnit = "YEAR";
   } else if (interval === "LIFETIME") {
-    // PayPal Subscriptions don't really support 'Lifetime'
+    // PayPal Subscriptions don't natively support "Lifetime".
+    // Simulate it by billing once a year for 100 years.
+    // interval_count MUST be 1 for YEAR.
     intervalUnit = "YEAR";
-    finalIntervalCount = 100;
+    finalIntervalCount = 1;
+    totalCycles = 100;
   }
 
   const response = await axios.post(
@@ -98,7 +102,7 @@ export async function createPayPalPlan(
           },
           tenure_type: "REGULAR",
           sequence: 1,
-          total_cycles: 0, // Infinite
+          total_cycles: totalCycles,
           pricing_scheme: {
             fixed_price: {
               value: (amount / 100).toFixed(2),
