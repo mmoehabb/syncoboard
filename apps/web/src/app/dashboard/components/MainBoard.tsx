@@ -17,6 +17,7 @@ import { VoiceCallPanel } from "./VoiceCallPanel";
 import { TaskGroup } from "./TaskGroup";
 import { KanbanColumn } from "./KanbanColumn";
 import { useCommand } from "@/context/CommandContext";
+import { AnalysisView } from "./analysis/AnalysisView";
 import type { MainBoardData, MainBoardTask } from "./types";
 import { useSocket } from "@/context/SocketContext";
 import { WEBSOCKET_EVENTS } from "@syncoboard/shared";
@@ -38,7 +39,7 @@ import axios from "axios";
 import { useSession } from "next-auth/react";
 
 import type { TaskCounts, AvailableMember } from "./types";
-import { Filter, Calendar, RefreshCw, Phone } from "lucide-react";
+import { Filter, Calendar, RefreshCw, Phone, PieChart } from "lucide-react";
 import { boardApi } from "@syncoboard/api";
 
 export function MainBoard({
@@ -85,23 +86,49 @@ export function MainBoard({
   const searchQueryParam = searchParams.get("search") || "";
 
   const [searchValue, setSearchValue] = useState(searchQueryParam);
-  const [layout, setLayout] = useState<"list" | "kanban" | "rows">("list");
+  const [layout, setLayout] = useState<"list" | "kanban" | "rows" | "analysis">(
+    "list",
+  );
 
   useEffect(() => {
     const savedLayout = localStorage.getItem("boardLayout");
     if (
       savedLayout === "list" ||
       savedLayout === "kanban" ||
-      savedLayout === "rows"
+      savedLayout === "rows" ||
+      savedLayout === "analysis"
     ) {
       setLayout(savedLayout);
     }
   }, []);
 
-  const handleLayoutChange = (newLayout: "list" | "kanban" | "rows") => {
+  const handleLayoutChange = (
+    newLayout: "list" | "kanban" | "rows" | "analysis",
+  ) => {
     setLayout(newLayout);
     localStorage.setItem("boardLayout", newLayout);
+
+    const params = new URLSearchParams(searchParams.toString());
+    if (newLayout === "analysis") {
+      params.set("view", "analysis");
+    } else {
+      params.delete("view");
+    }
+    router.replace(`${pathname}?${params.toString()}`);
   };
+
+  useEffect(() => {
+    const viewParam = searchParams.get("view");
+    if (viewParam === "analysis" && layout !== "analysis") {
+      setLayout("analysis");
+      localStorage.setItem("boardLayout", "analysis");
+    } else if (viewParam !== "analysis" && layout === "analysis") {
+      const saved = localStorage.getItem("boardLayout");
+      const fallback = saved === "analysis" || !saved ? "list" : saved;
+      setLayout(fallback as any);
+      localStorage.setItem("boardLayout", fallback);
+    }
+  }, [searchParams]);
 
   // Context Menu State
   const [contextMenu, setContextMenu] = useState<{
@@ -434,29 +461,31 @@ export function MainBoard({
         <div className="p-4 border-b border-white/10 flex flex-row items-center justify-between gap-4 z-10 bg-obsidian-night">
           <div className="flex items-center gap-4">
             <h2 className="text-white font-mono font-bold"># {board.name}</h2>
-            <div className="flex items-center gap-1 bg-void-grey border border-white/10 rounded px-1 py-1">
-              <button
-                onClick={() => handleLayoutChange("list")}
-                className={`p-1 rounded transition-colors ${layout === "list" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
-                title="List Layout"
-              >
-                <LayoutList size={16} />
-              </button>
-              <button
-                onClick={() => handleLayoutChange("kanban")}
-                className={`p-1 rounded transition-colors ${layout === "kanban" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
-                title="Kanban Layout"
-              >
-                <Columns size={16} />
-              </button>
-              <button
-                onClick={() => handleLayoutChange("rows")}
-                className={`p-1 rounded transition-colors ${layout === "rows" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
-                title="Rows Layout"
-              >
-                <AlignJustify size={16} />
-              </button>
-            </div>
+            {layout !== "analysis" && (
+              <div className="flex items-center gap-1 bg-void-grey border border-white/10 rounded px-1 py-1">
+                <button
+                  onClick={() => handleLayoutChange("list")}
+                  className={`p-1 rounded transition-colors ${layout === "list" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
+                  title="List Layout"
+                >
+                  <LayoutList size={16} />
+                </button>
+                <button
+                  onClick={() => handleLayoutChange("kanban")}
+                  className={`p-1 rounded transition-colors ${layout === "kanban" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
+                  title="Kanban Layout"
+                >
+                  <Columns size={16} />
+                </button>
+                <button
+                  onClick={() => handleLayoutChange("rows")}
+                  className={`p-1 rounded transition-colors ${layout === "rows" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
+                  title="Rows Layout"
+                >
+                  <AlignJustify size={16} />
+                </button>
+              </div>
+            )}
           </div>
           <div
             className="flex items-center gap-2 relative"
@@ -487,6 +516,19 @@ export function MainBoard({
                     </span>
                   </ContextMenuItem>
                 )}
+                <ContextMenuItem
+                  onClick={() => {
+                    handleLayoutChange(
+                      layout === "analysis" ? "list" : "analysis",
+                    );
+                    setIsBoardOptionsOpen(false);
+                  }}
+                >
+                  <span className="flex items-center gap-2">
+                    <PieChart size={14} />
+                    {layout === "analysis" ? "Back to Board" : "Analysis View"}
+                  </span>
+                </ContextMenuItem>
                 {board?.isActive && isCurrentUserAdmin && (
                   <ContextMenuItem
                     onClick={() => {
@@ -546,144 +588,173 @@ export function MainBoard({
           </div>
         </div>
 
-        <div className="flex-1 overflow-hidden p-6 flex flex-col gap-6">
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 px-3 py-2 bg-void-grey border border-white/10 rounded-md focus-within:border-git-green transition-colors">
-              <Search size={16} className="text-syntax-grey" />
-              <input
-                type="text"
-                placeholder="Search tasks... (or type /search-task)"
-                value={searchValue}
-                onChange={handleSearchChange}
-                className="flex-1 bg-transparent border-none outline-none text-sm font-mono text-white placeholder:text-syntax-grey/50"
-              />
-              <button
-                onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-                className={`p-1.5 rounded transition-colors ${isFiltersOpen || assigneeParam || reviewerParam || startDateParam || endDateParam || limitParam !== "5" ? "bg-neon-pulse/20 text-neon-pulse" : "text-syntax-grey hover:bg-white/5 hover:text-white"}`}
-                title="Advanced Filters"
-              >
-                <Filter size={16} />
-              </button>
+        {layout === "analysis" ? (
+          <AnalysisView boardId={board.id} />
+        ) : (
+          <div className="flex-1 overflow-hidden p-6 flex flex-col gap-6">
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2 px-3 py-2 bg-void-grey border border-white/10 rounded-md focus-within:border-git-green transition-colors">
+                <Search size={16} className="text-syntax-grey" />
+                <input
+                  type="text"
+                  placeholder="Search tasks... (or type /search-task)"
+                  value={searchValue}
+                  onChange={handleSearchChange}
+                  className="flex-1 bg-transparent border-none outline-none text-sm font-mono text-white placeholder:text-syntax-grey/50"
+                />
+                <button
+                  onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+                  className={`p-1.5 rounded transition-colors ${isFiltersOpen || assigneeParam || reviewerParam || startDateParam || endDateParam || limitParam !== "5" ? "bg-neon-pulse/20 text-neon-pulse" : "text-syntax-grey hover:bg-white/5 hover:text-white"}`}
+                  title="Advanced Filters"
+                >
+                  <Filter size={16} />
+                </button>
+              </div>
+
+              {isFiltersOpen && (
+                <div className="bg-void-grey border border-white/10 rounded-md p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] text-syntax-grey font-mono uppercase tracking-wider">
+                      Assignee
+                    </label>
+                    <select
+                      value={assigneeParam}
+                      onChange={(e) =>
+                        handleFilterChange("assignee", e.target.value)
+                      }
+                      className="bg-obsidian-night border border-white/10 rounded px-2 py-1.5 text-sm text-white font-mono outline-none focus:border-neon-pulse appearance-none"
+                    >
+                      <option value="">Any</option>
+                      {availableMembers?.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.name || m.email || m.id}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] text-syntax-grey font-mono uppercase tracking-wider">
+                      Reviewer
+                    </label>
+                    <select
+                      value={reviewerParam}
+                      onChange={(e) =>
+                        handleFilterChange("reviewer", e.target.value)
+                      }
+                      className="bg-obsidian-night border border-white/10 rounded px-2 py-1.5 text-sm text-white font-mono outline-none focus:border-neon-pulse appearance-none"
+                    >
+                      <option value="">Any</option>
+                      {availableMembers?.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.name || m.email || m.id}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] text-syntax-grey font-mono uppercase tracking-wider flex items-center gap-1">
+                      <Calendar size={10} /> Start Date
+                    </label>
+                    <input
+                      type="date"
+                      value={startDateParam}
+                      onChange={(e) =>
+                        handleFilterChange("startDate", e.target.value)
+                      }
+                      className="bg-obsidian-night border border-white/10 rounded px-2 py-1.5 text-sm text-white font-mono outline-none focus:border-neon-pulse"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] text-syntax-grey font-mono uppercase tracking-wider flex items-center gap-1">
+                      <Calendar size={10} /> End Date
+                    </label>
+                    <input
+                      type="date"
+                      value={endDateParam}
+                      onChange={(e) =>
+                        handleFilterChange("endDate", e.target.value)
+                      }
+                      className="bg-obsidian-night border border-white/10 rounded px-2 py-1.5 text-sm text-white font-mono outline-none focus:border-neon-pulse"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] text-syntax-grey font-mono uppercase tracking-wider">
+                      Limit Per Column
+                    </label>
+                    <select
+                      value={limitParam}
+                      onChange={(e) =>
+                        handleFilterChange("limit", e.target.value)
+                      }
+                      className="bg-obsidian-night border border-white/10 rounded px-2 py-1.5 text-sm text-white font-mono outline-none focus:border-neon-pulse appearance-none"
+                    >
+                      <option value="5">5</option>
+                      <option value="10">10</option>
+                      <option value="20">20</option>
+                      <option value="50">50</option>
+                      <option value="-1">All</option>
+                    </select>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {isFiltersOpen && (
-              <div className="bg-void-grey border border-white/10 rounded-md p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] text-syntax-grey font-mono uppercase tracking-wider">
-                    Assignee
-                  </label>
-                  <select
-                    value={assigneeParam}
-                    onChange={(e) =>
-                      handleFilterChange("assignee", e.target.value)
-                    }
-                    className="bg-obsidian-night border border-white/10 rounded px-2 py-1.5 text-sm text-white font-mono outline-none focus:border-neon-pulse appearance-none"
-                  >
-                    <option value="">Any</option>
-                    {availableMembers?.map((m) => (
-                      <option key={m.id} value={m.id}>
-                        {m.name || m.email || m.id}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+            <div
+              ref={scrollContainerRef}
+              onWheel={handleKanbanScroll}
+              className={`flex ${layout === "kanban" ? "flex-row overflow-x-auto h-full gap-4 pb-4" : "flex-col gap-4 h-full overflow-y-auto p-2 no-scrollbar"}`}
+            >
+              {tasks.length > 0 &&
+                TASK_STATUS_GROUPS.map((group) => {
+                  const groupTasks = tasks.filter(
+                    (t: MainBoardTask) => t.status === group.status,
+                  );
 
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] text-syntax-grey font-mono uppercase tracking-wider">
-                    Reviewer
-                  </label>
-                  <select
-                    value={reviewerParam}
-                    onChange={(e) =>
-                      handleFilterChange("reviewer", e.target.value)
-                    }
-                    className="bg-obsidian-night border border-white/10 rounded px-2 py-1.5 text-sm text-white font-mono outline-none focus:border-neon-pulse appearance-none"
-                  >
-                    <option value="">Any</option>
-                    {availableMembers?.map((m) => (
-                      <option key={m.id} value={m.id}>
-                        {m.name || m.email || m.id}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                  const currentLimit =
+                    initialLimit === -1 ? undefined : initialLimit || 5;
+                  const limitCount = taskCounts
+                    ? taskCounts[group.status]
+                    : groupTasks.length;
 
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] text-syntax-grey font-mono uppercase tracking-wider flex items-center gap-1">
-                    <Calendar size={10} /> Start Date
-                  </label>
-                  <input
-                    type="date"
-                    value={startDateParam}
-                    onChange={(e) =>
-                      handleFilterChange("startDate", e.target.value)
-                    }
-                    className="bg-obsidian-night border border-white/10 rounded px-2 py-1.5 text-sm text-white font-mono outline-none focus:border-neon-pulse"
-                  />
-                </div>
+                  if (layout === "kanban") {
+                    return (
+                      <KanbanColumn
+                        key={group.status}
+                        group={group}
+                        groupTasks={groupTasks}
+                        selectedTask={selectedTask}
+                        onTaskClick={(taskId) =>
+                          router.push(`?taskId=${taskId}`)
+                        }
+                        onContextMenu={handleContextMenu}
+                        totalCount={limitCount}
+                        boardId={boardId}
+                        searchQuery={searchQuery}
+                        assignee={assigneeParam || undefined}
+                        reviewer={reviewerParam || undefined}
+                        startDate={startDateParam || undefined}
+                        endDate={endDateParam || undefined}
+                        take={currentLimit}
+                        onLoadMore={(newTasks) =>
+                          setPaginatedTasks((prev) => [...prev, ...newTasks])
+                        }
+                      />
+                    );
+                  }
 
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] text-syntax-grey font-mono uppercase tracking-wider flex items-center gap-1">
-                    <Calendar size={10} /> End Date
-                  </label>
-                  <input
-                    type="date"
-                    value={endDateParam}
-                    onChange={(e) =>
-                      handleFilterChange("endDate", e.target.value)
-                    }
-                    className="bg-obsidian-night border border-white/10 rounded px-2 py-1.5 text-sm text-white font-mono outline-none focus:border-neon-pulse"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] text-syntax-grey font-mono uppercase tracking-wider">
-                    Limit Per Column
-                  </label>
-                  <select
-                    value={limitParam}
-                    onChange={(e) =>
-                      handleFilterChange("limit", e.target.value)
-                    }
-                    className="bg-obsidian-night border border-white/10 rounded px-2 py-1.5 text-sm text-white font-mono outline-none focus:border-neon-pulse appearance-none"
-                  >
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="20">20</option>
-                    <option value="50">50</option>
-                    <option value="-1">All</option>
-                  </select>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div
-            ref={scrollContainerRef}
-            onWheel={handleKanbanScroll}
-            className={`flex ${layout === "kanban" ? "flex-row overflow-x-auto h-full gap-4 pb-4" : "flex-col gap-4 h-full overflow-y-auto p-2 no-scrollbar"}`}
-          >
-            {tasks.length > 0 &&
-              TASK_STATUS_GROUPS.map((group) => {
-                const groupTasks = tasks.filter(
-                  (t: MainBoardTask) => t.status === group.status,
-                );
-
-                const currentLimit =
-                  initialLimit === -1 ? undefined : initialLimit || 5;
-                const limitCount = taskCounts
-                  ? taskCounts[group.status]
-                  : groupTasks.length;
-
-                if (layout === "kanban") {
                   return (
-                    <KanbanColumn
+                    <TaskGroup
                       key={group.status}
                       group={group}
                       groupTasks={groupTasks}
                       selectedTask={selectedTask}
                       onTaskClick={(taskId) => router.push(`?taskId=${taskId}`)}
                       onContextMenu={handleContextMenu}
+                      layout={layout as any}
                       totalCount={limitCount}
                       boardId={boardId}
                       searchQuery={searchQuery}
@@ -697,41 +768,18 @@ export function MainBoard({
                       }
                     />
                   );
-                }
-
-                return (
-                  <TaskGroup
-                    key={group.status}
-                    group={group}
-                    groupTasks={groupTasks}
-                    selectedTask={selectedTask}
-                    onTaskClick={(taskId) => router.push(`?taskId=${taskId}`)}
-                    onContextMenu={handleContextMenu}
-                    layout={layout}
-                    totalCount={limitCount}
-                    boardId={boardId}
-                    searchQuery={searchQuery}
-                    assignee={assigneeParam || undefined}
-                    reviewer={reviewerParam || undefined}
-                    startDate={startDateParam || undefined}
-                    endDate={endDateParam || undefined}
-                    take={currentLimit}
-                    onLoadMore={(newTasks) =>
-                      setPaginatedTasks((prev) => [...prev, ...newTasks])
-                    }
-                  />
-                );
-              })}
-          </div>
-          {tasks.length === 0 && (
-            <div className="text-syntax-grey font-mono text-sm text-center py-10 italic cmd-container relative">
-              <span className="opacity-0 [.cmd-active-container_&]:opacity-100 text-neon-pulse text-xs absolute top-2 right-2 transition-opacity">
-                focused
-              </span>
-              No tasks found. Use /add-task to create one.
+                })}
             </div>
-          )}
-        </div>
+            {tasks.length === 0 && (
+              <div className="text-syntax-grey font-mono text-sm text-center py-10 italic cmd-container relative">
+                <span className="opacity-0 [.cmd-active-container_&]:opacity-100 text-neon-pulse text-xs absolute top-2 right-2 transition-opacity">
+                  focused
+                </span>
+                No tasks found. Use /add-task to create one.
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {selectedTask && (
