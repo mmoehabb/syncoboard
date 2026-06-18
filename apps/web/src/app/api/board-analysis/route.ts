@@ -1,58 +1,71 @@
 import { NextResponse } from "next/server";
+import { getSessionOrPat } from "@/lib/auth";
+import { prisma } from "@syncoboard/db";
+import { API_ERRORS, apiError } from "@/lib/api/error";
+import { serializeBigInt } from "@syncoboard/shared";
 
 export async function GET(req: Request) {
-  // Mock data for testing
-  return NextResponse.json({
-    tasks: [
-      {
-        id: "1",
-        createdAt: "2023-10-01T10:00:00Z",
-        updatedAt: "2023-10-02T10:00:00Z",
-        status: "DONE",
-        assignees: [{ name: "Alice" }],
+  try {
+    const userId = await getSessionOrPat();
+    if (!userId) {
+      return apiError(API_ERRORS.UNAUTHORIZED);
+    }
+
+    const url = new URL(req.url);
+    const boardId = url.searchParams.get("boardId");
+
+    if (!boardId) {
+      return apiError(
+        API_ERRORS.customBadRequest("boardId parameter is required"),
+      );
+    }
+
+    const board = await prisma.board.findUnique({
+      where: { id: boardId },
+    });
+
+    if (!board || !board.isActive) {
+      return apiError(API_ERRORS.customNotFound("Board not found or inactive"));
+    }
+
+    // Check board authorization
+    const workspaceMember = await prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: {
+          workspaceId: board.workspaceId,
+          userId: userId,
+        },
       },
-      {
-        id: "2",
-        createdAt: "2023-10-02T10:00:00Z",
-        updatedAt: "2023-10-02T10:00:00Z",
-        status: "IN_PROGRESS",
-        assignees: [{ name: "Bob" }],
+    });
+
+    if (workspaceMember?.role !== "ADMIN") {
+      const boardMember = await prisma.boardMember.findUnique({
+        where: {
+          boardId_userId: {
+            boardId: board.id,
+            userId: userId,
+          },
+        },
+      });
+      if (!boardMember) {
+        return apiError(
+          API_ERRORS.customForbidden("Unauthorized access to this board"),
+        );
+      }
+    }
+
+    const tasks = await prisma.task.findMany({
+      where: { boardId },
+      include: {
+        assignees: true,
       },
-      {
-        id: "3",
-        createdAt: "2023-10-03T10:00:00Z",
-        updatedAt: "2023-10-03T10:00:00Z",
-        status: "TODO",
-        assignees: [{ name: "Alice" }],
-      },
-      {
-        id: "4",
-        createdAt: "2023-10-04T10:00:00Z",
-        updatedAt: "2023-10-05T10:00:00Z",
-        status: "DONE",
-        assignees: [{ name: "Charlie" }],
-      },
-      {
-        id: "5",
-        createdAt: "2023-10-05T10:00:00Z",
-        updatedAt: "2023-10-05T10:00:00Z",
-        status: "TODO",
-        assignees: [{ name: "Bob" }],
-      },
-      {
-        id: "6",
-        createdAt: "2023-10-06T10:00:00Z",
-        updatedAt: "2023-10-07T10:00:00Z",
-        status: "DONE",
-        assignees: [{ name: "Alice" }],
-      },
-      {
-        id: "7",
-        createdAt: "2023-10-07T10:00:00Z",
-        updatedAt: "2023-10-07T10:00:00Z",
-        status: "IN_REVIEW",
-        assignees: [{ name: "Charlie" }],
-      },
-    ],
-  });
+    });
+
+    return NextResponse.json(serializeBigInt({ tasks }));
+  } catch (error) {
+    console.error("Error fetching board analysis tasks:", error);
+    return apiError(
+      API_ERRORS.customInternal("Failed to fetch board analysis tasks"),
+    );
+  }
 }
