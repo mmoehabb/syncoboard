@@ -59,8 +59,59 @@ export async function POST(req: Request) {
       name: session.user.name || "User",
     };
 
-    const { providerSubscriptionId, approvalUrl } =
-      await provider.createSubscription(user, price);
+    let providerSubscriptionId: string;
+    let approvalUrl: string;
+
+    try {
+      const result = await provider.createSubscription(user, price);
+      providerSubscriptionId = result.providerSubscriptionId;
+      approvalUrl = result.approvalUrl;
+    } catch (err: any) {
+      // If the plan doesn't exist on the provider side (e.g. moved from sandbox to production),
+      // we clear the local providerPlanId and attempt to re-sync.
+      if (err?.response?.status === 404 || err?.response?.status === 400) {
+        console.warn(
+          `Provider plan not found for price ${price.id}. Attempting to re-sync...`,
+        );
+
+        await prisma.price.update({
+          where: { id: price.id },
+          data: { providerPlanId: null },
+        });
+        price.providerPlanId = null;
+
+        const planToSync = await prisma.plan.findUnique({
+          where: { id: price.planId },
+          include: { prices: true },
+        });
+
+        if (planToSync) {
+          // Temporarily set providerPlanId to null so syncPlans will process it
+          planToSync.prices = planToSync.prices.map((p) =>
+            p.id === price.id ? { ...p, providerPlanId: null } : p,
+          );
+
+          await provider.syncPlans([planToSync]);
+
+          const updatedPrice = await prisma.price.findUnique({
+            where: { id: price.id },
+          });
+
+          if (updatedPrice && updatedPrice.providerPlanId) {
+            price.providerPlanId = updatedPrice.providerPlanId;
+            const retryResult = await provider.createSubscription(user, price);
+            providerSubscriptionId = retryResult.providerSubscriptionId;
+            approvalUrl = retryResult.approvalUrl;
+          } else {
+            throw new Error("Failed to re-sync provider plan");
+          }
+        } else {
+          throw err;
+        }
+      } else {
+        throw err;
+      }
+    }
 
     // Create an initial INACTIVE subscription in our DB
     const now = new Date();

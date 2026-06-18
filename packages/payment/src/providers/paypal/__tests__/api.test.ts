@@ -194,8 +194,9 @@ describe("PayPal API", () => {
             expect.objectContaining({
               frequency: {
                 interval_unit: "YEAR",
-                interval_count: 100,
+                interval_count: 1,
               },
+              total_cycles: 100,
             }),
           ],
         }),
