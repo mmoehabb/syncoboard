@@ -17,6 +17,7 @@ import { VoiceCallPanel } from "./VoiceCallPanel";
 import { TaskGroup } from "./TaskGroup";
 import { KanbanColumn } from "./KanbanColumn";
 import { useCommand } from "@/context/CommandContext";
+import { AnalysisView } from "./analysis/AnalysisView";
 import type { MainBoardData, MainBoardTask } from "./types";
 import { useSocket } from "@/context/SocketContext";
 import { WEBSOCKET_EVENTS } from "@syncoboard/shared";
@@ -38,7 +39,7 @@ import axios from "axios";
 import { useSession } from "next-auth/react";
 
 import type { TaskCounts, AvailableMember } from "./types";
-import { Filter, Calendar, RefreshCw, Phone } from "lucide-react";
+import { Filter, Calendar, RefreshCw, Phone, PieChart } from "lucide-react";
 import { boardApi } from "@syncoboard/api";
 
 export function MainBoard({
@@ -85,23 +86,45 @@ export function MainBoard({
   const searchQueryParam = searchParams.get("search") || "";
 
   const [searchValue, setSearchValue] = useState(searchQueryParam);
-  const [layout, setLayout] = useState<"list" | "kanban" | "rows">("list");
+  const [layout, setLayout] = useState<"list" | "kanban" | "rows" | "analysis">("list");
 
   useEffect(() => {
     const savedLayout = localStorage.getItem("boardLayout");
     if (
       savedLayout === "list" ||
       savedLayout === "kanban" ||
-      savedLayout === "rows"
+      savedLayout === "rows" ||
+      savedLayout === "analysis"
     ) {
       setLayout(savedLayout);
     }
   }, []);
 
-  const handleLayoutChange = (newLayout: "list" | "kanban" | "rows") => {
+  const handleLayoutChange = (newLayout: "list" | "kanban" | "rows" | "analysis") => {
     setLayout(newLayout);
     localStorage.setItem("boardLayout", newLayout);
+
+    const params = new URLSearchParams(searchParams.toString());
+    if (newLayout === "analysis") {
+      params.set("view", "analysis");
+    } else {
+      params.delete("view");
+    }
+    router.replace(`${pathname}?${params.toString()}`);
   };
+
+  useEffect(() => {
+    const viewParam = searchParams.get("view");
+    if (viewParam === "analysis" && layout !== "analysis") {
+      setLayout("analysis");
+      localStorage.setItem("boardLayout", "analysis");
+    } else if (viewParam !== "analysis" && layout === "analysis") {
+      const saved = localStorage.getItem("boardLayout");
+      const fallback = (saved === "analysis" || !saved) ? "list" : saved;
+      setLayout(fallback as any);
+      localStorage.setItem("boardLayout", fallback);
+    }
+  }, [searchParams]);
 
   // Context Menu State
   const [contextMenu, setContextMenu] = useState<{
@@ -434,6 +457,7 @@ export function MainBoard({
         <div className="p-4 border-b border-white/10 flex flex-row items-center justify-between gap-4 z-10 bg-obsidian-night">
           <div className="flex items-center gap-4">
             <h2 className="text-white font-mono font-bold"># {board.name}</h2>
+            {layout !== "analysis" && (
             <div className="flex items-center gap-1 bg-void-grey border border-white/10 rounded px-1 py-1">
               <button
                 onClick={() => handleLayoutChange("list")}
@@ -457,6 +481,7 @@ export function MainBoard({
                 <AlignJustify size={16} />
               </button>
             </div>
+            )}
           </div>
           <div
             className="flex items-center gap-2 relative"
@@ -487,6 +512,17 @@ export function MainBoard({
                     </span>
                   </ContextMenuItem>
                 )}
+                <ContextMenuItem
+                  onClick={() => {
+                    handleLayoutChange(layout === "analysis" ? "list" : "analysis");
+                    setIsBoardOptionsOpen(false);
+                  }}
+                >
+                  <span className="flex items-center gap-2">
+                    <PieChart size={14} />
+                    {layout === "analysis" ? "Back to Board" : "Analysis View"}
+                  </span>
+                </ContextMenuItem>
                 {board?.isActive && isCurrentUserAdmin && (
                   <ContextMenuItem
                     onClick={() => {
@@ -546,7 +582,7 @@ export function MainBoard({
           </div>
         </div>
 
-        <div className="flex-1 overflow-hidden p-6 flex flex-col gap-6">
+        {layout === "analysis" ? (<AnalysisView boardId={board.id} />) : (<div className="flex-1 overflow-hidden p-6 flex flex-col gap-6">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 px-3 py-2 bg-void-grey border border-white/10 rounded-md focus-within:border-git-green transition-colors">
               <Search size={16} className="text-syntax-grey" />
@@ -707,7 +743,7 @@ export function MainBoard({
                     selectedTask={selectedTask}
                     onTaskClick={(taskId) => router.push(`?taskId=${taskId}`)}
                     onContextMenu={handleContextMenu}
-                    layout={layout}
+                    layout={layout as any}
                     totalCount={limitCount}
                     boardId={boardId}
                     searchQuery={searchQuery}
@@ -732,6 +768,7 @@ export function MainBoard({
             </div>
           )}
         </div>
+        )}
       </div>
 
       {selectedTask && (
