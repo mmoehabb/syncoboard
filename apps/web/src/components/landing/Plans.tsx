@@ -84,7 +84,9 @@ export function Plans({ plans, isLoggedIn }: PlansProps) {
       <div className="flex flex-col items-center mb-12">
         <h3 className="text-3xl font-bold text-white mb-4">Pricing</h3>
         <p className="text-syntax-grey text-center max-w-2xl">
-          Syncoboard is currently free while we scale and refine the product with early adopters. Create your board, connect your repos, and help us build the future of code-driven project management.
+          Syncoboard is currently free while we scale and refine the product
+          with early adopters. Create your board, connect your repos, and help
+          us build the future of code-driven project management.
         </p>
 
         {/* <div className="mt-8 flex bg-void-grey p-1 rounded border border-white/10 font-mono text-sm">
@@ -104,187 +106,198 @@ export function Plans({ plans, isLoggedIn }: PlansProps) {
       </div>
 
       <div className="grid grid-cols-1 gap-6 max-w-sm mx-auto">
-        {activePlans.filter(plan => plan.name === "Free").map((plan) => {
-          const price = getPriceForDuration(plan, duration);
-          const isStandard = plan.name === "Standard";
-          const isTrial = plan.isTrial;
-          const isFree = plan.name === "Free";
+        {activePlans
+          .filter((plan) => plan.name === "Free")
+          .map((plan) => {
+            const price = getPriceForDuration(plan, duration);
+            const isStandard = plan.name === "Standard";
+            const isTrial = plan.isTrial;
+            const isFree = plan.name === "Free";
 
-          let priceDisplay = "0";
-          let intervalDisplay = "/forever";
+            let priceDisplay = "0";
+            let intervalDisplay = "/forever";
 
-          if (price) {
-            if (price.amount === 0) {
-              priceDisplay = "0";
-              if (price.interval === "WEEK") intervalDisplay = "/week";
-              else intervalDisplay = "/forever";
-            } else {
-              priceDisplay = formatPrice(price.amount);
-              intervalDisplay = price.interval === "MONTH" ? "/mo" : "/yr";
+            if (price) {
+              if (price.amount === 0) {
+                priceDisplay = "0";
+                if (price.interval === "WEEK") intervalDisplay = "/week";
+                else intervalDisplay = "/forever";
+              } else {
+                priceDisplay = formatPrice(price.amount);
+                intervalDisplay = price.interval === "MONTH" ? "/mo" : "/yr";
+              }
             }
-          }
 
-          return (
-            <div
-              key={plan.id}
-              className={`surface-panel p-6 border rounded-lg flex flex-col relative ${
-                isStandard
-                  ? "border-neon-pulse/50 bg-obsidian-night shadow-[0_0_15px_rgba(0,245,255,0.1)]"
-                  : "border-white/10 bg-void-grey/30 overflow-hidden"
-              }`}
-            >
-              {isStandard && (
-                <div className="absolute -top-3 right-6 bg-neon-pulse text-obsidian-night px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                  Most Popular
-                </div>
-              )}
-              {isTrial && (
-                <div className="absolute top-4 right-4 bg-white/10 text-syntax-grey text-xs px-2 py-0.5 rounded font-mono">
-                  Trial
-                </div>
-              )}
-              <h4 className="text-xl font-bold text-white mb-2">{plan.name}</h4>
-              <div className="text-3xl font-bold text-white mb-6">
-                ${priceDisplay}
-                <span className="text-sm font-normal text-syntax-grey">
-                  {intervalDisplay}
-                </span>
-              </div>
-              <ul className="space-y-3 mb-8 text-syntax-grey flex-1 text-sm">
-                <li className="flex items-center gap-2">
-                  <span
-                    className={
-                      isStandard ? "text-neon-pulse" : "text-git-green"
-                    }
-                  >
-                    ✓
-                  </span>{" "}
-                  {plan.maxWorkspaces === -1 ? "Unlimited" : plan.maxWorkspaces}{" "}
-                  Workspace{plan.maxWorkspaces !== 1 && "s"}
-                </li>
-                <li className="flex items-center gap-2">
-                  <span
-                    className={
-                      isStandard ? "text-neon-pulse" : "text-git-green"
-                    }
-                  >
-                    ✓
-                  </span>{" "}
-                  {plan.maxBoardsPerWorkspace === -1
-                    ? "Unlimited"
-                    : plan.maxBoardsPerWorkspace}{" "}
-                  Board{plan.maxBoardsPerWorkspace !== 1 && "s"}/Workspace
-                </li>
-                <li className="flex items-center gap-2">
-                  <span
-                    className={
-                      isStandard ? "text-neon-pulse" : "text-git-green"
-                    }
-                  >
-                    ✓
-                  </span>{" "}
-                  {plan.maxMembersPerBoard === -1
-                    ? "Unlimited"
-                    : plan.maxMembersPerBoard}{" "}
-                  Member{plan.maxMembersPerBoard !== 1 && "s"}/Board
-                </li>
-                <li className="flex items-center gap-2">
-                  <span
-                    className={
-                      isStandard ? "text-neon-pulse" : "text-git-green"
-                    }
-                  >
-                    ✓
-                  </span>{" "}
-                  {plan.maxActiveBoards === -1
-                    ? "Unlimited"
-                    : plan.maxActiveBoards}{" "}
-                  Active Board{plan.maxActiveBoards !== 1 && "s"} Total
-                </li>
-                {isFree && (
-                  <li className="flex items-center gap-2">
-                    <span className="text-git-green">✓</span> Full Git
-                    Integration
-                  </li>
-                )}
+            return (
+              <div
+                key={plan.id}
+                className={`surface-panel p-6 border rounded-lg flex flex-col relative ${
+                  isStandard
+                    ? "border-neon-pulse/50 bg-obsidian-night shadow-[0_0_15px_rgba(0,245,255,0.1)]"
+                    : "border-white/10 bg-void-grey/30 overflow-hidden"
+                }`}
+              >
                 {isStandard && (
-                  <li className="flex items-center gap-2">
-                    <span className="text-neon-pulse">✓</span> Priority Sync
-                  </li>
+                  <div className="absolute -top-3 right-6 bg-neon-pulse text-obsidian-night px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                    Most Popular
+                  </div>
                 )}
                 {isTrial && (
+                  <div className="absolute top-4 right-4 bg-white/10 text-syntax-grey text-xs px-2 py-0.5 rounded font-mono">
+                    Trial
+                  </div>
+                )}
+                <h4 className="text-xl font-bold text-white mb-2">
+                  {plan.name}
+                </h4>
+                <div className="text-3xl font-bold text-white mb-6">
+                  ${priceDisplay}
+                  <span className="text-sm font-normal text-syntax-grey">
+                    {intervalDisplay}
+                  </span>
+                </div>
+                <ul className="space-y-3 mb-8 text-syntax-grey flex-1 text-sm">
                   <li className="flex items-center gap-2">
-                    <span className="text-git-green">✓</span> Valid for 7 days
+                    <span
+                      className={
+                        isStandard ? "text-neon-pulse" : "text-git-green"
+                      }
+                    >
+                      ✓
+                    </span>{" "}
+                    {plan.maxWorkspaces === -1
+                      ? "Unlimited"
+                      : plan.maxWorkspaces}{" "}
+                    Workspace{plan.maxWorkspaces !== 1 && "s"}
                   </li>
-                )}
-                {plan.name === "Premium" && (
-                  <>
+                  <li className="flex items-center gap-2">
+                    <span
+                      className={
+                        isStandard ? "text-neon-pulse" : "text-git-green"
+                      }
+                    >
+                      ✓
+                    </span>{" "}
+                    {plan.maxBoardsPerWorkspace === -1
+                      ? "Unlimited"
+                      : plan.maxBoardsPerWorkspace}{" "}
+                    Board{plan.maxBoardsPerWorkspace !== 1 && "s"}/Workspace
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span
+                      className={
+                        isStandard ? "text-neon-pulse" : "text-git-green"
+                      }
+                    >
+                      ✓
+                    </span>{" "}
+                    {plan.maxMembersPerBoard === -1
+                      ? "Unlimited"
+                      : plan.maxMembersPerBoard}{" "}
+                    Member{plan.maxMembersPerBoard !== 1 && "s"}/Board
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span
+                      className={
+                        isStandard ? "text-neon-pulse" : "text-git-green"
+                      }
+                    >
+                      ✓
+                    </span>{" "}
+                    {plan.maxActiveBoards === -1
+                      ? "Unlimited"
+                      : plan.maxActiveBoards}{" "}
+                    Active Board{plan.maxActiveBoards !== 1 && "s"} Total
+                  </li>
+                  {isFree && (
                     <li className="flex items-center gap-2">
-                      <span className="text-git-green">✓</span> SSO Integration
+                      <span className="text-git-green">✓</span> Full Git
+                      Integration
                     </li>
+                  )}
+                  {isStandard && (
                     <li className="flex items-center gap-2">
-                      <span className="text-git-green">✓</span> Dedicated
-                      Support
+                      <span className="text-neon-pulse">✓</span> Priority Sync
                     </li>
-                  </>
+                  )}
+                  {isTrial && (
+                    <li className="flex items-center gap-2">
+                      <span className="text-git-green">✓</span> Valid for 7 days
+                    </li>
+                  )}
+                  {plan.name === "Premium" && (
+                    <>
+                      <li className="flex items-center gap-2">
+                        <span className="text-git-green">✓</span> SSO
+                        Integration
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className="text-git-green">✓</span> Dedicated
+                        Support
+                      </li>
+                    </>
+                  )}
+                </ul>
+                {!isFree && !isTrial ? (
+                  <button
+                    onClick={() => price && handleSubscribe(price.id)}
+                    disabled={!price || loadingPriceId === price.id}
+                    className={`w-full py-2 text-center rounded font-mono transition-colors ${
+                      loadingPriceId === price?.id
+                        ? "opacity-50 cursor-wait"
+                        : ""
+                    } ${
+                      isStandard
+                        ? "bg-neon-pulse text-obsidian-night font-bold hover:bg-neon-pulse/90"
+                        : "border border-white/20 text-white hover:bg-white/5"
+                    }`}
+                  >
+                    {loadingPriceId === price?.id ? "Loading..." : "Subscribe"}
+                  </button>
+                ) : isLoggedIn && isFree ? (
+                  <button
+                    onClick={() => (window.location.href = "/dashboard")}
+                    className={`w-full py-2 text-center rounded font-mono transition-colors ${
+                      isStandard
+                        ? "bg-neon-pulse text-obsidian-night font-bold hover:bg-neon-pulse/90"
+                        : "border border-white/20 text-white hover:bg-white/5"
+                    }`}
+                  >
+                    Go to Dashboard
+                  </button>
+                ) : isLoggedIn && isTrial ? (
+                  <button
+                    onClick={() => price && handleSubscribe(price.id)}
+                    disabled={!price || loadingPriceId === price.id}
+                    className={`w-full py-2 text-center rounded font-mono transition-colors ${
+                      loadingPriceId === price?.id
+                        ? "opacity-50 cursor-wait"
+                        : ""
+                    } ${
+                      isStandard
+                        ? "bg-neon-pulse text-obsidian-night font-bold hover:bg-neon-pulse/90"
+                        : "border border-white/20 text-white hover:bg-white/5"
+                    }`}
+                  >
+                    {loadingPriceId === price?.id
+                      ? "Loading..."
+                      : "Start Free Trial"}
+                  </button>
+                ) : (
+                  <Link
+                    href="/login"
+                    className={`w-full py-2 text-center rounded font-mono transition-colors ${
+                      isStandard
+                        ? "bg-neon-pulse text-obsidian-night font-bold hover:bg-neon-pulse/90"
+                        : "border border-white/20 text-white hover:bg-white/5"
+                    }`}
+                  >
+                    {isFree ? "Get Started" : "Start Free Trial"}
+                  </Link>
                 )}
-              </ul>
-              {!isFree && !isTrial ? (
-                <button
-                  onClick={() => price && handleSubscribe(price.id)}
-                  disabled={!price || loadingPriceId === price.id}
-                  className={`w-full py-2 text-center rounded font-mono transition-colors ${
-                    loadingPriceId === price?.id ? "opacity-50 cursor-wait" : ""
-                  } ${
-                    isStandard
-                      ? "bg-neon-pulse text-obsidian-night font-bold hover:bg-neon-pulse/90"
-                      : "border border-white/20 text-white hover:bg-white/5"
-                  }`}
-                >
-                  {loadingPriceId === price?.id ? "Loading..." : "Subscribe"}
-                </button>
-              ) : isLoggedIn && isFree ? (
-                <button
-                  onClick={() => (window.location.href = "/dashboard")}
-                  className={`w-full py-2 text-center rounded font-mono transition-colors ${
-                    isStandard
-                      ? "bg-neon-pulse text-obsidian-night font-bold hover:bg-neon-pulse/90"
-                      : "border border-white/20 text-white hover:bg-white/5"
-                  }`}
-                >
-                  Go to Dashboard
-                </button>
-              ) : isLoggedIn && isTrial ? (
-                <button
-                  onClick={() => price && handleSubscribe(price.id)}
-                  disabled={!price || loadingPriceId === price.id}
-                  className={`w-full py-2 text-center rounded font-mono transition-colors ${
-                    loadingPriceId === price?.id ? "opacity-50 cursor-wait" : ""
-                  } ${
-                    isStandard
-                      ? "bg-neon-pulse text-obsidian-night font-bold hover:bg-neon-pulse/90"
-                      : "border border-white/20 text-white hover:bg-white/5"
-                  }`}
-                >
-                  {loadingPriceId === price?.id
-                    ? "Loading..."
-                    : "Start Free Trial"}
-                </button>
-              ) : (
-                <Link
-                  href="/login"
-                  className={`w-full py-2 text-center rounded font-mono transition-colors ${
-                    isStandard
-                      ? "bg-neon-pulse text-obsidian-night font-bold hover:bg-neon-pulse/90"
-                      : "border border-white/20 text-white hover:bg-white/5"
-                  }`}
-                >
-                  {isFree ? "Get Started" : "Start Free Trial"}
-                </Link>
-              )}
-            </div>
-          );
-        })}
+              </div>
+            );
+          })}
       </div>
     </section>
   );
