@@ -72,7 +72,7 @@ export function SubscriptionModal({
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-4 max-w-sm mx-auto w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto w-full">
           {allPlans
             .filter((plan) => plan.name === "Free")
             .map((plan) => {
@@ -224,6 +224,46 @@ export function SubscriptionModal({
                 </div>
               );
             })}
+
+          {/* Self-Hosted Card */}
+          <div className="flex flex-col border rounded-md p-6 relative group transition-all border-white/10 bg-obsidian-night/50 hover:border-git-green/50">
+            <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+              Self-Hosted
+            </h3>
+            <div className="text-2xl font-mono mb-6 text-white">
+              <span className="text-git-green">Free</span>
+              <span className="text-sm text-syntax-grey">/open-source</span>
+            </div>
+            <ul className="text-sm font-mono text-syntax-grey flex flex-col gap-3 flex-1 mb-8">
+              <li className="flex items-center gap-2">
+                <span className="text-git-green">✓</span> Unlimited Workspaces
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-git-green">✓</span> Unlimited Boards
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-git-green">✓</span> Unlimited Members
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-git-green">✓</span> Full Data Control
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-git-green">✓</span> Self-managed
+                Infrastructure
+              </li>
+            </ul>
+
+            <div className="mt-auto">
+              <Link
+                href="https://github.com/syncoboard/syncoboard"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-center w-full bg-void-grey border border-git-green/30 hover:border-git-green hover:bg-git-green/10 transition-all rounded py-2.5 text-white font-mono text-sm cursor-pointer"
+              >
+                Star on GitHub
+              </Link>
+            </div>
+          </div>
         </div>
 
         <div className="text-center mt-4">

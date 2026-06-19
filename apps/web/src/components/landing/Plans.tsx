@@ -105,7 +105,7 @@ export function Plans({ plans, isLoggedIn }: PlansProps) {
         </div> */}
       </div>
 
-      <div className="grid grid-cols-1 gap-6 max-w-sm mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
         {activePlans
           .filter((plan) => plan.name === "Free")
           .map((plan) => {
@@ -298,6 +298,43 @@ export function Plans({ plans, isLoggedIn }: PlansProps) {
               </div>
             );
           })}
+
+        {/* Self-Hosted Card */}
+        <div className="surface-panel p-6 border rounded-lg flex flex-col relative border-white/10 bg-void-grey/30 overflow-hidden">
+          <h4 className="text-xl font-bold text-white mb-2">Self-Hosted</h4>
+          <div className="text-3xl font-bold text-white mb-6">
+            Free
+            <span className="text-sm font-normal text-syntax-grey">
+              /open-source
+            </span>
+          </div>
+          <ul className="space-y-3 mb-8 text-syntax-grey flex-1 text-sm">
+            <li className="flex items-center gap-2">
+              <span className="text-git-green">✓</span> Unlimited Workspaces
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-git-green">✓</span> Unlimited Boards
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-git-green">✓</span> Unlimited Members
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-git-green">✓</span> Full Data Control
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-git-green">✓</span> Self-managed
+              Infrastructure
+            </li>
+          </ul>
+          <Link
+            href="https://github.com/syncoboard/syncoboard"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full py-2 text-center rounded font-mono transition-colors border border-white/20 text-white hover:bg-white/5"
+          >
+            Star on GitHub
+          </Link>
+        </div>
       </div>
     </section>
   );
