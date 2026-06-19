@@ -60,8 +60,9 @@ export function SubscriptionModal({
             Subscription Required
           </h2>
           <p className="text-syntax-grey text-sm font-mono leading-relaxed">
-            You do not have an active subscription. Please select a plan to
-            continue using Syncoboard.
+            Syncoboard is currently free while we scale and refine the product
+            with early adopters. Create your board, connect your repos, and help
+            us build the future of code-driven project management.
           </p>
         </div>
 
@@ -71,152 +72,198 @@ export function SubscriptionModal({
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {allPlans.map((plan) => {
-            const price = plan.prices[0];
-            const isFree = plan.name === "Free";
-            const isTrial = plan.isTrial;
-            const requiresPayment = !isFree && !isTrial;
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto w-full">
+          {allPlans
+            .filter((plan) => plan.name === "Free")
+            .map((plan) => {
+              const price = plan.prices[0];
+              const isFree = plan.name === "Free";
+              const isTrial = plan.isTrial;
+              const requiresPayment = !isFree && !isTrial;
 
-            return (
-              <div
-                key={plan.id}
-                className={`flex flex-col border rounded-md p-6 relative group transition-all ${isFree || isTrial ? "border-white/10 bg-obsidian-night/50 hover:border-git-green/50" : "border-white/10 bg-obsidian-night/50 opacity-60"}`}
-              >
-                {requiresPayment && (
-                  <div className="absolute top-4 right-4 bg-white/10 text-syntax-grey text-xs px-2 py-0.5 rounded font-mono">
-                    soon
-                  </div>
-                )}
-                <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
-                  {plan.name}{" "}
-                  {plan.name === "Premium" && (
-                    <span className="text-neon-pulse">★</span>
+              return (
+                <div
+                  key={plan.id}
+                  className={`flex flex-col border rounded-md p-6 relative group transition-all ${isFree || isTrial ? "border-white/10 bg-obsidian-night/50 hover:border-git-green/50" : "border-white/10 bg-obsidian-night/50 opacity-60"}`}
+                >
+                  {requiresPayment && (
+                    <div className="absolute top-4 right-4 bg-white/10 text-syntax-grey text-xs px-2 py-0.5 rounded font-mono">
+                      soon
+                    </div>
                   )}
-                </h3>
-                <div className="text-2xl font-mono mb-6 text-white">
-                  {isFree || isTrial ? (
-                    <span
-                      className={isTrial ? "text-neon-pulse" : "text-git-green"}
-                    >
-                      Free
-                    </span>
-                  ) : (
-                    <>
-                      ${price ? (price.amount / 100).toFixed(0) : "0"}
-                      <span className="text-sm text-syntax-grey">
-                        /{price?.interval.toLowerCase()}
+                  <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                    {plan.name}{" "}
+                    {plan.name === "Premium" && (
+                      <span className="text-neon-pulse">★</span>
+                    )}
+                  </h3>
+                  <div className="text-2xl font-mono mb-6 text-white">
+                    {isFree || isTrial ? (
+                      <span
+                        className={
+                          isTrial ? "text-neon-pulse" : "text-git-green"
+                        }
+                      >
+                        Free
                       </span>
-                    </>
+                    ) : (
+                      <>
+                        ${price ? (price.amount / 100).toFixed(0) : "0"}
+                        <span className="text-sm text-syntax-grey">
+                          /{price?.interval.toLowerCase()}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  <ul className="text-sm font-mono text-syntax-grey flex flex-col gap-3 flex-1 mb-8">
+                    <li className="flex items-center gap-2">
+                      <span
+                        className={
+                          isTrial || plan.name === "Premium"
+                            ? "text-neon-pulse"
+                            : isFree
+                              ? "text-git-green"
+                              : "text-syntax-grey"
+                        }
+                      >
+                        ✓
+                      </span>{" "}
+                      {plan.maxWorkspaces === -1
+                        ? "Unlimited"
+                        : plan.maxWorkspaces}{" "}
+                      Workspaces
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span
+                        className={
+                          isTrial || plan.name === "Premium"
+                            ? "text-neon-pulse"
+                            : isFree
+                              ? "text-git-green"
+                              : "text-syntax-grey"
+                        }
+                      >
+                        ✓
+                      </span>{" "}
+                      {plan.maxBoardsPerWorkspace === -1
+                        ? "Unlimited"
+                        : plan.maxBoardsPerWorkspace}{" "}
+                      Boards/Workspace
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span
+                        className={
+                          isTrial || plan.name === "Premium"
+                            ? "text-neon-pulse"
+                            : isFree
+                              ? "text-git-green"
+                              : "text-syntax-grey"
+                        }
+                      >
+                        ✓
+                      </span>{" "}
+                      {plan.maxMembersPerBoard === -1
+                        ? "Unlimited"
+                        : plan.maxMembersPerBoard}{" "}
+                      Members/Board
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span
+                        className={
+                          isTrial || plan.name === "Premium"
+                            ? "text-neon-pulse"
+                            : isFree
+                              ? "text-git-green"
+                              : "text-syntax-grey"
+                        }
+                      >
+                        ✓
+                      </span>{" "}
+                      {plan.maxActiveBoards === -1
+                        ? "Unlimited"
+                        : plan.maxActiveBoards}{" "}
+                      Active Boards Total
+                    </li>
+                  </ul>
+
+                  {isFree && (
+                    <div className="mt-auto">
+                      <button
+                        onClick={handleFreePlan}
+                        className="w-full bg-void-grey border border-git-green/30 hover:border-git-green hover:bg-git-green/10 transition-all rounded py-2.5 text-white font-mono text-sm cursor-pointer"
+                      >
+                        Get Started
+                      </button>
+                    </div>
+                  )}
+
+                  {isTrial && (
+                    <div className="mt-auto">
+                      <button
+                        onClick={() => handleTrialPlan(plan.id)}
+                        className="w-full bg-void-grey border border-neon-pulse/30 hover:border-neon-pulse hover:bg-neon-pulse/10 transition-all rounded py-2.5 text-white font-mono text-sm cursor-pointer"
+                      >
+                        Start Trial
+                      </button>
+                    </div>
+                  )}
+
+                  {requiresPayment && (
+                    <div className="mt-auto">
+                      <button
+                        onClick={() => handleSubscribe(price.id)}
+                        disabled={loadingPriceId === price.id}
+                        className={`w-full bg-void-grey border ${loadingPriceId === price.id ? "opacity-50 border-white/10" : "border-white/10 hover:border-white/20 hover:text-neon-pulse"} rounded py-2.5 text-white font-mono text-sm transition-colors text-center inline-block cursor-pointer`}
+                      >
+                        {loadingPriceId === price.id
+                          ? "Loading..."
+                          : "Subscribe"}
+                      </button>
+                    </div>
                   )}
                 </div>
-                <ul className="text-sm font-mono text-syntax-grey flex flex-col gap-3 flex-1 mb-8">
-                  <li className="flex items-center gap-2">
-                    <span
-                      className={
-                        isTrial || plan.name === "Premium"
-                          ? "text-neon-pulse"
-                          : isFree
-                            ? "text-git-green"
-                            : "text-syntax-grey"
-                      }
-                    >
-                      ✓
-                    </span>{" "}
-                    {plan.maxWorkspaces === -1
-                      ? "Unlimited"
-                      : plan.maxWorkspaces}{" "}
-                    Workspaces
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span
-                      className={
-                        isTrial || plan.name === "Premium"
-                          ? "text-neon-pulse"
-                          : isFree
-                            ? "text-git-green"
-                            : "text-syntax-grey"
-                      }
-                    >
-                      ✓
-                    </span>{" "}
-                    {plan.maxBoardsPerWorkspace === -1
-                      ? "Unlimited"
-                      : plan.maxBoardsPerWorkspace}{" "}
-                    Boards/Workspace
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span
-                      className={
-                        isTrial || plan.name === "Premium"
-                          ? "text-neon-pulse"
-                          : isFree
-                            ? "text-git-green"
-                            : "text-syntax-grey"
-                      }
-                    >
-                      ✓
-                    </span>{" "}
-                    {plan.maxMembersPerBoard === -1
-                      ? "Unlimited"
-                      : plan.maxMembersPerBoard}{" "}
-                    Members/Board
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span
-                      className={
-                        isTrial || plan.name === "Premium"
-                          ? "text-neon-pulse"
-                          : isFree
-                            ? "text-git-green"
-                            : "text-syntax-grey"
-                      }
-                    >
-                      ✓
-                    </span>{" "}
-                    {plan.maxActiveBoards === -1
-                      ? "Unlimited"
-                      : plan.maxActiveBoards}{" "}
-                    Active Boards Total
-                  </li>
-                </ul>
+              );
+            })}
 
-                {isFree && (
-                  <div className="mt-auto">
-                    <button
-                      onClick={handleFreePlan}
-                      className="w-full bg-void-grey border border-git-green/30 hover:border-git-green hover:bg-git-green/10 transition-all rounded py-2.5 text-white font-mono text-sm cursor-pointer"
-                    >
-                      Get Started
-                    </button>
-                  </div>
-                )}
+          {/* Self-Hosted Card */}
+          <div className="flex flex-col border rounded-md p-6 relative group transition-all border-white/10 bg-obsidian-night/50 hover:border-git-green/50">
+            <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+              Self-Hosted
+            </h3>
+            <div className="text-2xl font-mono mb-6 text-white">
+              <span className="text-git-green">Free</span>
+              <span className="text-sm text-syntax-grey">/open-source</span>
+            </div>
+            <ul className="text-sm font-mono text-syntax-grey flex flex-col gap-3 flex-1 mb-8">
+              <li className="flex items-center gap-2">
+                <span className="text-git-green">✓</span> Unlimited Workspaces
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-git-green">✓</span> Unlimited Boards
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-git-green">✓</span> Unlimited Members
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-git-green">✓</span> Full Data Control
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-git-green">✓</span> Self-managed
+                Infrastructure
+              </li>
+            </ul>
 
-                {isTrial && (
-                  <div className="mt-auto">
-                    <button
-                      onClick={() => handleTrialPlan(plan.id)}
-                      className="w-full bg-void-grey border border-neon-pulse/30 hover:border-neon-pulse hover:bg-neon-pulse/10 transition-all rounded py-2.5 text-white font-mono text-sm cursor-pointer"
-                    >
-                      Start Trial
-                    </button>
-                  </div>
-                )}
-
-                {requiresPayment && (
-                  <div className="mt-auto">
-                    <button
-                      onClick={() => handleSubscribe(price.id)}
-                      disabled={loadingPriceId === price.id}
-                      className={`w-full bg-void-grey border ${loadingPriceId === price.id ? "opacity-50 border-white/10" : "border-white/10 hover:border-white/20 hover:text-neon-pulse"} rounded py-2.5 text-white font-mono text-sm transition-colors text-center inline-block cursor-pointer`}
-                    >
-                      {loadingPriceId === price.id ? "Loading..." : "Subscribe"}
-                    </button>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+            <div className="mt-auto">
+              <Link
+                href="https://github.com/syncoboard/syncoboard"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-center w-full bg-void-grey border border-git-green/30 hover:border-git-green hover:bg-git-green/10 transition-all rounded py-2.5 text-white font-mono text-sm cursor-pointer"
+              >
+                Star on GitHub
+              </Link>
+            </div>
+          </div>
         </div>
 
         <div className="text-center mt-4">

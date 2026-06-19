@@ -28,7 +28,12 @@ export function Header({ onToggleSidebar }: { onToggleSidebar?: () => void }) {
             </button>
           )}
           <Logo className="w-8 h-8 hidden sm:block" />
-          <span className="text-sm sm:text-base">SYNCOBOARD</span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm sm:text-base">SYNCOBOARD</span>
+            <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-neon-pulse/10 text-neon-pulse border border-neon-pulse/20">
+              Open Beta
+            </span>
+          </div>
         </div>
 
         {session?.user && (
