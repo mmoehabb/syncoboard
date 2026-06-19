@@ -84,10 +84,10 @@ export function Plans({ plans, isLoggedIn }: PlansProps) {
       <div className="flex flex-col items-center mb-12">
         <h3 className="text-3xl font-bold text-white mb-4">Pricing</h3>
         <p className="text-syntax-grey text-center max-w-2xl">
-          Start for free, upgrade when you need to collaborate.
+          Syncoboard is currently free while we scale and refine the product with early adopters. Create your board, connect your repos, and help us build the future of code-driven project management.
         </p>
 
-        <div className="mt-8 flex bg-void-grey p-1 rounded border border-white/10 font-mono text-sm">
+        {/* <div className="mt-8 flex bg-void-grey p-1 rounded border border-white/10 font-mono text-sm">
           <button
             className={`px-4 py-2 rounded ${duration === "MONTH" ? "bg-obsidian-night text-neon-pulse border border-white/5" : "text-syntax-grey hover:text-white"}`}
             onClick={() => setDuration("MONTH")}
@@ -100,11 +100,11 @@ export function Plans({ plans, isLoggedIn }: PlansProps) {
           >
             Yearly
           </button>
-        </div>
+        </div> */}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {activePlans.map((plan) => {
+      <div className="grid grid-cols-1 gap-6 max-w-sm mx-auto">
+        {activePlans.filter(plan => plan.name === "Free").map((plan) => {
           const price = getPriceForDuration(plan, duration);
           const isStandard = plan.name === "Standard";
           const isTrial = plan.isTrial;

@@ -60,8 +60,7 @@ export function SubscriptionModal({
             Subscription Required
           </h2>
           <p className="text-syntax-grey text-sm font-mono leading-relaxed">
-            You do not have an active subscription. Please select a plan to
-            continue using Syncoboard.
+            Syncoboard is currently free while we scale and refine the product with early adopters. Create your board, connect your repos, and help us build the future of code-driven project management.
           </p>
         </div>
 
@@ -71,8 +70,8 @@ export function SubscriptionModal({
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {allPlans.map((plan) => {
+        <div className="grid grid-cols-1 gap-4 max-w-sm mx-auto w-full">
+          {allPlans.filter(plan => plan.name === "Free").map((plan) => {
             const price = plan.prices[0];
             const isFree = plan.name === "Free";
             const isTrial = plan.isTrial;

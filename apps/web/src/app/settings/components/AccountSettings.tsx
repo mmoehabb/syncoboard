@@ -280,12 +280,12 @@ export function AccountSettings({
               !subscription.cancelAtPeriodEnd &&
               subscription.price?.plan?.name !== "Free" && (
                 <div className="flex flex-col gap-4">
-                  <button
+                  {/* <button
                     onClick={() => router.push("/plans")}
                     className="w-full bg-white/10 text-white border border-white/20 font-bold font-mono py-2 hover:bg-white/20 transition-colors cmd-selectable [&.cmd-selected]:ring-2 [&.cmd-selected]:ring-white [&.cmd-selected]:ring-offset-2 [&.cmd-selected]:ring-offset-void-grey"
                   >
                     Explore Plans
-                  </button>
+                  </button> */}
                   <button
                     onClick={handleOpenCancelDialog}
                     disabled={isSubmitting}
@@ -296,7 +296,7 @@ export function AccountSettings({
                 </div>
               )}
 
-            {subscription.status === "ACTIVE" &&
+            {/* {subscription.status === "ACTIVE" &&
               !subscription.cancelAtPeriodEnd &&
               subscription.price?.plan?.name === "Free" && (
                 <button
@@ -305,7 +305,7 @@ export function AccountSettings({
                 >
                   Upgrade
                 </button>
-              )}
+              )} */}
 
             {(!subscription ||
               subscription.cancelAtPeriodEnd ||
@@ -317,7 +317,7 @@ export function AccountSettings({
                 >
                   Resubscribe
                 </button>
-                {(subscription?.cancelAtPeriodEnd ||
+                {/* {(subscription?.cancelAtPeriodEnd ||
                   subscription?.status === "CANCELED") && (
                   <button
                     onClick={() => router.push("/plans")}
@@ -325,7 +325,7 @@ export function AccountSettings({
                   >
                     Change Plan
                   </button>
-                )}
+                )} */}
               </div>
             )}
           </div>
