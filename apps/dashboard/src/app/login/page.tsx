@@ -21,9 +21,7 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const { accessToken } = await api.login({ username, password });
-      localStorage.setItem("adminToken", accessToken);
-      setGlobalApiToken(accessToken);
+      await api.login({ username, password });
       router.push("/users");
     } catch (err: any) {
       setError(err.response?.data?.message || "Login failed");

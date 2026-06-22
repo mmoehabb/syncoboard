@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { setGlobalApiToken } from "@syncoboard/api";
+import { AdminApi } from "@syncoboard/api";
 import {
   Users,
   CreditCard,
@@ -13,6 +13,12 @@ import {
   Bug,
 } from "lucide-react";
 
+const api = new AdminApi(
+  process.env.NEXT_PUBLIC_API_URL
+    ? `${process.env.NEXT_PUBLIC_API_URL}/api/admin`
+    : "http://localhost:3000/api/admin",
+);
+
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -20,19 +26,19 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setMounted(true);
-    const token = localStorage.getItem("adminToken");
-    if (!token) {
+    api.me().catch(() => {
       router.push("/login");
-    } else {
-      setGlobalApiToken(token);
-    }
+    });
   }, [router]);
 
   if (!mounted) return null;
 
-  const handleLogout = () => {
-    localStorage.removeItem("adminToken");
-    setGlobalApiToken(null);
+  const handleLogout = async () => {
+    try {
+      await api.logout();
+    } catch (e) {
+      // Ignore errors during logout
+    }
     router.push("/login");
   };
 
