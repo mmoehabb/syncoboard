@@ -12,6 +12,8 @@ import { PayPalWebhookEvent } from "./types";
 
 export class PayPalProvider implements PaymentProvider<PayPalWebhookEvent> {
   async syncPlans(plans: (Plan & { prices: Price[] })[]): Promise<void> {
+    const updates: ReturnType<typeof prisma.price.update>[] = [];
+
     await Promise.all(
       plans.map(async (plan) => {
         try {
@@ -42,10 +44,13 @@ export class PayPalProvider implements PaymentProvider<PayPalWebhookEvent> {
                   price.intervalCount,
                 );
 
-                await prisma.price.update({
-                  where: { id: price.id },
-                  data: { providerPlanId: paypalPlan.id },
-                });
+                updates.push(
+                  prisma.price.update({
+                    where: { id: price.id },
+                    data: { providerPlanId: paypalPlan.id },
+                  }),
+                );
+
                 console.log(
                   `Synced PayPal plan for Price ${price.id}: ${paypalPlan.id}`,
                 );
@@ -64,6 +69,10 @@ export class PayPalProvider implements PaymentProvider<PayPalWebhookEvent> {
         );
       }),
     );
+
+    if (updates.length > 0) {
+      await prisma.$transaction(updates);
+    }
   }
 
   async createSubscription(
