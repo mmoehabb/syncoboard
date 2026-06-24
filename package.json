@@ -35,7 +35,7 @@
     "lint": "bun run --filter \"*\" lint",
     "format": "bun prettier --write .",
     "check": "bun prettier --check .",
-    "test": "export $(cat packages/db/.env.test | xargs) && bun run db push && bun test"
+    "test": "export $(cat packages/db/.env.test | xargs) && bun run db push && bun test --filter \"*\""
   },
   "packageManager": "bun@1.3.11",
   "devDependencies": {
