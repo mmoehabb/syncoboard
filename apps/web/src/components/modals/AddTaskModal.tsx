@@ -4,14 +4,12 @@ import React, { useState, useEffect } from "react";
 
 interface AddTaskModalProps {
   isOpen: boolean;
-  initialStatus?: string;
   onConfirm: (title: string) => Promise<void> | void;
   onCancel: () => void;
 }
 
 export function AddTaskModal({
   isOpen,
-  initialStatus,
   onConfirm,
   onCancel,
 }: AddTaskModalProps) {

@@ -11,7 +11,6 @@ import {
 import { useRouter } from "next/navigation";
 import type { DashboardWorkspace } from "./types";
 import { FocusedLabel } from "@/components/ui/FocusedLabel";
-import { AddWorkspaceModal } from "@/components/modals/AddWorkspaceModal";
 
 type FlatItem = {
   type: "workspace" | "board";
@@ -33,7 +32,6 @@ export function Sidebar({
   onClose?: () => void;
 }) {
   const router = useRouter();
-  const [isAddWorkspaceModalOpen, setIsAddWorkspaceModalOpen] = useState(false);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
   const flatItems: FlatItem[] = [];
@@ -102,31 +100,15 @@ export function Sidebar({
             <span className={`font-bold ${isOpen ? "" : "hidden"}`}>
               Explorer
             </span>
-            <div className="flex items-center gap-2">
-              <FocusedLabel />
-              <button
-                onClick={() => setIsAddWorkspaceModalOpen(true)}
-                className="p-1 hover:bg-white/10 rounded text-syntax-grey hover:text-white transition-all"
-                title="Add Workspace"
-              >
-                <Plus size={14} />
-              </button>
-            </div>
+            <FocusedLabel />
           </div>
         )}
         <div className="flex-1 overflow-y-auto py-2">
           {flatItems.length === 0 && (
             <div
-              className={`px-4 py-2 flex flex-col gap-2 ${isOpen ? "" : "hidden"}`}
+              className={`px-4 py-2 text-syntax-grey italic ${isOpen ? "" : "hidden"}`}
             >
-              <span className="text-syntax-grey italic">No workspaces</span>
-              <button
-                onClick={() => setIsAddWorkspaceModalOpen(true)}
-                className="flex items-center justify-center gap-2 w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded py-2 text-syntax-grey hover:text-white transition-colors text-sm"
-              >
-                <Plus size={14} />
-                <span>Add Workspace</span>
-              </button>
+              No workspaces
             </div>
           )}
           {flatItems.map((item) => {
@@ -171,6 +153,15 @@ export function Sidebar({
                         </div>
                       ))}
                   </button>
+                  {isOpen && (
+                    <button
+                      onClick={() => router.push("/settings")}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-1 hover:bg-white/10 rounded text-syntax-grey hover:text-white transition-all"
+                      title="Add Board"
+                    >
+                      <Plus size={14} />
+                    </button>
+                  )}
                 </div>
               );
             }
@@ -213,15 +204,6 @@ export function Sidebar({
           })}
         </div>
       </div>
-
-      <AddWorkspaceModal
-        isOpen={isAddWorkspaceModalOpen}
-        onConfirm={() => {
-          setIsAddWorkspaceModalOpen(false);
-          router.refresh();
-        }}
-        onCancel={() => setIsAddWorkspaceModalOpen(false)}
-      />
     </>
   );
 }

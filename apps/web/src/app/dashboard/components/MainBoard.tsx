@@ -18,7 +18,6 @@ import { TaskGroup } from "./TaskGroup";
 import { KanbanColumn } from "./KanbanColumn";
 import { useCommand } from "@/context/CommandContext";
 import { AnalysisView } from "./analysis/AnalysisView";
-import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import type { MainBoardData, MainBoardTask } from "./types";
 import { useSocket } from "@/context/SocketContext";
 import { WEBSOCKET_EVENTS } from "@syncoboard/shared";
@@ -42,7 +41,6 @@ import { useSession } from "next-auth/react";
 import type { TaskCounts, AvailableMember } from "./types";
 import { Filter, Calendar, RefreshCw, Phone, PieChart } from "lucide-react";
 import { boardApi } from "@syncoboard/api";
-import { updateTaskStatus } from "@/lib/actions/tasks";
 
 export function MainBoard({
   board,
@@ -142,35 +140,6 @@ export function MainBoard({
   const moveMenuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const handleDragEnd = async (result: DropResult) => {
-    if (!result.destination) return;
-
-    const sourceStatus = result.source.droppableId;
-    const destinationStatus = result.destination.droppableId;
-
-    if (sourceStatus === destinationStatus) return;
-
-    const taskId = BigInt(result.draggableId);
-
-    // Optimistically update
-    if (paginatedTasks.some((t) => t.id === taskId)) {
-      setPaginatedTasks((prev) =>
-        prev.map((t) =>
-          t.id === taskId ? { ...t, status: destinationStatus as any } : t,
-        ),
-      );
-    }
-
-    try {
-      await updateTaskStatus(taskId.toString(), destinationStatus as any);
-      router.refresh();
-    } catch (error) {
-      console.error("Failed to move task", error);
-      // Let refresh fetch the correct state
-      router.refresh();
-    }
-  };
-
   // Modals State
   const [modifyModalState, setModifyModalState] = useState<{
     isOpen: boolean;
@@ -178,9 +147,6 @@ export function MainBoard({
   }>({ isOpen: false, task: null });
 
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
-  const [initialTaskStatus, setInitialTaskStatus] = useState<
-    string | undefined
-  >(undefined);
 
   const [simpleConfirmModalState, setSimpleConfirmModalState] = useState<{
     isOpen: boolean;
@@ -256,7 +222,6 @@ export function MainBoard({
       await axios.post("/api/tasks", {
         boardId: board.id,
         title,
-        status: initialTaskStatus,
       });
       showToast("Task added successfully", "success");
       setIsAddTaskModalOpen(false);
@@ -738,52 +703,26 @@ export function MainBoard({
               )}
             </div>
 
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <div
-                ref={scrollContainerRef}
-                onWheel={handleKanbanScroll}
-                className={`flex ${layout === "kanban" ? "flex-row overflow-x-auto h-full gap-4 pb-4" : "flex-col gap-4 h-full overflow-y-auto p-2 no-scrollbar"}`}
-              >
-                {tasks.length > 0 &&
-                  TASK_STATUS_GROUPS.map((group) => {
-                    const groupTasks = tasks.filter(
-                      (t: MainBoardTask) => t.status === group.status,
-                    );
+            <div
+              ref={scrollContainerRef}
+              onWheel={handleKanbanScroll}
+              className={`flex ${layout === "kanban" ? "flex-row overflow-x-auto h-full gap-4 pb-4" : "flex-col gap-4 h-full overflow-y-auto p-2 no-scrollbar"}`}
+            >
+              {tasks.length > 0 &&
+                TASK_STATUS_GROUPS.map((group) => {
+                  const groupTasks = tasks.filter(
+                    (t: MainBoardTask) => t.status === group.status,
+                  );
 
-                    const currentLimit =
-                      initialLimit === -1 ? undefined : initialLimit || 5;
-                    const limitCount = taskCounts
-                      ? taskCounts[group.status]
-                      : groupTasks.length;
+                  const currentLimit =
+                    initialLimit === -1 ? undefined : initialLimit || 5;
+                  const limitCount = taskCounts
+                    ? taskCounts[group.status]
+                    : groupTasks.length;
 
-                    if (layout === "kanban") {
-                      return (
-                        <KanbanColumn
-                          key={group.status}
-                          group={group}
-                          groupTasks={groupTasks}
-                          selectedTask={selectedTask}
-                          onTaskClick={(taskId) =>
-                            router.push(`?taskId=${taskId}`)
-                          }
-                          onContextMenu={handleContextMenu}
-                          totalCount={limitCount}
-                          boardId={boardId}
-                          searchQuery={searchQuery}
-                          assignee={assigneeParam || undefined}
-                          reviewer={reviewerParam || undefined}
-                          startDate={startDateParam || undefined}
-                          endDate={endDateParam || undefined}
-                          take={currentLimit}
-                          onLoadMore={(newTasks) =>
-                            setPaginatedTasks((prev) => [...prev, ...newTasks])
-                          }
-                        />
-                      );
-                    }
-
+                  if (layout === "kanban") {
                     return (
-                      <TaskGroup
+                      <KanbanColumn
                         key={group.status}
                         group={group}
                         groupTasks={groupTasks}
@@ -792,7 +731,6 @@ export function MainBoard({
                           router.push(`?taskId=${taskId}`)
                         }
                         onContextMenu={handleContextMenu}
-                        layout={layout as any}
                         totalCount={limitCount}
                         boardId={boardId}
                         searchQuery={searchQuery}
@@ -801,31 +739,43 @@ export function MainBoard({
                         startDate={startDateParam || undefined}
                         endDate={endDateParam || undefined}
                         take={currentLimit}
-                        onAddTask={(status) => {
-                          setInitialTaskStatus(status);
-                          setIsAddTaskModalOpen(true);
-                        }}
+                        onLoadMore={(newTasks) =>
+                          setPaginatedTasks((prev) => [...prev, ...newTasks])
+                        }
                       />
                     );
-                  })}
-              </div>
-            </DragDropContext>
+                  }
+
+                  return (
+                    <TaskGroup
+                      key={group.status}
+                      group={group}
+                      groupTasks={groupTasks}
+                      selectedTask={selectedTask}
+                      onTaskClick={(taskId) => router.push(`?taskId=${taskId}`)}
+                      onContextMenu={handleContextMenu}
+                      layout={layout as any}
+                      totalCount={limitCount}
+                      boardId={boardId}
+                      searchQuery={searchQuery}
+                      assignee={assigneeParam || undefined}
+                      reviewer={reviewerParam || undefined}
+                      startDate={startDateParam || undefined}
+                      endDate={endDateParam || undefined}
+                      take={currentLimit}
+                      onLoadMore={(newTasks) =>
+                        setPaginatedTasks((prev) => [...prev, ...newTasks])
+                      }
+                    />
+                  );
+                })}
+            </div>
             {tasks.length === 0 && (
-              <div className="text-syntax-grey font-mono text-sm text-center py-10 italic cmd-container relative flex flex-col items-center gap-4">
+              <div className="text-syntax-grey font-mono text-sm text-center py-10 italic cmd-container relative">
                 <span className="opacity-0 [.cmd-active-container_&]:opacity-100 text-neon-pulse text-xs absolute top-2 right-2 transition-opacity">
                   focused
                 </span>
-                <span>No tasks found. Use /add-task to create one.</span>
-                <button
-                  onClick={() => {
-                    setInitialTaskStatus(undefined);
-                    setIsAddTaskModalOpen(true);
-                  }}
-                  className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded px-4 py-2 text-white transition-colors"
-                >
-                  <Plus size={16} />
-                  <span>Add Task</span>
-                </button>
+                No tasks found. Use /add-task to create one.
               </div>
             )}
           </div>
@@ -936,7 +886,6 @@ export function MainBoard({
 
       <AddTaskModal
         isOpen={isAddTaskModalOpen}
-        initialStatus={initialTaskStatus}
         onConfirm={handleAddTask}
         onCancel={() => setIsAddTaskModalOpen(false)}
       />

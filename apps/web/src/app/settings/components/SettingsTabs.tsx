@@ -20,9 +20,9 @@ export function SettingsTabs({
   isActive,
   subscription,
 }: SettingsTabsProps) {
-  const [activeTab, setActiveTab] = useState<
-    "add-board" | "account"
-  >("add-board");
+  const [activeTab, setActiveTab] = useState<"add-board" | "account">(
+    "add-board",
+  );
 
   return (
     <>
@@ -74,7 +74,7 @@ export function SettingsTabs({
           <FocusedLabel />
         </div>
         {activeTab === "add-board" && <AddBoard workspaces={workspaces} />}
-                {activeTab === "account" && (
+        {activeTab === "account" && (
           <AccountSettings
             userId={userId}
             isActive={isActive}

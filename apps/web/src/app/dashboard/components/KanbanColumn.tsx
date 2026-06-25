@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus } from "lucide-react";
-import { Droppable } from "@hello-pangea/dnd";
 import { TaskCard } from "./TaskCard";
 import { getMoreTasks } from "../taskActions";
 import type { TaskStatus } from "@syncoboard/db";
@@ -28,7 +26,6 @@ interface KanbanColumnProps {
   endDate?: string;
   take?: number;
   onLoadMore?: (tasks: MainBoardTask[]) => void;
-  onAddTask?: (status: string) => void;
 }
 
 export function KanbanColumn({
@@ -46,7 +43,6 @@ export function KanbanColumn({
   endDate,
   take,
   onLoadMore,
-  onAddTask,
 }: KanbanColumnProps) {
   const [tasks, setTasks] = useState<MainBoardTask[]>(groupTasks);
 
@@ -108,58 +104,39 @@ export function KanbanColumn({
         </span>
       </div>
 
-      <Droppable droppableId={group.status}>
-        {(provided, snapshot) => (
-          <div
-            className={`flex flex-col gap-2 overflow-y-auto no-scrollbar flex-1 pb-4 group/col ${snapshot.isDraggingOver ? "bg-white/5 rounded-md" : ""}`}
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-          >
-            {tasks.length === 0 ? (
-              <div className="text-syntax-grey font-mono text-xs italic py-4 text-center border border-dashed border-white/10 rounded m-1 opacity-50 flex flex-col items-center gap-2">
-                <span>No tasks</span>
-                {onAddTask && (
-                  <button
-                    onClick={() => onAddTask(group.status)}
-                    className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded px-3 py-1 text-white transition-colors mt-2"
-                  >
-                    <Plus size={14} />
-                    <span>Add Task</span>
-                  </button>
-                )}
-              </div>
-            ) : (
-              tasks.map((task: MainBoardTask, index: number) => (
-                <TaskCard
-                  key={task.id.toString()}
-                  task={task}
-                  index={index}
-                  isSelected={selectedTask?.id === task.id}
-                  onClick={() => onTaskClick(task.id.toString())}
-                  onContextMenu={(e) => onContextMenu(e, task)}
-                />
-              ))
-            )}
-            {provided.placeholder}
-            {hasMore && (
-              <button
-                onClick={loadMore}
-                disabled={isLoading}
-                className="mt-2 py-2 px-4 rounded-md border border-white/10 text-syntax-grey font-mono text-xs hover:border-neon-pulse hover:text-neon-pulse transition-colors cmd-selectable [&.cmd-selected]:border-neon-pulse [&.cmd-selected]:text-neon-pulse [&.cmd-selected]:bg-neon-pulse/5 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? (
-                  <span className="flex items-center gap-2">
-                    <span className="animate-spin border-2 border-syntax-grey border-t-neon-pulse rounded-full w-3 h-3 inline-block" />
-                    LOADING
-                  </span>
-                ) : (
-                  "[VIEW MORE]"
-                )}
-              </button>
-            )}
+      <div className="flex flex-col gap-2 overflow-y-auto no-scrollbar flex-1 pb-4">
+        {tasks.length === 0 ? (
+          <div className="text-syntax-grey font-mono text-xs italic py-4 text-center border border-dashed border-white/10 rounded m-1 opacity-50">
+            No tasks
           </div>
+        ) : (
+          tasks.map((task: MainBoardTask) => (
+            <TaskCard
+              key={task.id.toString()}
+              task={task}
+              isSelected={selectedTask?.id === task.id}
+              onClick={() => onTaskClick(task.id.toString())}
+              onContextMenu={(e) => onContextMenu(e, task)}
+            />
+          ))
         )}
-      </Droppable>
+        {hasMore && (
+          <button
+            onClick={loadMore}
+            disabled={isLoading}
+            className="mt-2 py-2 px-4 rounded-md border border-white/10 text-syntax-grey font-mono text-xs hover:border-neon-pulse hover:text-neon-pulse transition-colors cmd-selectable [&.cmd-selected]:border-neon-pulse [&.cmd-selected]:text-neon-pulse [&.cmd-selected]:bg-neon-pulse/5 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? (
+              <span className="flex items-center gap-2">
+                <span className="animate-spin border-2 border-syntax-grey border-t-neon-pulse rounded-full w-3 h-3 inline-block" />
+                LOADING
+              </span>
+            ) : (
+              "[VIEW MORE]"
+            )}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
