@@ -1,3 +1,4 @@
+import { logger } from "./logger";
 import "dotenv/config";
 import { Server } from "socket.io";
 import { createServer } from "http";
@@ -47,7 +48,7 @@ const httpServer = createServer((req, res) => {
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ success: true }));
       } catch (e) {
-        console.error("Webhook parse error:", e);
+        logger.error(e, "Webhook parse error:");
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: "invalid JSON" }));
       }
@@ -66,29 +67,29 @@ const io = new Server(httpServer, {
 });
 
 io.on("connection", (socket) => {
-  console.log(`Socket connected: ${socket.id}`);
+  logger.info(`Socket connected: ${socket.id}`);
 
   // Client requests to join a specific board room
   socket.on(WEBSOCKET_EVENTS.JOIN_BOARD, (boardId) => {
-    console.log(`Socket ${socket.id} joining board ${boardId}`);
+    logger.info(`Socket ${socket.id} joining board ${boardId}`);
     socket.join(encodeBoardRoomName(boardId));
   });
 
   // Client requests to leave a specific board room
   socket.on(WEBSOCKET_EVENTS.LEAVE_BOARD, (boardId) => {
-    console.log(`Socket ${socket.id} leaving board ${boardId}`);
+    logger.info(`Socket ${socket.id} leaving board ${boardId}`);
     socket.leave(encodeBoardRoomName(boardId));
   });
 
   // Client requests to join their personal user room for notifications
   socket.on(WEBSOCKET_EVENTS.JOIN_USER, (userId) => {
-    console.log(`Socket ${socket.id} joining user ${userId}`);
+    logger.info(`Socket ${socket.id} joining user ${userId}`);
     socket.join(encodeUserRoomName(userId));
   });
 
   // WebRTC Voice Signaling
   socket.on(WEBSOCKET_EVENTS.VOICE_JOIN, (boardId, peerId) => {
-    console.log(
+    logger.info(
       `Socket ${socket.id} (peer: ${peerId}) joining voice on board ${boardId}`,
     );
     socket.join(`voice_board_${boardId}`);
@@ -99,7 +100,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on(WEBSOCKET_EVENTS.VOICE_LEAVE, (boardId, peerId) => {
-    console.log(
+    logger.info(
       `Socket ${socket.id} (peer: ${peerId}) leaving voice on board ${boardId}`,
     );
     socket.leave(`voice_board_${boardId}`);
@@ -118,10 +119,10 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log(`Socket disconnected: ${socket.id}`);
+    logger.info(`Socket disconnected: ${socket.id}`);
   });
 });
 
 httpServer.listen(HTTP_PORT, () => {
-  console.log(`WebSocket service listening on port ${HTTP_PORT}`);
+  logger.info(`WebSocket service listening on port ${HTTP_PORT}`);
 });
