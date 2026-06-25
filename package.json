@@ -47,6 +47,7 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
+    "@hello-pangea/dnd": "^18.0.1",
     "@octokit/app": "^16.1.2",
     "@octokit/auth-app": "^8.2.0",
     "@octokit/webhooks-types": "^7.6.1",

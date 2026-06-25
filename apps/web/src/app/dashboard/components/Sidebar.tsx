@@ -100,15 +100,31 @@ export function Sidebar({
             <span className={`font-bold ${isOpen ? "" : "hidden"}`}>
               Explorer
             </span>
-            <FocusedLabel />
+            <div className="flex items-center gap-2">
+              <FocusedLabel />
+              <button
+                onClick={() => router.push("/settings")}
+                className="p-1 hover:bg-white/10 rounded text-syntax-grey hover:text-white transition-all"
+                title="Add Workspace"
+              >
+                <Plus size={14} />
+              </button>
+            </div>
           </div>
         )}
         <div className="flex-1 overflow-y-auto py-2">
           {flatItems.length === 0 && (
             <div
-              className={`px-4 py-2 text-syntax-grey italic ${isOpen ? "" : "hidden"}`}
+              className={`px-4 py-2 flex flex-col gap-2 ${isOpen ? "" : "hidden"}`}
             >
-              No workspaces
+              <span className="text-syntax-grey italic">No workspaces</span>
+              <button
+                onClick={() => router.push("/settings")}
+                className="flex items-center justify-center gap-2 w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded py-2 text-syntax-grey hover:text-white transition-colors text-sm"
+              >
+                <Plus size={14} />
+                <span>Add Workspace</span>
+              </button>
             </div>
           )}
           {flatItems.map((item) => {
@@ -156,10 +172,10 @@ export function Sidebar({
                   {isOpen && (
                     <button
                       onClick={() => router.push("/settings")}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-1 hover:bg-white/10 rounded text-syntax-grey hover:text-white transition-all"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 p-1 bg-white/5 hover:bg-white/10 rounded text-syntax-grey hover:text-white transition-all border border-white/10"
                       title="Add Board"
                     >
-                      <Plus size={14} />
+                      <Plus size={12} />
                     </button>
                   )}
                 </div>
