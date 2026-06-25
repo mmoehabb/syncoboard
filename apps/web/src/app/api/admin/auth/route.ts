@@ -35,7 +35,18 @@ export async function POST(req: Request) {
       data: { accessToken: token },
     });
 
-    return NextResponse.json({ accessToken: token });
+    const response = NextResponse.json({ accessToken: token });
+
+    // Set HttpOnly cookie
+    response.cookies.set("adminToken", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+    });
+
+    return response;
   } catch (error) {
     console.error("Admin login error:", error);
     return apiError(API_ERRORS.INTERNAL_SERVER_ERROR);

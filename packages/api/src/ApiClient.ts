@@ -19,6 +19,7 @@ export abstract class ApiClient {
 
     this.client = axios.create({
       baseURL: resolvedBaseURL,
+      withCredentials: true,
       headers: {
         "Content-Type": "application/json",
       },

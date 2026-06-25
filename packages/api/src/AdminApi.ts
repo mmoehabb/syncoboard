@@ -51,6 +51,16 @@ export class AdminApi extends ApiClient {
     return response.data;
   }
 
+  public async logout(): Promise<{ success: boolean }> {
+    const response = await this.post<{ success: boolean }>("/auth/logout");
+    return response.data;
+  }
+
+  public async me(): Promise<{ authenticated: boolean }> {
+    const response = await this.get<{ authenticated: boolean }>("/auth/me");
+    return response.data;
+  }
+
   public async getUsers(): Promise<AdminUser[]> {
     const response = await this.get<AdminUser[]>("/users");
     return response.data;

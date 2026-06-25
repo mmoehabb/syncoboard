@@ -2,17 +2,26 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { AdminApi } from "@syncoboard/api";
+
+const api = new AdminApi(
+  process.env.NEXT_PUBLIC_API_URL
+    ? `${process.env.NEXT_PUBLIC_API_URL}/api/admin`
+    : "http://localhost:3000/api/admin",
+);
 
 export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("adminToken");
-    if (token) {
-      router.push("/users");
-    } else {
-      router.push("/login");
-    }
+    api
+      .me()
+      .then(() => {
+        router.push("/users");
+      })
+      .catch(() => {
+        router.push("/login");
+      });
   }, [router]);
 
   return (
