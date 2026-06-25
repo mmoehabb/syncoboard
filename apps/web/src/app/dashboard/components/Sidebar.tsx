@@ -11,6 +11,7 @@ import {
 import { useRouter } from "next/navigation";
 import type { DashboardWorkspace } from "./types";
 import { FocusedLabel } from "@/components/ui/FocusedLabel";
+import { AddWorkspaceModal } from "@/components/modals/AddWorkspaceModal";
 
 type FlatItem = {
   type: "workspace" | "board";
@@ -32,6 +33,7 @@ export function Sidebar({
   onClose?: () => void;
 }) {
   const router = useRouter();
+  const [isAddWorkspaceModalOpen, setIsAddWorkspaceModalOpen] = useState(false);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
   const flatItems: FlatItem[] = [];
@@ -103,7 +105,7 @@ export function Sidebar({
             <div className="flex items-center gap-2">
               <FocusedLabel />
               <button
-                onClick={() => router.push("/settings")}
+                onClick={() => setIsAddWorkspaceModalOpen(true)}
                 className="p-1 hover:bg-white/10 rounded text-syntax-grey hover:text-white transition-all"
                 title="Add Workspace"
               >
@@ -119,7 +121,7 @@ export function Sidebar({
             >
               <span className="text-syntax-grey italic">No workspaces</span>
               <button
-                onClick={() => router.push("/settings")}
+                onClick={() => setIsAddWorkspaceModalOpen(true)}
                 className="flex items-center justify-center gap-2 w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded py-2 text-syntax-grey hover:text-white transition-colors text-sm"
               >
                 <Plus size={14} />
@@ -169,15 +171,6 @@ export function Sidebar({
                         </div>
                       ))}
                   </button>
-                  {isOpen && (
-                    <button
-                      onClick={() => router.push("/settings")}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 p-1 bg-white/5 hover:bg-white/10 rounded text-syntax-grey hover:text-white transition-all border border-white/10"
-                      title="Add Board"
-                    >
-                      <Plus size={12} />
-                    </button>
-                  )}
                 </div>
               );
             }
@@ -220,6 +213,15 @@ export function Sidebar({
           })}
         </div>
       </div>
+
+      <AddWorkspaceModal
+        isOpen={isAddWorkspaceModalOpen}
+        onConfirm={() => {
+          setIsAddWorkspaceModalOpen(false);
+          router.refresh();
+        }}
+        onCancel={() => setIsAddWorkspaceModalOpen(false)}
+      />
     </>
   );
 }
