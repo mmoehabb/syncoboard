@@ -508,11 +508,29 @@ export function MainBoard({
   return (
     <div className="flex-1 flex overflow-hidden h-full relative">
       <div className="flex-1 flex flex-col bg-obsidian-night transition-all min-w-0">
-        <div className="p-4 border-b border-white/10 flex flex-row items-center justify-between gap-4 z-10 bg-obsidian-night">
-          <div className="flex items-center gap-4">
-            <h2 className="text-white font-mono font-bold"># {board.name}</h2>
-            {layout !== "analysis" && (
-              <div className="flex items-center gap-1 bg-void-grey border border-white/10 rounded px-1 py-1">
+        <div className="px-4 pt-4 flex flex-col gap-2 z-10 bg-obsidian-night border-b border-white/10 pb-4">
+          <div className="flex items-center text-sm font-mono text-syntax-grey">
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="hover:text-white transition-colors"
+            >
+              Workspaces
+            </button>
+            <span className="mx-2">/</span>
+            <button
+              onClick={() => router.push(`/dashboard/w/${board.workspace?.id}`)}
+              className="hover:text-white transition-colors"
+            >
+              {board.workspace?.name}
+            </button>
+            <span className="mx-2">/</span>
+            <span className="text-white">{board.name}</span>
+          </div>
+          <div className="flex flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <h2 className="text-white font-mono font-bold"># {board.name}</h2>
+              {layout !== "analysis" && (
+                <div className="flex items-center gap-1 bg-void-grey border border-white/10 rounded px-1 py-1">
                 <button
                   onClick={() => handleLayoutChange("list")}
                   className={`p-1 rounded transition-colors ${layout === "list" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
@@ -534,20 +552,21 @@ export function MainBoard({
                 >
                   <AlignJustify size={16} />
                 </button>
-              </div>
-            )}
+                </div>
+              )}
+            </div>
           </div>
-          <div
-            className="flex items-center gap-2 relative"
-            ref={boardOptionsRef}
-          >
-            <button
-              onClick={() => setIsBoardOptionsOpen(!isBoardOptionsOpen)}
-              title="Board Options"
-              className={`text-syntax-grey hover:text-neon-pulse text-sm font-mono transition-colors border border-syntax-grey/30 hover:border-neon-pulse/50 rounded px-3 py-1 bg-void-grey flex items-center justify-center ${isBoardOptionsOpen ? "text-neon-pulse border-neon-pulse/50" : ""}`}
+            <div
+              className="flex items-center gap-2 relative"
+              ref={boardOptionsRef}
             >
-              <MoreHorizontal size={16} />
-            </button>
+              <button
+                onClick={() => setIsBoardOptionsOpen(!isBoardOptionsOpen)}
+                title="Board Options"
+                className={`text-syntax-grey hover:text-neon-pulse text-sm font-mono transition-colors border border-syntax-grey/30 hover:border-neon-pulse/50 rounded px-3 py-1 bg-void-grey flex items-center justify-center ${isBoardOptionsOpen ? "text-neon-pulse border-neon-pulse/50" : ""}`}
+              >
+                <MoreHorizontal size={16} />
+              </button>
             {isBoardOptionsOpen && (
               <div className="absolute top-full right-0 mt-2 bg-void-grey border border-white/20 shadow-2xl rounded-md min-w-[200px] py-1 font-mono text-sm flex flex-col z-50">
                 {board?.isActive && (
@@ -816,10 +835,14 @@ export function MainBoard({
                         startDate={startDateParam || undefined}
                         endDate={endDateParam || undefined}
                         take={currentLimit}
-                        onAddTask={(status) => {
-                          setInitialTaskStatus(status);
-                          setIsAddTaskModalOpen(true);
-                        }}
+                        onAddTask={
+                          group.status === "TODO"
+                            ? (status) => {
+                                setInitialTaskStatus(status);
+                                setIsAddTaskModalOpen(true);
+                              }
+                            : undefined
+                        }
                       />
                     );
                   })}

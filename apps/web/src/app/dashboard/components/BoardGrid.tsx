@@ -19,6 +19,16 @@ export function BoardGrid({
   return (
     <div className="p-6">
       <div className="max-w-6xl mx-auto">
+        <div className="mb-6 flex items-center text-sm font-mono text-syntax-grey">
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="hover:text-white transition-colors"
+          >
+            Workspaces
+          </button>
+          <span className="mx-2">/</span>
+          <span className="text-white">{workspace.name}</span>
+        </div>
         <h2 className="text-2xl font-mono text-white mb-6">
           {workspace.name} Boards
         </h2>
