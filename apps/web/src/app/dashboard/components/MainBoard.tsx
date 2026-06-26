@@ -531,31 +531,30 @@ export function MainBoard({
               <h2 className="text-white font-mono font-bold"># {board.name}</h2>
               {layout !== "analysis" && (
                 <div className="flex items-center gap-1 bg-void-grey border border-white/10 rounded px-1 py-1">
-                <button
-                  onClick={() => handleLayoutChange("list")}
-                  className={`p-1 rounded transition-colors ${layout === "list" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
-                  title="List Layout"
-                >
-                  <LayoutList size={16} />
-                </button>
-                <button
-                  onClick={() => handleLayoutChange("kanban")}
-                  className={`p-1 rounded transition-colors ${layout === "kanban" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
-                  title="Kanban Layout"
-                >
-                  <Columns size={16} />
-                </button>
-                <button
-                  onClick={() => handleLayoutChange("rows")}
-                  className={`p-1 rounded transition-colors ${layout === "rows" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
-                  title="Rows Layout"
-                >
-                  <AlignJustify size={16} />
-                </button>
+                  <button
+                    onClick={() => handleLayoutChange("list")}
+                    className={`p-1 rounded transition-colors ${layout === "list" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
+                    title="List Layout"
+                  >
+                    <LayoutList size={16} />
+                  </button>
+                  <button
+                    onClick={() => handleLayoutChange("kanban")}
+                    className={`p-1 rounded transition-colors ${layout === "kanban" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
+                    title="Kanban Layout"
+                  >
+                    <Columns size={16} />
+                  </button>
+                  <button
+                    onClick={() => handleLayoutChange("rows")}
+                    className={`p-1 rounded transition-colors ${layout === "rows" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
+                    title="Rows Layout"
+                  >
+                    <AlignJustify size={16} />
+                  </button>
                 </div>
               )}
             </div>
-          </div>
             <div
               className="flex items-center gap-2 relative"
               ref={boardOptionsRef}
@@ -567,93 +566,96 @@ export function MainBoard({
               >
                 <MoreHorizontal size={16} />
               </button>
-            {isBoardOptionsOpen && (
-              <div className="absolute top-full right-0 mt-2 bg-void-grey border border-white/20 shadow-2xl rounded-md min-w-[200px] py-1 font-mono text-sm flex flex-col z-50">
-                {board?.isActive && (
+              {isBoardOptionsOpen && (
+                <div className="absolute top-full right-0 mt-2 bg-void-grey border border-white/20 shadow-2xl rounded-md min-w-[200px] py-1 font-mono text-sm flex flex-col z-50">
+                  {board?.isActive && (
+                    <ContextMenuItem
+                      onClick={() => {
+                        setIsVoiceCallActive(!isVoiceCallActive);
+                        setIsBoardOptionsOpen(false);
+                      }}
+                      className={isVoiceCallActive ? "!text-red-400" : ""}
+                    >
+                      <span className="flex items-center gap-2">
+                        <Phone size={14} />
+                        {isVoiceCallActive
+                          ? "Leave Voice Call"
+                          : "Join Voice Call"}
+                      </span>
+                    </ContextMenuItem>
+                  )}
                   <ContextMenuItem
                     onClick={() => {
-                      setIsVoiceCallActive(!isVoiceCallActive);
+                      handleLayoutChange(
+                        layout === "analysis" ? "list" : "analysis",
+                      );
                       setIsBoardOptionsOpen(false);
                     }}
-                    className={isVoiceCallActive ? "!text-red-400" : ""}
                   >
                     <span className="flex items-center gap-2">
-                      <Phone size={14} />
-                      {isVoiceCallActive
-                        ? "Leave Voice Call"
-                        : "Join Voice Call"}
+                      <PieChart size={14} />
+                      {layout === "analysis"
+                        ? "Back to Board"
+                        : "Analysis View"}
                     </span>
                   </ContextMenuItem>
-                )}
-                <ContextMenuItem
-                  onClick={() => {
-                    handleLayoutChange(
-                      layout === "analysis" ? "list" : "analysis",
-                    );
-                    setIsBoardOptionsOpen(false);
-                  }}
-                >
-                  <span className="flex items-center gap-2">
-                    <PieChart size={14} />
-                    {layout === "analysis" ? "Back to Board" : "Analysis View"}
-                  </span>
-                </ContextMenuItem>
-                {board?.isActive && isCurrentUserAdmin && (
+                  {board?.isActive && isCurrentUserAdmin && (
+                    <ContextMenuItem
+                      onClick={() => {
+                        handleSyncBoard();
+                        setIsBoardOptionsOpen(false);
+                      }}
+                      disabled={isSyncing}
+                    >
+                      <span className="flex items-center gap-2">
+                        <RefreshCw
+                          size={14}
+                          className={isSyncing ? "animate-spin" : ""}
+                        />
+                        Sync Board
+                      </span>
+                    </ContextMenuItem>
+                  )}
                   <ContextMenuItem
                     onClick={() => {
-                      handleSyncBoard();
+                      setIsAddTaskModalOpen(true);
                       setIsBoardOptionsOpen(false);
                     }}
-                    disabled={isSyncing}
                   >
                     <span className="flex items-center gap-2">
-                      <RefreshCw
-                        size={14}
-                        className={isSyncing ? "animate-spin" : ""}
-                      />
-                      Sync Board
+                      <Plus size={14} />
+                      Add Task
                     </span>
                   </ContextMenuItem>
-                )}
-                <ContextMenuItem
-                  onClick={() => {
-                    setIsAddTaskModalOpen(true);
-                    setIsBoardOptionsOpen(false);
-                  }}
-                >
-                  <span className="flex items-center gap-2">
-                    <Plus size={14} />
-                    Add Task
-                  </span>
-                </ContextMenuItem>
-                {board && isCurrentUserAdmin && (
-                  <ContextMenuItem
-                    onClick={() => {
-                      setActivationConfirmModalState({
-                        isOpen: true,
-                        message: `Are you sure you want to ${
-                          board.isActive ? "deactivate" : "activate"
-                        } the board ${board.name}?`,
-                        onConfirm: handleToggleActivation,
-                      });
-                      setIsBoardOptionsOpen(false);
-                    }}
-                    className={
-                      board.isActive ? "!text-red-400" : "!text-green-400"
-                    }
-                  >
-                    <span className="flex items-center gap-2">
-                      {board.isActive ? (
-                        <PowerOff size={14} />
-                      ) : (
-                        <Power size={14} />
-                      )}
-                      {board.isActive ? "Deactivate Board" : "Activate Board"}
-                    </span>
-                  </ContextMenuItem>
-                )}
-              </div>
-            )}
+                  {board && isCurrentUserAdmin && (
+                    <ContextMenuItem
+                      onClick={() => {
+                        setActivationConfirmModalState({
+                          isOpen: true,
+                          message: `Are you sure you want to ${
+                            board.isActive ? "deactivate" : "activate"
+                          } the board ${board.name}?`,
+                          onConfirm: handleToggleActivation,
+                        });
+                        setIsBoardOptionsOpen(false);
+                      }}
+                      className={
+                        board.isActive ? "!text-red-400" : "!text-green-400"
+                      }
+                    >
+                      <span className="flex items-center gap-2">
+                        {board.isActive ? (
+                          <PowerOff size={14} />
+                        ) : (
+                          <Power size={14} />
+                        )}
+                        {board.isActive ? "Deactivate Board" : "Activate Board"}
+                      </span>
+                    </ContextMenuItem>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
