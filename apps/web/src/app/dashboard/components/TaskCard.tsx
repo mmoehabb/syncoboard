@@ -4,9 +4,11 @@ import React from "react";
 import Image from "next/image";
 import { MainBoardTask, UnregisteredUser } from "./types";
 import { formatRelativeOrAbsoluteDate } from "@/lib/utils/date";
+import { Draggable } from "@hello-pangea/dnd";
 
 interface TaskCardProps {
   task: MainBoardTask;
+  index: number;
   isSelected: boolean;
   onClick: () => void;
   onContextMenu: (e: React.MouseEvent) => void;
@@ -14,6 +16,7 @@ interface TaskCardProps {
 
 export const TaskCard: React.FC<TaskCardProps> = ({
   task,
+  index,
   isSelected,
   onClick,
   onContextMenu,
@@ -54,168 +57,179 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     unregisteredReviewers.length > 0;
 
   return (
-    <div
-      onClick={onClick}
-      onContextMenu={onContextMenu}
-      className={`surface-panel p-3 rounded-md border transition-all cursor-pointer flex flex-col gap-2 ${
-        isSelected
-          ? "border-git-green bg-git-green/5 shadow-md "
-          : "border-white/10 bg-void-grey hover:border-white/20"
-      } cmd-selectable [&.cmd-selected]:border-neon-pulse [&.cmd-selected]:bg-neon-pulse/5 [&.cmd-selected]:shadow-md `}
-    >
-      <div className="flex flex-col gap-1.5">
-        <div className="flex items-start justify-between gap-2">
-          <div className="text-syntax-grey font-mono text-xs shrink-0 mt-0.5">
-            SYNC-{task.id.toString()}{" "}
-            {task.prNumber && `| PR #${task.prNumber}`}
-          </div>
-          {task.branchName && (
-            <div className="flex items-center min-w-0">
-              <span className="px-2 py-0.5 rounded-full bg-neon-pulse/10 text-neon-pulse text-[10px] font-mono lowercase truncate">
-                {task.branchName}
-              </span>
-            </div>
-          )}
-        </div>
+    <Draggable draggableId={task.id.toString()} index={index}>
+      {(provided, snapshot) => (
         <div
-          className={`font-mono text-sm leading-relaxed break-words ${
-            task.status === "DONE" || task.status === "CLOSED"
-              ? "text-syntax-grey line-through"
-              : "text-white"
-          }`}
+          ref={provided.innerRef}
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+          onClick={onClick}
+          onContextMenu={onContextMenu}
+          className={`surface-panel p-3 rounded-md border transition-all cursor-pointer flex flex-col gap-2 ${
+            isSelected
+              ? "border-git-green bg-git-green/5 shadow-md "
+              : "border-white/10 bg-void-grey hover:border-white/20"
+          } cmd-selectable [&.cmd-selected]:border-neon-pulse [&.cmd-selected]:bg-neon-pulse/5 [&.cmd-selected]:shadow-md ${snapshot.isDragging ? "shadow-lg border-neon-pulse bg-obsidian-night opacity-90 scale-105 z-50" : ""}`}
         >
-          {task.title}
-        </div>
-      </div>
-
-      <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5">
-        <div className="flex items-center gap-3">
-          {/* People section */}
-          {hasPeople && (
-            <div className="flex items-center gap-3">
-              {/* Assignees */}
-              {(assignees.length > 0 || unregisteredAssignees.length > 0) && (
-                <div className="flex -space-x-2">
-                  {assignees.map((user) => (
-                    <div
-                      key={user.id}
-                      className="w-5 h-5 rounded-full overflow-hidden border border-void-grey relative group"
-                      title={`Assignee: ${user.name || user.email || "Unknown"}`}
-                    >
-                      {user.image ? (
-                        <Image
-                          fill
-                          sizes="20px"
-                          src={user.image}
-                          alt="Avatar"
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-neon-pulse/20 text-neon-pulse flex items-center justify-center text-[10px] font-bold">
-                          {(user.name || user.email || "?")
-                            .charAt(0)
-                            .toUpperCase()}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                  {unregisteredAssignees.map((u, idx: number) => (
-                    <div
-                      key={`u-a-${idx}`}
-                      className="w-5 h-5 rounded-full overflow-hidden border border-void-grey relative group"
-                      title={`Assignee: Anonymous (${u.login}) - Not registered on Syncoboard`}
-                    >
-                      {u.avatar_url ? (
-                        <Image
-                          fill
-                          sizes="20px"
-                          src={u.avatar_url}
-                          alt="Avatar"
-                          className="object-cover grayscale opacity-80"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-syntax-grey/20 text-syntax-grey flex items-center justify-center text-[10px] font-bold">
-                          ?
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Reviewers */}
-              {(reviewers.length > 0 || unregisteredReviewers.length > 0) && (
-                <div className="flex items-center gap-1">
-                  <span className="text-[10px] text-syntax-grey font-mono tracking-tighter">
-                    REV:
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-start justify-between gap-2">
+              <div className="text-syntax-grey font-mono text-xs shrink-0 mt-0.5">
+                SYNC-{task.id.toString()}{" "}
+                {task.prNumber && `| PR #${task.prNumber}`}
+              </div>
+              {task.branchName && (
+                <div className="flex items-center min-w-0">
+                  <span className="px-2 py-0.5 rounded-full bg-neon-pulse/10 text-neon-pulse text-[10px] font-mono lowercase truncate">
+                    {task.branchName}
                   </span>
-                  <div className="flex -space-x-2">
-                    {reviewers.map((user) => (
-                      <div
-                        key={user.id}
-                        className="w-5 h-5 rounded-full overflow-hidden border border-void-grey relative group"
-                        title={`Reviewer: ${user.name || user.email || "Unknown"}`}
-                      >
-                        {user.image ? (
-                          <Image
-                            fill
-                            sizes="20px"
-                            src={user.image}
-                            alt="Avatar"
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-git-green/20 text-git-green flex items-center justify-center text-[10px] font-bold">
-                            {(user.name || user.email || "?")
-                              .charAt(0)
-                              .toUpperCase()}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                    {unregisteredReviewers.map((u, idx: number) => (
-                      <div
-                        key={`u-r-${idx}`}
-                        className="w-5 h-5 rounded-full overflow-hidden border border-void-grey relative group"
-                        title={`Reviewer: Anonymous (${u.login}) - Not registered on Syncoboard`}
-                      >
-                        {u.avatar_url ? (
-                          <Image
-                            fill
-                            sizes="20px"
-                            src={u.avatar_url}
-                            alt="Avatar"
-                            className="object-cover grayscale opacity-80"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-syntax-grey/20 text-syntax-grey flex items-center justify-center text-[10px] font-bold">
-                            ?
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
                 </div>
               )}
             </div>
-          )}
-        </div>
-
-        <div className="flex flex-col items-end text-[10px] font-mono text-syntax-grey opacity-70 group-hover:opacity-100 transition-opacity">
-          <div title={`Created: ${new Date(task.createdAt).toLocaleString()}`}>
-            {formatRelativeOrAbsoluteDate(task.createdAt)}
-          </div>
-          {new Date(task.updatedAt).getTime() !==
-            new Date(task.createdAt).getTime() && (
             <div
-              title={`Updated: ${new Date(task.updatedAt).toLocaleString()}`}
-              className="text-white/40"
+              className={`font-mono text-sm leading-relaxed break-words ${
+                task.status === "DONE" || task.status === "CLOSED"
+                  ? "text-syntax-grey line-through"
+                  : "text-white"
+              }`}
             >
-              ✎ {formatRelativeOrAbsoluteDate(task.updatedAt)}
+              {task.title}
             </div>
-          )}
+          </div>
+
+          <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5">
+            <div className="flex items-center gap-3">
+              {/* People section */}
+              {hasPeople && (
+                <div className="flex items-center gap-3">
+                  {/* Assignees */}
+                  {(assignees.length > 0 ||
+                    unregisteredAssignees.length > 0) && (
+                    <div className="flex -space-x-2">
+                      {assignees.map((user) => (
+                        <div
+                          key={user.id}
+                          className="w-5 h-5 rounded-full overflow-hidden border border-void-grey relative group"
+                          title={`Assignee: ${user.name || user.email || "Unknown"}`}
+                        >
+                          {user.image ? (
+                            <Image
+                              fill
+                              sizes="20px"
+                              src={user.image}
+                              alt="Avatar"
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-neon-pulse/20 text-neon-pulse flex items-center justify-center text-[10px] font-bold">
+                              {(user.name || user.email || "?")
+                                .charAt(0)
+                                .toUpperCase()}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                      {unregisteredAssignees.map((u, idx: number) => (
+                        <div
+                          key={`u-a-${idx}`}
+                          className="w-5 h-5 rounded-full overflow-hidden border border-void-grey relative group"
+                          title={`Assignee: Anonymous (${u.login}) - Not registered on Syncoboard`}
+                        >
+                          {u.avatar_url ? (
+                            <Image
+                              fill
+                              sizes="20px"
+                              src={u.avatar_url}
+                              alt="Avatar"
+                              className="object-cover grayscale opacity-80"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-syntax-grey/20 text-syntax-grey flex items-center justify-center text-[10px] font-bold">
+                              ?
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Reviewers */}
+                  {(reviewers.length > 0 ||
+                    unregisteredReviewers.length > 0) && (
+                    <div className="flex items-center gap-1">
+                      <span className="text-[10px] text-syntax-grey font-mono tracking-tighter">
+                        REV:
+                      </span>
+                      <div className="flex -space-x-2">
+                        {reviewers.map((user) => (
+                          <div
+                            key={user.id}
+                            className="w-5 h-5 rounded-full overflow-hidden border border-void-grey relative group"
+                            title={`Reviewer: ${user.name || user.email || "Unknown"}`}
+                          >
+                            {user.image ? (
+                              <Image
+                                fill
+                                sizes="20px"
+                                src={user.image}
+                                alt="Avatar"
+                                className="object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-git-green/20 text-git-green flex items-center justify-center text-[10px] font-bold">
+                                {(user.name || user.email || "?")
+                                  .charAt(0)
+                                  .toUpperCase()}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                        {unregisteredReviewers.map((u, idx: number) => (
+                          <div
+                            key={`u-r-${idx}`}
+                            className="w-5 h-5 rounded-full overflow-hidden border border-void-grey relative group"
+                            title={`Reviewer: Anonymous (${u.login}) - Not registered on Syncoboard`}
+                          >
+                            {u.avatar_url ? (
+                              <Image
+                                fill
+                                sizes="20px"
+                                src={u.avatar_url}
+                                alt="Avatar"
+                                className="object-cover grayscale opacity-80"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-syntax-grey/20 text-syntax-grey flex items-center justify-center text-[10px] font-bold">
+                                ?
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col items-end text-[10px] font-mono text-syntax-grey opacity-70 group-hover:opacity-100 transition-opacity">
+              <div
+                title={`Created: ${new Date(task.createdAt).toLocaleString()}`}
+              >
+                {formatRelativeOrAbsoluteDate(task.createdAt)}
+              </div>
+              {new Date(task.updatedAt).getTime() !==
+                new Date(task.createdAt).getTime() && (
+                <div
+                  title={`Updated: ${new Date(task.updatedAt).toLocaleString()}`}
+                  className="text-white/40"
+                >
+                  ✎ {formatRelativeOrAbsoluteDate(task.updatedAt)}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </Draggable>
   );
 };

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { AddBoard } from "./AddBoard";
 import { AccountSettings } from "./AccountSettings";
 import { FocusedLabel } from "@/components/ui/FocusedLabel";
-import { AddWorkspace } from "./AddWorkspace";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
@@ -21,9 +20,9 @@ export function SettingsTabs({
   isActive,
   subscription,
 }: SettingsTabsProps) {
-  const [activeTab, setActiveTab] = useState<
-    "add-board" | "account" | "add-workspace"
-  >("add-board");
+  const [activeTab, setActiveTab] = useState<"add-board" | "account">(
+    "add-board",
+  );
 
   return (
     <>
@@ -55,16 +54,7 @@ export function SettingsTabs({
           >
             Add Board
           </button>
-          <button
-            onClick={() => setActiveTab("add-workspace")}
-            className={`whitespace-nowrap md:w-full text-center md:text-left px-3 py-2 border-b-2 md:border-b-0 md:border-l-2 text-sm transition-colors cmd-selectable ${
-              activeTab === "add-workspace"
-                ? "bg-white/10 border-git-green text-white"
-                : "border-transparent text-syntax-grey hover:bg-white/5 hover:text-white"
-            } [&.cmd-selected]:bg-white/10 [&.cmd-selected]:text-white`}
-          >
-            Add Workspace
-          </button>
+
           <button
             onClick={() => setActiveTab("account")}
             className={`whitespace-nowrap md:w-full text-center md:text-left px-3 py-2 border-b-2 md:border-b-0 md:border-l-2 text-sm transition-colors cmd-selectable ${
@@ -84,7 +74,6 @@ export function SettingsTabs({
           <FocusedLabel />
         </div>
         {activeTab === "add-board" && <AddBoard workspaces={workspaces} />}
-        {activeTab === "add-workspace" && <AddWorkspace />}
         {activeTab === "account" && (
           <AccountSettings
             userId={userId}

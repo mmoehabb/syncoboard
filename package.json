@@ -47,6 +47,7 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
+    "@hello-pangea/dnd": "^18.0.1",
     "@octokit/app": "^16.1.2",
     "@octokit/auth-app": "^8.2.0",
     "@octokit/webhooks-types": "^7.6.1",
@@ -56,6 +57,7 @@
     "ink": "^5.0.0",
     "next-auth": "5.0.0-beta.30",
     "octokit": "^5.0.5",
+    "playwright": "^1.61.1",
     "string-similarity": "^4.0.4",
     "tsx": "^4.21.0"
   }
