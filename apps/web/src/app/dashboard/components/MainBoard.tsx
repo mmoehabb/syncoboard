@@ -35,6 +35,8 @@ import {
 import { SimpleConfirmationModal } from "@/components/modals/SimpleConfirmationModal";
 import { ModifyTaskModal } from "@/components/modals/ModifyTaskModal";
 import { AddTaskModal } from "@/components/modals/AddTaskModal";
+import { InviteMemberModal } from "@/components/modals/InviteMemberModal";
+import { RemoveMemberModal } from "@/components/modals/RemoveMemberModal";
 import { useToast } from "@/context/ToastContext";
 import axios from "axios";
 import { useSession } from "next-auth/react";
@@ -66,8 +68,20 @@ export function MainBoard({
   const userId = session?.user?.id;
   const searchParams = useSearchParams();
   const taskIdParam = searchParams.get("taskId");
-  const { isVoiceCallActive, setIsVoiceCallActive } = useCommand();
+  const { isVoiceCallActive, setIsVoiceCallActive, setCommandContextState } = useCommand();
   const { socket, isConnected } = useSocket();
+
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [isRemoveMemberModalOpen, setIsRemoveMemberModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (setCommandContextState) {
+      setCommandContextState({
+        setIsInviteModalOpen,
+        setIsRemoveMemberModalOpen,
+      });
+    }
+  }, [setCommandContextState]);
 
   const [isBoardOptionsOpen, setIsBoardOptionsOpen] = useState(false);
   const boardOptionsRef = useRef<HTMLDivElement>(null);
@@ -940,6 +954,32 @@ export function MainBoard({
         onConfirm={handleAddTask}
         onCancel={() => setIsAddTaskModalOpen(false)}
       />
+
+      {boardId && (
+        <>
+          <InviteMemberModal
+            boardId={boardId}
+            isOpen={isInviteModalOpen}
+            onConfirm={() => {
+              setIsInviteModalOpen(false);
+              router.refresh();
+              showToast("Member invited successfully!", "success");
+            }}
+            onCancel={() => setIsInviteModalOpen(false)}
+          />
+          <RemoveMemberModal
+            boardId={boardId}
+            isOpen={isRemoveMemberModalOpen}
+            members={board?.members || []}
+            onConfirm={() => {
+              setIsRemoveMemberModalOpen(false);
+              router.refresh();
+              showToast("Member removed successfully!", "success");
+            }}
+            onCancel={() => setIsRemoveMemberModalOpen(false)}
+          />
+        </>
+      )}
     </div>
   );
 }

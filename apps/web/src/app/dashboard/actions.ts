@@ -125,7 +125,15 @@ export async function getUserWorkspacesAndBoards(userId: string) {
       },
     },
     include: {
-      boards: true,
+      boards: {
+        include: {
+          tasks: {
+            select: {
+              status: true,
+            },
+          },
+        },
+      },
     },
   });
   return workspaces;

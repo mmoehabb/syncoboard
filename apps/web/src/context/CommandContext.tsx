@@ -46,6 +46,7 @@ interface CommandContextType {
     message?: string;
     onConfirm?: () => Promise<void>;
   }) => void;
+  setCommandContextState?: (state: any) => void;
 }
 
 const CommandContext = createContext<CommandContextType | undefined>(undefined);
@@ -67,6 +68,8 @@ export function CommandProvider({ children }: { children: ReactNode }) {
     message?: string;
     onConfirm?: () => Promise<void>;
   }>({ isOpen: false });
+
+  const [commandContextState, setCommandContextState] = useState<any>({});
 
   const { isInputFocused } = useInputFocusTracking();
   useActiveContainerSync();
@@ -140,6 +143,7 @@ export function CommandProvider({ children }: { children: ReactNode }) {
         setVirtualPath,
         setDeleteModalState,
         showToast,
+        commandContextState,
       });
     } else {
       printOutput([
@@ -166,6 +170,7 @@ export function CommandProvider({ children }: { children: ReactNode }) {
         setVirtualPath,
         deleteModalState,
         setDeleteModalState,
+        setCommandContextState,
       }}
     >
       {children}

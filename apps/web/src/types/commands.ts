@@ -24,6 +24,7 @@ export interface Command {
       message: string;
       onSubmit: (input: string) => Promise<void>;
     }) => void;
+    commandContextState?: any;
   }) => void;
 }
 

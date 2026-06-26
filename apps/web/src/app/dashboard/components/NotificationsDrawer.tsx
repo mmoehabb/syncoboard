@@ -6,7 +6,7 @@ import { formatRelativeOrAbsoluteDate } from "@/lib/utils/date";
 import { useSocket } from "@/context/SocketContext";
 import { WEBSOCKET_EVENTS } from "@syncoboard/shared";
 
-export function NotificationsDropdown() {
+export function NotificationsDrawer() {
   const { socket, isConnected } = useSocket();
   const [open, setOpen] = useState(false);
   const [logs, setLogs] = useState<any[]>([]);
@@ -104,7 +104,7 @@ export function NotificationsDropdown() {
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative">
       <button
         onClick={handleOpen}
         className="relative flex items-center justify-center w-8 h-8 rounded-full hover:bg-white/5 transition-colors text-syntax-grey hover:text-white"
@@ -116,11 +116,16 @@ export function NotificationsDropdown() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 max-h-96 overflow-y-auto bg-obsidian-night border border-white/10 rounded-md shadow-xl z-50">
-          <div className="p-3 border-b border-white/10 font-mono text-sm font-bold text-white flex justify-between items-center bg-void-grey sticky top-0">
+        <>
+        <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setOpen(false)} />
+        <div ref={dropdownRef} className="fixed right-0 top-0 bottom-0 w-80 bg-obsidian-night border-l border-white/10 shadow-2xl z-50 flex flex-col">
+          <div className="p-4 border-b border-white/10 font-mono text-base font-bold text-white flex justify-between items-center bg-void-grey">
             <span>Notifications</span>
+            <button onClick={() => setOpen(false)} className="text-syntax-grey hover:text-white transition-colors">
+              <X size={18} />
+            </button>
           </div>
-          <div className="flex flex-col">
+          <div className="flex-1 overflow-y-auto">
             {logs.length === 0 ? (
               <div className="p-4 text-center text-syntax-grey font-mono text-sm">
                 No new notifications
@@ -231,6 +236,7 @@ export function NotificationsDropdown() {
             )}
           </div>
         </div>
+        </>
       )}
     </div>
   );

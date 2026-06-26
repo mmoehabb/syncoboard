@@ -75,30 +75,28 @@ export class BoardApi extends ApiClient {
   }
 
   public async inviteMember(
-    workspaceName: string,
-    boardName: string,
-    identifier: string,
+    boardId: string,
+    email: string,
   ): Promise<unknown> {
-    const response = await this.post<{ member: unknown }>("/members", {
-      workspaceName,
-      boardName,
-      identifier,
-    });
-    return response.data.member;
+    const response = await this.post(`/${boardId}/invites`, { email });
+    return response.data;
+  }
+
+  public async acceptInvite(inviteId: string): Promise<unknown> {
+    const response = await this.client.post(`/api/invites/${inviteId}/accept`);
+    return response.data;
+  }
+
+  public async rejectInvite(inviteId: string): Promise<unknown> {
+    const response = await this.client.post(`/api/invites/${inviteId}/reject`);
+    return response.data;
   }
 
   public async removeMember(
-    workspaceName: string,
-    boardName: string,
-    identifier: string,
+    boardId: string,
+    memberId: string,
   ): Promise<{ message: string }> {
-    const response = await this.delete<{ message: string }>("/members", {
-      params: {
-        workspace: workspaceName,
-        board: boardName,
-        identifier,
-      },
-    });
+    const response = await this.delete<{ message: string }>(`/${boardId}/members/${memberId}`);
     return response.data;
   }
 
