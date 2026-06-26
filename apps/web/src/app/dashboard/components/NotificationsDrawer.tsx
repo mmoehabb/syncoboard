@@ -117,125 +117,138 @@ export function NotificationsDrawer() {
 
       {open && (
         <>
-        <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setOpen(false)} />
-        <div ref={dropdownRef} className="fixed right-0 top-0 bottom-0 w-80 bg-obsidian-night border-l border-white/10 shadow-2xl z-50 flex flex-col">
-          <div className="p-4 border-b border-white/10 font-mono text-base font-bold text-white flex justify-between items-center bg-void-grey">
-            <span>Notifications</span>
-            <button onClick={() => setOpen(false)} className="text-syntax-grey hover:text-white transition-colors">
-              <X size={18} />
-            </button>
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            {logs.length === 0 ? (
-              <div className="p-4 text-center text-syntax-grey font-mono text-sm">
-                No new notifications
-              </div>
-            ) : (
-              logs.map((log) => {
-                const isUnread = lastRead
-                  ? new Date(log.createdAt) > lastRead
-                  : true;
-                return (
-                  <div
-                    key={log.id}
-                    className={`p-3 border-b border-white/5 text-sm font-mono flex flex-col gap-2 ${
-                      isUnread ? "bg-white/5" : ""
-                    }`}
-                  >
-                    <div className="flex items-start gap-2">
-                      <div className="mt-0.5 text-syntax-grey">
-                        <Info size={14} />
-                      </div>
-                      <div className="flex-1">
-                        {log.type === "INVITATION" && (
-                          <div>
-                            <span className="text-white font-semibold">
-                              {log.actor?.name || log.actor?.email || "Someone"}
-                            </span>{" "}
-                            invited you to join{" "}
-                            <span className="text-syntax-blue">
-                              {log.board?.workspace?.name}/{log.board?.name}
-                            </span>
-                          </div>
-                        )}
-                        {log.type === "MEMBER_JOIN" && (
-                          <div>
-                            <span className="text-white font-semibold">
-                              {log.actor?.name ||
-                                log.actor?.email ||
-                                "A new member"}
-                            </span>{" "}
-                            joined{" "}
-                            <span className="text-syntax-blue">
-                              {log.board?.workspace?.name}/{log.board?.name}
-                            </span>
-                          </div>
-                        )}
-                        {log.type === "MEMBER_LEAVE" && (
-                          <div>
-                            <span className="text-white font-semibold">
-                              {log.actor?.name ||
-                                log.actor?.email ||
-                                "A member"}
-                            </span>{" "}
-                            left{" "}
-                            <span className="text-syntax-blue">
-                              {log.board?.workspace?.name}/{log.board?.name}
-                            </span>
-                          </div>
-                        )}
-                        {log.type === "TASK_UPDATE" && (
-                          <div>
-                            Task{" "}
-                            <span className="text-white font-semibold">
-                              {log.task?.title || "Unknown Task"}
-                            </span>{" "}
-                            was updated to{" "}
-                            <span className="text-syntax-purple">
-                              {log.task?.status}
-                            </span>{" "}
-                            in{" "}
-                            <span className="text-syntax-blue">
-                              {log.board?.workspace?.name}/{log.board?.name}
-                            </span>
-                          </div>
-                        )}
-                        <div className="text-xs text-syntax-grey mt-1">
-                          {formatRelativeOrAbsoluteDate(
-                            new Date(log.createdAt),
+          <div
+            className="fixed inset-0 bg-black/50 z-40"
+            onClick={() => setOpen(false)}
+          />
+          <div
+            ref={dropdownRef}
+            className="fixed right-0 top-0 bottom-0 w-80 bg-obsidian-night border-l border-white/10 shadow-2xl z-50 flex flex-col"
+          >
+            <div className="p-4 border-b border-white/10 font-mono text-base font-bold text-white flex justify-between items-center bg-void-grey">
+              <span>Notifications</span>
+              <button
+                onClick={() => setOpen(false)}
+                className="text-syntax-grey hover:text-white transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              {logs.length === 0 ? (
+                <div className="p-4 text-center text-syntax-grey font-mono text-sm">
+                  No new notifications
+                </div>
+              ) : (
+                logs.map((log) => {
+                  const isUnread = lastRead
+                    ? new Date(log.createdAt) > lastRead
+                    : true;
+                  return (
+                    <div
+                      key={log.id}
+                      className={`p-3 border-b border-white/5 text-sm font-mono flex flex-col gap-2 ${
+                        isUnread ? "bg-white/5" : ""
+                      }`}
+                    >
+                      <div className="flex items-start gap-2">
+                        <div className="mt-0.5 text-syntax-grey">
+                          <Info size={14} />
+                        </div>
+                        <div className="flex-1">
+                          {log.type === "INVITATION" && (
+                            <div>
+                              <span className="text-white font-semibold">
+                                {log.actor?.name ||
+                                  log.actor?.email ||
+                                  "Someone"}
+                              </span>{" "}
+                              invited you to join{" "}
+                              <span className="text-syntax-blue">
+                                {log.board?.workspace?.name}/{log.board?.name}
+                              </span>
+                            </div>
                           )}
+                          {log.type === "MEMBER_JOIN" && (
+                            <div>
+                              <span className="text-white font-semibold">
+                                {log.actor?.name ||
+                                  log.actor?.email ||
+                                  "A new member"}
+                              </span>{" "}
+                              joined{" "}
+                              <span className="text-syntax-blue">
+                                {log.board?.workspace?.name}/{log.board?.name}
+                              </span>
+                            </div>
+                          )}
+                          {log.type === "MEMBER_LEAVE" && (
+                            <div>
+                              <span className="text-white font-semibold">
+                                {log.actor?.name ||
+                                  log.actor?.email ||
+                                  "A member"}
+                              </span>{" "}
+                              left{" "}
+                              <span className="text-syntax-blue">
+                                {log.board?.workspace?.name}/{log.board?.name}
+                              </span>
+                            </div>
+                          )}
+                          {log.type === "TASK_UPDATE" && (
+                            <div>
+                              Task{" "}
+                              <span className="text-white font-semibold">
+                                {log.task?.title || "Unknown Task"}
+                              </span>{" "}
+                              was updated to{" "}
+                              <span className="text-syntax-purple">
+                                {log.task?.status}
+                              </span>{" "}
+                              in{" "}
+                              <span className="text-syntax-blue">
+                                {log.board?.workspace?.name}/{log.board?.name}
+                              </span>
+                            </div>
+                          )}
+                          <div className="text-xs text-syntax-grey mt-1">
+                            {formatRelativeOrAbsoluteDate(
+                              new Date(log.createdAt),
+                            )}
+                          </div>
                         </div>
                       </div>
+                      {log.type === "INVITATION" &&
+                        log.status === "PENDING" && (
+                          <div className="flex gap-2 mt-1 ml-6">
+                            <button
+                              disabled={loading}
+                              onClick={() => handleInvite(log.id, "ACCEPT")}
+                              className="flex items-center gap-1 text-xs bg-green-500/20 text-green-400 hover:bg-green-500/30 px-2 py-1 rounded transition-colors"
+                            >
+                              <Check size={12} /> Accept
+                            </button>
+                            <button
+                              disabled={loading}
+                              onClick={() => handleInvite(log.id, "DECLINE")}
+                              className="flex items-center gap-1 text-xs bg-red-500/20 text-red-400 hover:bg-red-500/30 px-2 py-1 rounded transition-colors"
+                            >
+                              <X size={12} /> Decline
+                            </button>
+                          </div>
+                        )}
+                      {log.type === "INVITATION" &&
+                        log.status !== "PENDING" && (
+                          <div className="text-xs text-syntax-grey ml-6 italic">
+                            Invitation {log.status?.toLowerCase()}
+                          </div>
+                        )}
                     </div>
-                    {log.type === "INVITATION" && log.status === "PENDING" && (
-                      <div className="flex gap-2 mt-1 ml-6">
-                        <button
-                          disabled={loading}
-                          onClick={() => handleInvite(log.id, "ACCEPT")}
-                          className="flex items-center gap-1 text-xs bg-green-500/20 text-green-400 hover:bg-green-500/30 px-2 py-1 rounded transition-colors"
-                        >
-                          <Check size={12} /> Accept
-                        </button>
-                        <button
-                          disabled={loading}
-                          onClick={() => handleInvite(log.id, "DECLINE")}
-                          className="flex items-center gap-1 text-xs bg-red-500/20 text-red-400 hover:bg-red-500/30 px-2 py-1 rounded transition-colors"
-                        >
-                          <X size={12} /> Decline
-                        </button>
-                      </div>
-                    )}
-                    {log.type === "INVITATION" && log.status !== "PENDING" && (
-                      <div className="text-xs text-syntax-grey ml-6 italic">
-                        Invitation {log.status?.toLowerCase()}
-                      </div>
-                    )}
-                  </div>
-                );
-              })
-            )}
+                  );
+                })
+              )}
+            </div>
           </div>
-        </div>
         </>
       )}
     </div>

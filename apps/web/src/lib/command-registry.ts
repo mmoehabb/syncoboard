@@ -670,11 +670,12 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
   },
   "invite-member": {
     name: "invite-member",
-    description:
-      "Opens a modal to invite a member to the board.",
+    description: "Opens a modal to invite a member to the board.",
     action: ({ printOutput, commandContextState }) => {
       if (!commandContextState?.setIsInviteModalOpen) {
-        printOutput(["Error: Invite member command only available in board view."]);
+        printOutput([
+          "Error: Invite member command only available in board view.",
+        ]);
         return;
       }
       commandContextState.setIsInviteModalOpen(true);
@@ -683,11 +684,12 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
   },
   "rmv-member": {
     name: "rmv-member",
-    description:
-      "Opens a modal to remove a member from the board.",
+    description: "Opens a modal to remove a member from the board.",
     action: ({ printOutput, commandContextState }) => {
       if (!commandContextState?.setIsRemoveMemberModalOpen) {
-        printOutput(["Error: Remove member command only available in board view."]);
+        printOutput([
+          "Error: Remove member command only available in board view.",
+        ]);
         return;
       }
       commandContextState.setIsRemoveMemberModalOpen(true);

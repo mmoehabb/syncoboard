@@ -4,7 +4,7 @@ import { prisma } from "@syncoboard/db";
 
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ boardId: string; memberId: string }> }
+  { params }: { params: Promise<{ boardId: string; memberId: string }> },
 ) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -23,8 +23,14 @@ export async function DELETE(
     },
   });
 
-  if (!currentMember || (currentMember.role !== "ADMIN" && session.user.id !== memberId)) {
-    return NextResponse.json({ error: "Forbidden: Not an admin" }, { status: 403 });
+  if (
+    !currentMember ||
+    (currentMember.role !== "ADMIN" && session.user.id !== memberId)
+  ) {
+    return NextResponse.json(
+      { error: "Forbidden: Not an admin" },
+      { status: 403 },
+    );
   }
 
   // Cannot remove the last admin
@@ -37,11 +43,14 @@ export async function DELETE(
     });
 
     const targetMember = await prisma.boardMember.findUnique({
-       where: { boardId_userId: { boardId, userId: memberId } }
+      where: { boardId_userId: { boardId, userId: memberId } },
     });
 
     if (adminCount <= 1 && targetMember?.role === "ADMIN") {
-      return NextResponse.json({ error: "Cannot remove the last admin of the board" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Cannot remove the last admin of the board" },
+        { status: 400 },
+      );
     }
   }
 
@@ -58,6 +67,9 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Failed to remove member" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to remove member" },
+      { status: 500 },
+    );
   }
 }

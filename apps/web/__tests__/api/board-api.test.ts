@@ -81,10 +81,7 @@ describe("BoardApi", () => {
         data: mockResponse,
       });
 
-      const result = await boardApi.inviteMember(
-        boardId,
-        email,
-      );
+      const result = await boardApi.inviteMember(boardId, email);
 
       expect(mockAxiosInstance.post).toHaveBeenCalledWith(
         `/${boardId}/invites`,
@@ -100,9 +97,9 @@ describe("BoardApi", () => {
       const error = new Error("Network Error");
       mockAxiosInstance.post.mockRejectedValueOnce(error);
 
-      await expect(
-        boardApi.inviteMember(boardId, email),
-      ).rejects.toThrow("Network Error");
+      await expect(boardApi.inviteMember(boardId, email)).rejects.toThrow(
+        "Network Error",
+      );
     });
   });
 
@@ -115,12 +112,12 @@ describe("BoardApi", () => {
         data: mockResponse,
       });
 
-      const result = await boardApi.removeMember(
-        boardId,
-        memberId,
-      );
+      const result = await boardApi.removeMember(boardId, memberId);
 
-      expect(mockAxiosInstance.delete).toHaveBeenCalledWith(`/${boardId}/members/${memberId}`, undefined);
+      expect(mockAxiosInstance.delete).toHaveBeenCalledWith(
+        `/${boardId}/members/${memberId}`,
+        undefined,
+      );
       expect(result).toEqual(mockResponse);
     });
 
@@ -130,9 +127,9 @@ describe("BoardApi", () => {
       const error = new Error("Delete failed");
       mockAxiosInstance.delete.mockRejectedValueOnce(error);
 
-      await expect(
-        boardApi.removeMember(boardId, memberId),
-      ).rejects.toThrow("Delete failed");
+      await expect(boardApi.removeMember(boardId, memberId)).rejects.toThrow(
+        "Delete failed",
+      );
     });
   });
 

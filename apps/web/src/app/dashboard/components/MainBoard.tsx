@@ -68,7 +68,8 @@ export function MainBoard({
   const userId = session?.user?.id;
   const searchParams = useSearchParams();
   const taskIdParam = searchParams.get("taskId");
-  const { isVoiceCallActive, setIsVoiceCallActive, setCommandContextState } = useCommand();
+  const { isVoiceCallActive, setIsVoiceCallActive, setCommandContextState } =
+    useCommand();
   const { socket, isConnected } = useSocket();
 
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);

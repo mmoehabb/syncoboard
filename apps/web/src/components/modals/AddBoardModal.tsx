@@ -140,7 +140,8 @@ export function AddBoardModal({
                 className="text-git-green hover:underline"
               >
                 grant access
-              </a>.
+              </a>
+              .
             </p>
           </div>
           <div className="flex justify-end gap-3 mt-6">

@@ -4,7 +4,7 @@ import { prisma } from "@syncoboard/db";
 
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ boardId: string }> }
+  { params }: { params: Promise<{ boardId: string }> },
 ) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -29,7 +29,10 @@ export async function POST(
   });
 
   if (!currentMember || currentMember.role !== "ADMIN") {
-    return NextResponse.json({ error: "Forbidden: Not an admin" }, { status: 403 });
+    return NextResponse.json(
+      { error: "Forbidden: Not an admin" },
+      { status: 403 },
+    );
   }
 
   // Find target user by email
@@ -38,7 +41,10 @@ export async function POST(
   });
 
   if (!targetUser) {
-    return NextResponse.json({ error: "User with this email not found" }, { status: 404 });
+    return NextResponse.json(
+      { error: "User with this email not found" },
+      { status: 404 },
+    );
   }
 
   // Check if already a member
@@ -52,7 +58,10 @@ export async function POST(
   });
 
   if (existingMember) {
-    return NextResponse.json({ error: "User is already a member" }, { status: 400 });
+    return NextResponse.json(
+      { error: "User is already a member" },
+      { status: 400 },
+    );
   }
 
   // Check if there is already a pending invitation
@@ -62,11 +71,14 @@ export async function POST(
       type: "INVITATION",
       targetUserId: targetUser.id,
       status: "PENDING",
-    }
+    },
   });
 
   if (existingInvite) {
-    return NextResponse.json({ error: "An invitation is already pending for this user" }, { status: 400 });
+    return NextResponse.json(
+      { error: "An invitation is already pending for this user" },
+      { status: 400 },
+    );
   }
 
   // Create invitation log

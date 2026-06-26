@@ -30,7 +30,12 @@ export function WorkspaceGrid({
               }
               board.tasks.forEach((task) => {
                 totalTasks++;
-                if (task.status === "TODO" || task.status === "IN_PROGRESS" || task.status === "IN_REVIEW" || task.status === "CHANGES_REQUESTED") {
+                if (
+                  task.status === "TODO" ||
+                  task.status === "IN_PROGRESS" ||
+                  task.status === "IN_REVIEW" ||
+                  task.status === "CHANGES_REQUESTED"
+                ) {
                   pendingTasks++;
                 }
               });
@@ -43,26 +48,43 @@ export function WorkspaceGrid({
                 className="bg-obsidian-night border border-white/10 rounded p-6 hover:border-neon-pulse transition-colors cursor-pointer flex flex-col group cmd-container relative"
               >
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 [.cmd-active-container_&]:opacity-100 transition-opacity">
-                  <span className="text-xs font-mono text-neon-pulse">select</span>
+                  <span className="text-xs font-mono text-neon-pulse">
+                    select
+                  </span>
                 </div>
                 <h3 className="text-xl font-bold font-mono text-white mb-2 truncate">
                   {ws.name}
                 </h3>
                 <div className="text-syntax-grey text-sm font-mono mb-4">
-                  Last updated: {lastUpdate.getTime() > 0 ? lastUpdate.toLocaleDateString() : 'Never'}
+                  Last updated:{" "}
+                  {lastUpdate.getTime() > 0
+                    ? lastUpdate.toLocaleDateString()
+                    : "Never"}
                 </div>
                 <div className="mt-auto grid grid-cols-2 gap-4">
                   <div className="flex flex-col">
-                    <span className="text-xs text-syntax-grey uppercase tracking-wider font-mono">Active Boards</span>
-                    <span className="text-lg text-white font-mono">{activeBoards}</span>
+                    <span className="text-xs text-syntax-grey uppercase tracking-wider font-mono">
+                      Active Boards
+                    </span>
+                    <span className="text-lg text-white font-mono">
+                      {activeBoards}
+                    </span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-xs text-syntax-grey uppercase tracking-wider font-mono">Tasks</span>
-                    <span className="text-lg text-white font-mono">{totalTasks}</span>
+                    <span className="text-xs text-syntax-grey uppercase tracking-wider font-mono">
+                      Tasks
+                    </span>
+                    <span className="text-lg text-white font-mono">
+                      {totalTasks}
+                    </span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-xs text-syntax-grey uppercase tracking-wider font-mono">Pending Tasks</span>
-                    <span className="text-lg text-white font-mono">{pendingTasks}</span>
+                    <span className="text-xs text-syntax-grey uppercase tracking-wider font-mono">
+                      Pending Tasks
+                    </span>
+                    <span className="text-lg text-white font-mono">
+                      {pendingTasks}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -74,10 +96,15 @@ export function WorkspaceGrid({
             className="bg-void-grey border border-white/10 border-dashed rounded p-6 hover:border-git-green hover:bg-white/5 transition-colors cursor-pointer flex flex-col items-center justify-center min-h-[200px] cmd-container group relative"
           >
             <div className="absolute top-2 right-2 opacity-0 [.cmd-active-container_&]:opacity-100 transition-opacity">
-               <span className="text-xs font-mono text-git-green">add</span>
+              <span className="text-xs font-mono text-git-green">add</span>
             </div>
-            <Plus size={32} className="text-syntax-grey group-hover:text-git-green mb-2 transition-colors" />
-            <span className="text-syntax-grey font-mono group-hover:text-white transition-colors">Add Workspace</span>
+            <Plus
+              size={32}
+              className="text-syntax-grey group-hover:text-git-green mb-2 transition-colors"
+            />
+            <span className="text-syntax-grey font-mono group-hover:text-white transition-colors">
+              Add Workspace
+            </span>
           </div>
         </div>
       </div>

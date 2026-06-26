@@ -74,10 +74,7 @@ export class BoardApi extends ApiClient {
     });
   }
 
-  public async inviteMember(
-    boardId: string,
-    email: string,
-  ): Promise<unknown> {
+  public async inviteMember(boardId: string, email: string): Promise<unknown> {
     const response = await this.post(`/${boardId}/invites`, { email });
     return response.data;
   }
@@ -96,7 +93,9 @@ export class BoardApi extends ApiClient {
     boardId: string,
     memberId: string,
   ): Promise<{ message: string }> {
-    const response = await this.delete<{ message: string }>(`/${boardId}/members/${memberId}`);
+    const response = await this.delete<{ message: string }>(
+      `/${boardId}/members/${memberId}`,
+    );
     return response.data;
   }
 

@@ -59,7 +59,6 @@ export default async function DashboardPage() {
         process.env.NEXT_PUBLIC_GITHUB_APP_NAME || "syncoboard";
       redirect(`https://github.com/apps/${githubAppName}/installations/new`);
     }
-
   } else {
     // If they don't have a subscription, we still want to render the dashboard
     // but without waiting for the workspace creation. It can be an empty list.

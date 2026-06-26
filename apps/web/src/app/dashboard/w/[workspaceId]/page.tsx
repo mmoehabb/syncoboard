@@ -80,7 +80,10 @@ export default async function WorkspacePage({
         }
       />
       <div className="absolute top-[52px] left-64 right-0 bottom-0 overflow-y-auto bg-obsidian-night z-10">
-        <BoardGrid workspace={activeWorkspace} isAdmin={member?.role === "ADMIN"} />
+        <BoardGrid
+          workspace={activeWorkspace}
+          isAdmin={member?.role === "ADMIN"}
+        />
       </div>
     </SessionProvider>
   );

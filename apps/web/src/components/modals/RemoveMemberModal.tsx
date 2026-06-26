@@ -8,7 +8,9 @@ interface RemoveMemberModalProps {
   isOpen: boolean;
   onConfirm: () => void;
   onCancel: () => void;
-  members: { user: { id: string, name: string | null; email: string | null } }[];
+  members: {
+    user: { id: string; name: string | null; email: string | null };
+  }[];
 }
 
 export function RemoveMemberModal({
@@ -71,9 +73,13 @@ export function RemoveMemberModal({
               className="w-full bg-void-grey border border-white/10 text-white font-mono p-2 focus:border-git-green focus:outline-none transition-colors cmd-selectable [&.cmd-selected]:border-git-green [&.cmd-selected]:bg-git-green/5"
               required
             >
-              <option value="" disabled>Select a member...</option>
-              {members.map(m => (
-                 <option key={m.user.id} value={m.user.id}>{m.user.name || m.user.email}</option>
+              <option value="" disabled>
+                Select a member...
+              </option>
+              {members.map((m) => (
+                <option key={m.user.id} value={m.user.id}>
+                  {m.user.name || m.user.email}
+                </option>
               ))}
             </select>
           </div>
