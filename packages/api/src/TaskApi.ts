@@ -68,6 +68,18 @@ export class TaskApi extends ApiClient {
     });
     return response.data;
   }
+
+  public async createPr(
+    taskId: string,
+    config?: AxiosRequestConfig,
+  ): Promise<{ success: boolean; prNumber?: number }> {
+    const response = await this.post<{ success: boolean; prNumber?: number }>(
+      `/${taskId}/pr`,
+      {},
+      config,
+    );
+    return response.data;
+  }
 }
 
 export const taskApi = new TaskApi();

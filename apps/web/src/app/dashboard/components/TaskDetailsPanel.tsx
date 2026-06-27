@@ -1,6 +1,11 @@
 "use client";
 
-import { X, ExternalLink } from "lucide-react";
+import { X, ExternalLink, GitPullRequestCreate } from "lucide-react";
+import { useState } from "react";
+import { SimpleConfirmationModal } from "@/components/modals/SimpleConfirmationModal";
+import { useToast } from "@/context/ToastContext";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 import { formatRelativeOrAbsoluteDate } from "@/lib/utils/date";
 
 import type { MainBoardTask } from "./types";
@@ -14,7 +19,24 @@ export function TaskDetailsPanel({
   repositoryName?: string | null;
   onClose: () => void;
 }) {
+  const [isConfirmPrOpen, setIsConfirmPrOpen] = useState(false);
+  const { showToast } = useToast();
+  const router = useRouter();
+
   if (!task) return null;
+
+  const handleCreatePr = async () => {
+    try {
+      setIsConfirmPrOpen(false);
+      await axios.post(`/api/tasks/${task.id}/pr`);
+      showToast("Pull Request created successfully", "success");
+      router.refresh();
+      onClose(); // Optional: close the panel or let it stay to show updated data
+    } catch (error) {
+      console.error("Failed to create PR:", error);
+      showToast("Failed to create Pull Request", "error");
+    }
+  };
 
   const assignees = task.assignees || [];
   const reviewers = task.reviewers || [];
@@ -250,6 +272,13 @@ export function TaskDetailsPanel({
           </div>
         </div>
       </div>
+      <SimpleConfirmationModal
+        isOpen={isConfirmPrOpen}
+        message="Are you sure you want to create a Pull Request for this task?"
+        confirmText="Create PR"
+        onConfirm={handleCreatePr}
+        onCancel={() => setIsConfirmPrOpen(false)}
+      />
     </div>
   );
 }

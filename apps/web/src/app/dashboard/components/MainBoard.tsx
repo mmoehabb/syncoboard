@@ -265,15 +265,31 @@ export function MainBoard({
     }
   };
 
-  const handleAddTask = async (title: string) => {
+  const handleAddTask = async (
+    title: string,
+    description: string,
+    createPr: boolean,
+  ) => {
     if (!board) return;
     try {
-      await axios.post("/api/tasks", {
+      const response = await axios.post("/api/tasks", {
         boardId: board.id,
         title,
+        description,
         status: initialTaskStatus,
       });
       showToast("Task added successfully", "success");
+
+      if (createPr && response.data?.task?.id) {
+        try {
+          await axios.post(`/api/tasks/${response.data.task.id}/pr`);
+          showToast("Pull Request created successfully", "success");
+        } catch (prError) {
+          console.error("Failed to create PR:", prError);
+          showToast("Task added, but failed to create Pull Request", "error");
+        }
+      }
+
       setIsAddTaskModalOpen(false);
       router.refresh();
     } catch (error) {

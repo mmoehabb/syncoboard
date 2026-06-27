@@ -5,7 +5,11 @@ import React, { useState, useEffect } from "react";
 interface AddTaskModalProps {
   isOpen: boolean;
   initialStatus?: string;
-  onConfirm: (title: string) => Promise<void> | void;
+  onConfirm: (
+    title: string,
+    description: string,
+    createPr: boolean,
+  ) => Promise<void> | void;
   onCancel: () => void;
 }
 
@@ -16,11 +20,15 @@ export function AddTaskModal({
   onCancel,
 }: AddTaskModalProps) {
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [createPr, setCreatePr] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setTitle("");
+      setDescription("");
+      setCreatePr(false);
     }
   }, [isOpen]);
 
@@ -31,7 +39,7 @@ export function AddTaskModal({
     if (isProcessing || !title.trim()) return;
     setIsProcessing(true);
     try {
-      await onConfirm(title.trim());
+      await onConfirm(title.trim(), description.trim(), createPr);
     } finally {
       setIsProcessing(false);
     }
@@ -45,7 +53,7 @@ export function AddTaskModal({
         </h2>
 
         <form onSubmit={handleConfirm}>
-          <div className="mb-6">
+          <div className="mb-4">
             <label className="block text-syntax-grey font-mono text-xs mb-2">
               Task Title
             </label>
@@ -57,6 +65,34 @@ export function AddTaskModal({
               autoFocus
               placeholder="Enter task title..."
             />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-syntax-grey font-mono text-xs mb-2">
+              Description (Optional)
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-neon-pulse focus:ring-1 focus:ring-neon-pulse transition-all cmd-selectable min-h-[100px]"
+              placeholder="Enter task description..."
+            />
+          </div>
+
+          <div className="mb-6 flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="createPrCheckbox"
+              checked={createPr}
+              onChange={(e) => setCreatePr(e.target.checked)}
+              className="w-4 h-4 rounded border-white/10 bg-black/50 text-neon-pulse focus:ring-neon-pulse focus:ring-1"
+            />
+            <label
+              htmlFor="createPrCheckbox"
+              className="text-white/80 font-mono text-sm cursor-pointer"
+            >
+              Create Pull Request for this task
+            </label>
           </div>
 
           <div className="flex gap-4">
