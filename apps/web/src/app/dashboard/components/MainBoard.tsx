@@ -537,7 +537,8 @@ export function MainBoard({
                 <button
                   onClick={() => {
                     if (layout === "analysis") {
-                      const saved = localStorage.getItem("lastTaskLayout") || "list";
+                      const saved =
+                        localStorage.getItem("lastTaskLayout") || "list";
                       handleLayoutChange(saved as any);
                     }
                   }}
