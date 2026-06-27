@@ -42,7 +42,7 @@ import axios from "axios";
 import { useSession } from "next-auth/react";
 
 import type { TaskCounts, AvailableMember } from "./types";
-import { Filter, Calendar, RefreshCw, Phone, PieChart } from "lucide-react";
+import { Filter, Calendar, RefreshCw, Phone } from "lucide-react";
 import { boardApi } from "@syncoboard/api";
 import { updateTaskStatus } from "@/lib/actions/tasks";
 
@@ -124,6 +124,9 @@ export function MainBoard({
   ) => {
     setLayout(newLayout);
     localStorage.setItem("boardLayout", newLayout);
+    if (newLayout !== "analysis") {
+      localStorage.setItem("lastTaskLayout", newLayout);
+    }
 
     const params = new URLSearchParams(searchParams.toString());
     if (newLayout === "analysis") {
@@ -140,7 +143,7 @@ export function MainBoard({
       setLayout("analysis");
       localStorage.setItem("boardLayout", "analysis");
     } else if (viewParam !== "analysis" && layout === "analysis") {
-      const saved = localStorage.getItem("boardLayout");
+      const saved = localStorage.getItem("lastTaskLayout");
       const fallback = saved === "analysis" || !saved ? "list" : saved;
       setLayout(fallback as any);
       localStorage.setItem("boardLayout", fallback);
@@ -529,6 +532,33 @@ export function MainBoard({
           <div className="flex flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <h2 className="text-white font-mono font-bold"># {board.name}</h2>
+
+              <div className="flex items-center gap-1 bg-void-grey border border-white/10 rounded px-1 py-1">
+                <button
+                  onClick={() => {
+                    if (layout === "analysis") {
+                      const saved =
+                        localStorage.getItem("lastTaskLayout") || "list";
+                      handleLayoutChange(saved as any);
+                    }
+                  }}
+                  className={`px-3 py-1 rounded transition-colors text-sm font-mono ${layout !== "analysis" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
+                >
+                  Tasks
+                </button>
+                <button
+                  onClick={() => {
+                    if (layout !== "analysis") {
+                      localStorage.setItem("lastTaskLayout", layout);
+                      handleLayoutChange("analysis");
+                    }
+                  }}
+                  className={`px-3 py-1 rounded transition-colors text-sm font-mono ${layout === "analysis" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
+                >
+                  Analysis
+                </button>
+              </div>
+
               {layout !== "analysis" && (
                 <div className="flex items-center gap-1 bg-void-grey border border-white/10 rounded px-1 py-1">
                   <button
@@ -584,21 +614,6 @@ export function MainBoard({
                       </span>
                     </ContextMenuItem>
                   )}
-                  <ContextMenuItem
-                    onClick={() => {
-                      handleLayoutChange(
-                        layout === "analysis" ? "list" : "analysis",
-                      );
-                      setIsBoardOptionsOpen(false);
-                    }}
-                  >
-                    <span className="flex items-center gap-2">
-                      <PieChart size={14} />
-                      {layout === "analysis"
-                        ? "Back to Board"
-                        : "Analysis View"}
-                    </span>
-                  </ContextMenuItem>
                   {board?.isActive && isCurrentUserAdmin && (
                     <ContextMenuItem
                       onClick={() => {
