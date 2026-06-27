@@ -1,6 +1,12 @@
 "use client";
 
-import { X, ExternalLink } from "lucide-react";
+import { X, ExternalLink, GitPullRequestCreate } from "lucide-react";
+import { useState } from "react";
+import ReactMarkdown from "react-markdown";
+import { SimpleConfirmationModal } from "@/components/modals/SimpleConfirmationModal";
+import { useToast } from "@/context/ToastContext";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 import { formatRelativeOrAbsoluteDate } from "@/lib/utils/date";
 
 import type { MainBoardTask } from "./types";
@@ -14,7 +20,24 @@ export function TaskDetailsPanel({
   repositoryName?: string | null;
   onClose: () => void;
 }) {
+  const [isConfirmPrOpen, setIsConfirmPrOpen] = useState(false);
+  const { showToast } = useToast();
+  const router = useRouter();
+
   if (!task) return null;
+
+  const handleCreatePr = async () => {
+    try {
+      setIsConfirmPrOpen(false);
+      await axios.post(`/api/tasks/${task.id}/pr`);
+      showToast("Pull Request created successfully", "success");
+      router.refresh();
+      onClose(); // Optional: close the panel or let it stay to show updated data
+    } catch (error) {
+      console.error("Failed to create PR:", error);
+      showToast("Failed to create Pull Request", "error");
+    }
+  };
 
   const assignees = task.assignees || [];
   const reviewers = task.reviewers || [];
@@ -226,8 +249,10 @@ export function TaskDetailsPanel({
           <h4 className="text-xs font-bold text-syntax-grey uppercase tracking-wider">
             Description
           </h4>
-          <div className="text-sm text-white/80 whitespace-pre-wrap leading-relaxed">
-            {task.description || (
+          <div className="text-sm text-white/80 leading-relaxed prose prose-invert prose-sm max-w-none prose-pre:bg-black/50 prose-pre:border prose-pre:border-white/10 prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-li:my-0">
+            {task.description ? (
+              <ReactMarkdown>{task.description}</ReactMarkdown>
+            ) : (
               <span className="italic text-syntax-grey">
                 No description provided.
               </span>
@@ -250,6 +275,13 @@ export function TaskDetailsPanel({
           </div>
         </div>
       </div>
+      <SimpleConfirmationModal
+        isOpen={isConfirmPrOpen}
+        message="Are you sure you want to create a Pull Request for this task?"
+        confirmText="Create PR"
+        onConfirm={handleCreatePr}
+        onCancel={() => setIsConfirmPrOpen(false)}
+      />
     </div>
   );
 }

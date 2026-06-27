@@ -3,6 +3,7 @@ import type { TaskStatus, Task } from "@syncoboard/db";
 export interface CreateTaskPayload {
   boardId: string;
   title: string;
+  description?: string;
 }
 
 export interface UpdateTaskStatusPayload {

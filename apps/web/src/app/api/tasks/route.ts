@@ -25,7 +25,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { boardId, title, status } = body;
+    const { boardId, title, description, status } = body;
 
     if (!boardId || !title) {
       return apiError(
@@ -74,6 +74,7 @@ export async function POST(req: Request) {
       data: {
         boardId: boardId,
         title,
+        description: description || undefined,
         status: status ? (status as TaskStatus) : TaskStatus.TODO,
       },
     });
