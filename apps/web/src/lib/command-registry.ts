@@ -670,98 +670,30 @@ export const COMMAND_REGISTRY: Record<string, Command> = {
   },
   "invite-member": {
     name: "invite-member",
-    description:
-      "Invite a member to a board (usage: /invite-member <workspace_name>/<board_name> <user_id_or_email>)",
-    action: ({ args, printOutput }) => {
-      if (!args || args.length < 2) {
+    description: "Opens a modal to invite a member to the board.",
+    action: ({ printOutput, commandContextState }) => {
+      if (!commandContextState?.setIsInviteModalOpen) {
         printOutput([
-          "Error: Missing arguments. Usage: /invite-member <workspace_name>/<board_name> <user_id_or_email>",
+          "Error: Invite member command only available in board view.",
         ]);
         return;
       }
-
-      const fullPath = args[0];
-      const identifier = args[1];
-      const parts = fullPath.split("/");
-
-      if (parts.length !== 2) {
-        printOutput([
-          "Error: Invalid format. Usage: /invite-member <workspace_name>/<board_name> <user_id_or_email>",
-        ]);
-        return;
-      }
-
-      const [workspaceName, boardName] = parts;
-
-      import("@syncoboard/api").then(({ boardApi }) => {
-        boardApi
-          .inviteMember(
-            workspaceName.trim(),
-            boardName.trim(),
-            identifier.trim(),
-          )
-          .then(() => {
-            printOutput([
-              `Successfully invited member '${identifier}' to board '${boardName}'.`,
-            ]);
-          })
-          .catch((err: unknown) => {
-            const errorMessage =
-              (err as { response?: { data?: { error?: string } } }).response
-                ?.data?.error ||
-              (err as Error).message ||
-              "Failed to add member.";
-            printOutput([`Error: ${errorMessage}`]);
-          });
-      });
+      commandContextState.setIsInviteModalOpen(true);
+      printOutput(["Opening invite member modal..."]);
     },
   },
   "rmv-member": {
     name: "rmv-member",
-    description:
-      "Remove a member from a board (usage: /rmv-member <workspace_name>/<board_name> <user_id_or_email>)",
-    action: ({ args, printOutput }) => {
-      if (!args || args.length < 2) {
+    description: "Opens a modal to remove a member from the board.",
+    action: ({ printOutput, commandContextState }) => {
+      if (!commandContextState?.setIsRemoveMemberModalOpen) {
         printOutput([
-          "Error: Missing arguments. Usage: /rmv-member <workspace_name>/<board_name> <user_id_or_email>",
+          "Error: Remove member command only available in board view.",
         ]);
         return;
       }
-
-      const fullPath = args[0];
-      const identifier = args[1];
-      const parts = fullPath.split("/");
-
-      if (parts.length !== 2) {
-        printOutput([
-          "Error: Invalid format. Usage: /rmv-member <workspace_name>/<board_name> <user_id_or_email>",
-        ]);
-        return;
-      }
-
-      const [workspaceName, boardName] = parts;
-
-      import("@syncoboard/api").then(({ boardApi }) => {
-        boardApi
-          .removeMember(
-            workspaceName.trim(),
-            boardName.trim(),
-            identifier.trim(),
-          )
-          .then(() => {
-            printOutput([
-              `Successfully removed member '${identifier}' from board '${boardName}'.`,
-            ]);
-          })
-          .catch((err: unknown) => {
-            const errorMessage =
-              (err as { response?: { data?: { error?: string } } }).response
-                ?.data?.error ||
-              (err as Error).message ||
-              "Failed to remove member.";
-            printOutput([`Error: ${errorMessage}`]);
-          });
-      });
+      commandContextState.setIsRemoveMemberModalOpen(true);
+      printOutput(["Opening remove member modal..."]);
     },
   },
   clear: {

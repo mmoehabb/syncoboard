@@ -13,6 +13,7 @@ import type {
 import { useState } from "react";
 import { SocketProvider } from "@/context/SocketContext";
 import { UserApi } from "@syncoboard/api";
+import { WorkspaceGrid } from "./WorkspaceGrid";
 
 export function DashboardClient({
   workspaces,
@@ -72,14 +73,18 @@ export function DashboardClient({
             isOpen={isSidebarOpen}
             onClose={() => setIsSidebarOpen(false)}
           />
-          <MainBoard
-            board={board}
-            taskCounts={taskCounts}
-            boardId={boardId}
-            searchQuery={searchQuery}
-            availableMembers={availableMembers}
-            initialLimit={initialLimit}
-          />
+          {!board && !boardId ? (
+            <WorkspaceGrid workspaces={workspaces} />
+          ) : (
+            <MainBoard
+              board={board}
+              taskCounts={taskCounts}
+              boardId={boardId}
+              searchQuery={searchQuery}
+              availableMembers={availableMembers}
+              initialLimit={initialLimit}
+            />
+          )}
           {!hasActiveSubscription && modalComponent}
         </div>
       </div>

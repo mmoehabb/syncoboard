@@ -7,7 +7,7 @@ import { LogOut, Settings, ChevronDown, Bug, Menu } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import Link from "next/link";
 import { AppGuide } from "./AppGuide";
-import { NotificationsDropdown } from "./NotificationsDropdown";
+import { NotificationsDrawer } from "./NotificationsDrawer";
 import { ReportBugModal } from "./ReportBugModal";
 
 export function Header({ onToggleSidebar }: { onToggleSidebar?: () => void }) {
@@ -43,7 +43,7 @@ export function Header({ onToggleSidebar }: { onToggleSidebar?: () => void }) {
                 userCreatedAt={session.user.createdAt as string | Date}
               />
             </div>
-            <NotificationsDropdown />
+            <NotificationsDrawer />
             <div className="relative">
               <button
                 onClick={() => setMenuOpen(!menuOpen)}

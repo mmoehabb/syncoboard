@@ -31,7 +31,15 @@ export type MainBoardData = Prisma.BoardGetPayload<{
 
 export type DashboardWorkspace = Prisma.WorkspaceGetPayload<{
   include: {
-    boards: true;
+    boards: {
+      include: {
+        tasks: {
+          select: {
+            status: true;
+          };
+        };
+      };
+    };
   };
 }>;
 

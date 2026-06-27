@@ -35,6 +35,8 @@ import {
 import { SimpleConfirmationModal } from "@/components/modals/SimpleConfirmationModal";
 import { ModifyTaskModal } from "@/components/modals/ModifyTaskModal";
 import { AddTaskModal } from "@/components/modals/AddTaskModal";
+import { InviteMemberModal } from "@/components/modals/InviteMemberModal";
+import { RemoveMemberModal } from "@/components/modals/RemoveMemberModal";
 import { useToast } from "@/context/ToastContext";
 import axios from "axios";
 import { useSession } from "next-auth/react";
@@ -66,8 +68,21 @@ export function MainBoard({
   const userId = session?.user?.id;
   const searchParams = useSearchParams();
   const taskIdParam = searchParams.get("taskId");
-  const { isVoiceCallActive, setIsVoiceCallActive } = useCommand();
+  const { isVoiceCallActive, setIsVoiceCallActive, setCommandContextState } =
+    useCommand();
   const { socket, isConnected } = useSocket();
+
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [isRemoveMemberModalOpen, setIsRemoveMemberModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (setCommandContextState) {
+      setCommandContextState({
+        setIsInviteModalOpen,
+        setIsRemoveMemberModalOpen,
+      });
+    }
+  }, [setCommandContextState]);
 
   const [isBoardOptionsOpen, setIsBoardOptionsOpen] = useState(false);
   const boardOptionsRef = useRef<HTMLDivElement>(null);
@@ -493,133 +508,154 @@ export function MainBoard({
   return (
     <div className="flex-1 flex overflow-hidden h-full relative">
       <div className="flex-1 flex flex-col bg-obsidian-night transition-all min-w-0">
-        <div className="p-4 border-b border-white/10 flex flex-row items-center justify-between gap-4 z-10 bg-obsidian-night">
-          <div className="flex items-center gap-4">
-            <h2 className="text-white font-mono font-bold"># {board.name}</h2>
-            {layout !== "analysis" && (
-              <div className="flex items-center gap-1 bg-void-grey border border-white/10 rounded px-1 py-1">
-                <button
-                  onClick={() => handleLayoutChange("list")}
-                  className={`p-1 rounded transition-colors ${layout === "list" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
-                  title="List Layout"
-                >
-                  <LayoutList size={16} />
-                </button>
-                <button
-                  onClick={() => handleLayoutChange("kanban")}
-                  className={`p-1 rounded transition-colors ${layout === "kanban" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
-                  title="Kanban Layout"
-                >
-                  <Columns size={16} />
-                </button>
-                <button
-                  onClick={() => handleLayoutChange("rows")}
-                  className={`p-1 rounded transition-colors ${layout === "rows" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
-                  title="Rows Layout"
-                >
-                  <AlignJustify size={16} />
-                </button>
-              </div>
-            )}
-          </div>
-          <div
-            className="flex items-center gap-2 relative"
-            ref={boardOptionsRef}
-          >
+        <div className="px-4 pt-4 flex flex-col gap-2 z-10 bg-obsidian-night border-b border-white/10 pb-4">
+          <div className="flex items-center text-sm font-mono text-syntax-grey">
             <button
-              onClick={() => setIsBoardOptionsOpen(!isBoardOptionsOpen)}
-              title="Board Options"
-              className={`text-syntax-grey hover:text-neon-pulse text-sm font-mono transition-colors border border-syntax-grey/30 hover:border-neon-pulse/50 rounded px-3 py-1 bg-void-grey flex items-center justify-center ${isBoardOptionsOpen ? "text-neon-pulse border-neon-pulse/50" : ""}`}
+              onClick={() => router.push("/dashboard")}
+              className="hover:text-white transition-colors"
             >
-              <MoreHorizontal size={16} />
+              Workspaces
             </button>
-            {isBoardOptionsOpen && (
-              <div className="absolute top-full right-0 mt-2 bg-void-grey border border-white/20 shadow-2xl rounded-md min-w-[200px] py-1 font-mono text-sm flex flex-col z-50">
-                {board?.isActive && (
+            <span className="mx-2">/</span>
+            <button
+              onClick={() => router.push(`/dashboard/w/${board.workspace?.id}`)}
+              className="hover:text-white transition-colors"
+            >
+              {board.workspace?.name}
+            </button>
+            <span className="mx-2">/</span>
+            <span className="text-white">{board.name}</span>
+          </div>
+          <div className="flex flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <h2 className="text-white font-mono font-bold"># {board.name}</h2>
+              {layout !== "analysis" && (
+                <div className="flex items-center gap-1 bg-void-grey border border-white/10 rounded px-1 py-1">
+                  <button
+                    onClick={() => handleLayoutChange("list")}
+                    className={`p-1 rounded transition-colors ${layout === "list" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
+                    title="List Layout"
+                  >
+                    <LayoutList size={16} />
+                  </button>
+                  <button
+                    onClick={() => handleLayoutChange("kanban")}
+                    className={`p-1 rounded transition-colors ${layout === "kanban" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
+                    title="Kanban Layout"
+                  >
+                    <Columns size={16} />
+                  </button>
+                  <button
+                    onClick={() => handleLayoutChange("rows")}
+                    className={`p-1 rounded transition-colors ${layout === "rows" ? "bg-white/10 text-white" : "text-syntax-grey hover:text-white"}`}
+                    title="Rows Layout"
+                  >
+                    <AlignJustify size={16} />
+                  </button>
+                </div>
+              )}
+            </div>
+            <div
+              className="flex items-center gap-2 relative"
+              ref={boardOptionsRef}
+            >
+              <button
+                onClick={() => setIsBoardOptionsOpen(!isBoardOptionsOpen)}
+                title="Board Options"
+                className={`text-syntax-grey hover:text-neon-pulse text-sm font-mono transition-colors border border-syntax-grey/30 hover:border-neon-pulse/50 rounded px-3 py-1 bg-void-grey flex items-center justify-center ${isBoardOptionsOpen ? "text-neon-pulse border-neon-pulse/50" : ""}`}
+              >
+                <MoreHorizontal size={16} />
+              </button>
+              {isBoardOptionsOpen && (
+                <div className="absolute top-full right-0 mt-2 bg-void-grey border border-white/20 shadow-2xl rounded-md min-w-[200px] py-1 font-mono text-sm flex flex-col z-50">
+                  {board?.isActive && (
+                    <ContextMenuItem
+                      onClick={() => {
+                        setIsVoiceCallActive(!isVoiceCallActive);
+                        setIsBoardOptionsOpen(false);
+                      }}
+                      className={isVoiceCallActive ? "!text-red-400" : ""}
+                    >
+                      <span className="flex items-center gap-2">
+                        <Phone size={14} />
+                        {isVoiceCallActive
+                          ? "Leave Voice Call"
+                          : "Join Voice Call"}
+                      </span>
+                    </ContextMenuItem>
+                  )}
                   <ContextMenuItem
                     onClick={() => {
-                      setIsVoiceCallActive(!isVoiceCallActive);
+                      handleLayoutChange(
+                        layout === "analysis" ? "list" : "analysis",
+                      );
                       setIsBoardOptionsOpen(false);
                     }}
-                    className={isVoiceCallActive ? "!text-red-400" : ""}
                   >
                     <span className="flex items-center gap-2">
-                      <Phone size={14} />
-                      {isVoiceCallActive
-                        ? "Leave Voice Call"
-                        : "Join Voice Call"}
+                      <PieChart size={14} />
+                      {layout === "analysis"
+                        ? "Back to Board"
+                        : "Analysis View"}
                     </span>
                   </ContextMenuItem>
-                )}
-                <ContextMenuItem
-                  onClick={() => {
-                    handleLayoutChange(
-                      layout === "analysis" ? "list" : "analysis",
-                    );
-                    setIsBoardOptionsOpen(false);
-                  }}
-                >
-                  <span className="flex items-center gap-2">
-                    <PieChart size={14} />
-                    {layout === "analysis" ? "Back to Board" : "Analysis View"}
-                  </span>
-                </ContextMenuItem>
-                {board?.isActive && isCurrentUserAdmin && (
+                  {board?.isActive && isCurrentUserAdmin && (
+                    <ContextMenuItem
+                      onClick={() => {
+                        handleSyncBoard();
+                        setIsBoardOptionsOpen(false);
+                      }}
+                      disabled={isSyncing}
+                    >
+                      <span className="flex items-center gap-2">
+                        <RefreshCw
+                          size={14}
+                          className={isSyncing ? "animate-spin" : ""}
+                        />
+                        Sync Board
+                      </span>
+                    </ContextMenuItem>
+                  )}
                   <ContextMenuItem
                     onClick={() => {
-                      handleSyncBoard();
+                      setIsAddTaskModalOpen(true);
                       setIsBoardOptionsOpen(false);
                     }}
-                    disabled={isSyncing}
                   >
                     <span className="flex items-center gap-2">
-                      <RefreshCw
-                        size={14}
-                        className={isSyncing ? "animate-spin" : ""}
-                      />
-                      Sync Board
+                      <Plus size={14} />
+                      Add Task
                     </span>
                   </ContextMenuItem>
-                )}
-                <ContextMenuItem
-                  onClick={() => {
-                    setIsAddTaskModalOpen(true);
-                    setIsBoardOptionsOpen(false);
-                  }}
-                >
-                  <span className="flex items-center gap-2">
-                    <Plus size={14} />
-                    Add Task
-                  </span>
-                </ContextMenuItem>
-                {board && isCurrentUserAdmin && (
-                  <ContextMenuItem
-                    onClick={() => {
-                      setActivationConfirmModalState({
-                        isOpen: true,
-                        message: `Are you sure you want to ${
-                          board.isActive ? "deactivate" : "activate"
-                        } the board ${board.name}?`,
-                        onConfirm: handleToggleActivation,
-                      });
-                      setIsBoardOptionsOpen(false);
-                    }}
-                    className={
-                      board.isActive ? "!text-red-400" : "!text-green-400"
-                    }
-                  >
-                    <span className="flex items-center gap-2">
-                      {board.isActive ? (
-                        <PowerOff size={14} />
-                      ) : (
-                        <Power size={14} />
-                      )}
-                      {board.isActive ? "Deactivate Board" : "Activate Board"}
-                    </span>
-                  </ContextMenuItem>
-                )}
-              </div>
-            )}
+                  {board && isCurrentUserAdmin && (
+                    <ContextMenuItem
+                      onClick={() => {
+                        setActivationConfirmModalState({
+                          isOpen: true,
+                          message: `Are you sure you want to ${
+                            board.isActive ? "deactivate" : "activate"
+                          } the board ${board.name}?`,
+                          onConfirm: handleToggleActivation,
+                        });
+                        setIsBoardOptionsOpen(false);
+                      }}
+                      className={
+                        board.isActive ? "!text-red-400" : "!text-green-400"
+                      }
+                    >
+                      <span className="flex items-center gap-2">
+                        {board.isActive ? (
+                          <PowerOff size={14} />
+                        ) : (
+                          <Power size={14} />
+                        )}
+                        {board.isActive ? "Deactivate Board" : "Activate Board"}
+                      </span>
+                    </ContextMenuItem>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -801,10 +837,14 @@ export function MainBoard({
                         startDate={startDateParam || undefined}
                         endDate={endDateParam || undefined}
                         take={currentLimit}
-                        onAddTask={(status) => {
-                          setInitialTaskStatus(status);
-                          setIsAddTaskModalOpen(true);
-                        }}
+                        onAddTask={
+                          group.status === "TODO"
+                            ? (status) => {
+                                setInitialTaskStatus(status);
+                                setIsAddTaskModalOpen(true);
+                              }
+                            : undefined
+                        }
                       />
                     );
                   })}
@@ -940,6 +980,32 @@ export function MainBoard({
         onConfirm={handleAddTask}
         onCancel={() => setIsAddTaskModalOpen(false)}
       />
+
+      {boardId && (
+        <>
+          <InviteMemberModal
+            boardId={boardId}
+            isOpen={isInviteModalOpen}
+            onConfirm={() => {
+              setIsInviteModalOpen(false);
+              router.refresh();
+              showToast("Member invited successfully!", "success");
+            }}
+            onCancel={() => setIsInviteModalOpen(false)}
+          />
+          <RemoveMemberModal
+            boardId={boardId}
+            isOpen={isRemoveMemberModalOpen}
+            members={board?.members || []}
+            onConfirm={() => {
+              setIsRemoveMemberModalOpen(false);
+              router.refresh();
+              showToast("Member removed successfully!", "success");
+            }}
+            onCancel={() => setIsRemoveMemberModalOpen(false)}
+          />
+        </>
+      )}
     </div>
   );
 }
