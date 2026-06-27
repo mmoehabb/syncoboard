@@ -2,6 +2,7 @@
 
 import { X, ExternalLink, GitPullRequestCreate } from "lucide-react";
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 import { SimpleConfirmationModal } from "@/components/modals/SimpleConfirmationModal";
 import { useToast } from "@/context/ToastContext";
 import { useRouter } from "next/navigation";
@@ -248,8 +249,10 @@ export function TaskDetailsPanel({
           <h4 className="text-xs font-bold text-syntax-grey uppercase tracking-wider">
             Description
           </h4>
-          <div className="text-sm text-white/80 whitespace-pre-wrap leading-relaxed">
-            {task.description || (
+          <div className="text-sm text-white/80 leading-relaxed prose prose-invert prose-sm max-w-none prose-pre:bg-black/50 prose-pre:border prose-pre:border-white/10 prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-li:my-0">
+            {task.description ? (
+              <ReactMarkdown>{task.description}</ReactMarkdown>
+            ) : (
               <span className="italic text-syntax-grey">
                 No description provided.
               </span>
