@@ -39,19 +39,28 @@ export async function updateTaskStatus(taskId: string, status: string) {
     },
   });
 
-  if (!boardMember) {
-    const workspaceMember = await prisma.workspaceMember.findUnique({
-      where: {
-        workspaceId_userId: {
-          workspaceId: existingTask.board.workspaceId,
-          userId: session.user.id,
-        },
+  const workspaceMember = await prisma.workspaceMember.findUnique({
+    where: {
+      workspaceId_userId: {
+        workspaceId: existingTask.board.workspaceId,
+        userId: session.user.id,
       },
-    });
+    },
+  });
 
-    if (!workspaceMember) {
-      throw new Error("Unauthorized access to this task");
-    }
+  const hasAccess = boardMember || workspaceMember;
+  if (!hasAccess) {
+    throw new Error("Unauthorized access to this task");
+  }
+
+  const hasPermission =
+    boardMember?.role === "ADMIN" ||
+    boardMember?.role === "MODERATOR" ||
+    workspaceMember?.role === "ADMIN" ||
+    workspaceMember?.role === "MODERATOR";
+
+  if (!hasPermission) {
+    throw new Error("Insufficient permissions to update this task");
   }
 
   const task = await prisma.task.update({
@@ -88,20 +97,28 @@ export async function addTask(boardId: string, title: string) {
     throw new Error("Board not found");
   }
 
-  // Check workspace access if not direct board member
-  if (!boardMember) {
-    const workspaceMember = await prisma.workspaceMember.findUnique({
-      where: {
-        workspaceId_userId: {
-          workspaceId: board.workspaceId,
-          userId: session.user.id,
-        },
+  const workspaceMember = await prisma.workspaceMember.findUnique({
+    where: {
+      workspaceId_userId: {
+        workspaceId: board.workspaceId,
+        userId: session.user.id,
       },
-    });
+    },
+  });
 
-    if (!workspaceMember) {
-      throw new Error("Unauthorized access to this board");
-    }
+  const hasAccess = boardMember || workspaceMember;
+  if (!hasAccess) {
+    throw new Error("Unauthorized access to this board");
+  }
+
+  const hasPermission =
+    boardMember?.role === "ADMIN" ||
+    boardMember?.role === "MODERATOR" ||
+    workspaceMember?.role === "ADMIN" ||
+    workspaceMember?.role === "MODERATOR";
+
+  if (!hasPermission) {
+    throw new Error("Insufficient permissions to create tasks");
   }
 
   const task = await prisma.task.create({
@@ -145,19 +162,28 @@ export async function deleteTask(taskId: string) {
     },
   });
 
-  if (!boardMember) {
-    const workspaceMember = await prisma.workspaceMember.findUnique({
-      where: {
-        workspaceId_userId: {
-          workspaceId: task.board.workspaceId,
-          userId: session.user.id,
-        },
+  const workspaceMember = await prisma.workspaceMember.findUnique({
+    where: {
+      workspaceId_userId: {
+        workspaceId: task.board.workspaceId,
+        userId: session.user.id,
       },
-    });
+    },
+  });
 
-    if (!workspaceMember) {
-      throw new Error("Unauthorized access to delete this task");
-    }
+  const hasAccess = boardMember || workspaceMember;
+  if (!hasAccess) {
+    throw new Error("Unauthorized access to delete this task");
+  }
+
+  const hasPermission =
+    boardMember?.role === "ADMIN" ||
+    boardMember?.role === "MODERATOR" ||
+    workspaceMember?.role === "ADMIN" ||
+    workspaceMember?.role === "MODERATOR";
+
+  if (!hasPermission) {
+    throw new Error("Insufficient permissions to delete this task");
   }
 
   await prisma.task.delete({
