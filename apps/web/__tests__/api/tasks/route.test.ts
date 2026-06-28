@@ -84,7 +84,7 @@ describe("POST /api/tasks (IDOR Fix)", () => {
     const response = await POST(req);
     expect(response.status).toBe(403);
     const data = await response.json();
-    expect(data.error).toBe("Unauthorized access to this board");
+    expect(data.error).toBe("Insufficient permissions to create tasks");
   });
 
   it("should allow task creation for a workspace admin even if not directly on the board", async () => {
