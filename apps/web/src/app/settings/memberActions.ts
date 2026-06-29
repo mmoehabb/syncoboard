@@ -8,7 +8,7 @@ import { Role } from "@prisma/client";
 export async function getAdminContexts() {
   const session = await auth();
   if (!session?.user?.id) {
-    throw new Error("Unauthorized");
+    return { error: "Unauthorized" };
   }
   const userId = session.user.id;
 
@@ -32,7 +32,7 @@ export async function getAdminContexts() {
 export async function getMembers(type: "workspace" | "board", id: string) {
   const session = await auth();
   if (!session?.user?.id) {
-    throw new Error("Unauthorized");
+    return { error: "Unauthorized" };
   }
   const userId = session.user.id;
 
@@ -40,7 +40,7 @@ export async function getMembers(type: "workspace" | "board", id: string) {
     const admin = await prisma.workspaceMember.findUnique({
       where: { workspaceId_userId: { workspaceId: id, userId } },
     });
-    if (admin?.role !== "ADMIN") throw new Error("Unauthorized");
+    if (admin?.role !== "ADMIN") return { error: "Unauthorized" };
 
     const members = await prisma.workspaceMember.findMany({
       where: { workspaceId: id },
@@ -56,7 +56,7 @@ export async function getMembers(type: "workspace" | "board", id: string) {
     const admin = await prisma.boardMember.findUnique({
       where: { boardId_userId: { boardId: id, userId } },
     });
-    if (admin?.role !== "ADMIN") throw new Error("Unauthorized");
+    if (admin?.role !== "ADMIN") return { error: "Unauthorized" };
 
     const members = await prisma.boardMember.findMany({
       where: { boardId: id },
@@ -79,7 +79,7 @@ export async function updateMemberRole(
 ) {
   const session = await auth();
   if (!session?.user?.id) {
-    throw new Error("Unauthorized");
+    return { error: "Unauthorized" };
   }
   const userId = session.user.id;
 
@@ -88,7 +88,7 @@ export async function updateMemberRole(
       where: { workspaceId_userId: { workspaceId: id, userId } },
     });
     if (admin?.role !== "ADMIN")
-      throw new Error("Unauthorized to modify roles");
+      return { error: "Unauthorized to modify roles" };
 
     await prisma.workspaceMember.update({
       where: { workspaceId_userId: { workspaceId: id, userId: targetUserId } },
@@ -99,7 +99,7 @@ export async function updateMemberRole(
       where: { boardId_userId: { boardId: id, userId } },
     });
     if (admin?.role !== "ADMIN")
-      throw new Error("Unauthorized to modify roles");
+      return { error: "Unauthorized to modify roles" };
 
     await prisma.boardMember.update({
       where: { boardId_userId: { boardId: id, userId: targetUserId } },
@@ -117,7 +117,7 @@ export async function removeMember(
 ) {
   const session = await auth();
   if (!session?.user?.id) {
-    throw new Error("Unauthorized");
+    return { error: "Unauthorized" };
   }
   const userId = session.user.id;
 
@@ -126,7 +126,7 @@ export async function removeMember(
       where: { workspaceId_userId: { workspaceId: id, userId } },
     });
     if (admin?.role !== "ADMIN")
-      throw new Error("Unauthorized to remove members");
+      return { error: "Unauthorized to remove members" };
 
     await prisma.workspaceMember.delete({
       where: { workspaceId_userId: { workspaceId: id, userId: targetUserId } },
@@ -136,7 +136,7 @@ export async function removeMember(
       where: { boardId_userId: { boardId: id, userId } },
     });
     if (admin?.role !== "ADMIN")
-      throw new Error("Unauthorized to remove members");
+      return { error: "Unauthorized to remove members" };
 
     await prisma.boardMember.delete({
       where: { boardId_userId: { boardId: id, userId: targetUserId } },
@@ -153,7 +153,7 @@ export async function addMemberByEmail(
 ) {
   const session = await auth();
   if (!session?.user?.id) {
-    throw new Error("Unauthorized");
+    return { error: "Unauthorized" };
   }
   const userId = session.user.id;
 
@@ -171,13 +171,13 @@ export async function addMemberByEmail(
     const admin = await prisma.workspaceMember.findUnique({
       where: { workspaceId_userId: { workspaceId: id, userId } },
     });
-    if (admin?.role !== "ADMIN") throw new Error("Unauthorized to add members");
+    if (admin?.role !== "ADMIN") return { error: "Unauthorized to add members" };
 
     const existing = await prisma.workspaceMember.findUnique({
       where: { workspaceId_userId: { workspaceId: id, userId: targetUser.id } },
     });
     if (existing)
-      throw new Error("User is already a member of this workspace.");
+      return { error: "User is already a member of this workspace." };
 
     await prisma.workspaceMember.create({
       data: {
@@ -190,12 +190,12 @@ export async function addMemberByEmail(
     const admin = await prisma.boardMember.findUnique({
       where: { boardId_userId: { boardId: id, userId } },
     });
-    if (admin?.role !== "ADMIN") throw new Error("Unauthorized to add members");
+    if (admin?.role !== "ADMIN") return { error: "Unauthorized to add members" };
 
     const existing = await prisma.boardMember.findUnique({
       where: { boardId_userId: { boardId: id, userId: targetUser.id } },
     });
-    if (existing) throw new Error("User is already a member of this board.");
+    if (existing) return { error: "User is already a member of this board." };
 
     await prisma.boardMember.create({
       data: {
@@ -213,7 +213,7 @@ export async function addMemberByEmail(
 export async function getUserBoards(userId: string) {
   const session = await auth();
   if (!session?.user?.id || session.user.id !== userId) {
-    throw new Error("Unauthorized");
+    return { error: "Unauthorized" };
   }
 
   const boards = await prisma.board.findMany({

@@ -41,8 +41,12 @@ export function BoardManagement({ workspaces, userId }: BoardManagementProps) {
   const fetchBoards = async () => {
     try {
       setLoadingBoards(true);
-      const boards = await getUserBoards(userId);
-      setUserBoards(boards);
+      const boards: any = await getUserBoards(userId);
+      if (boards?.error) {
+        showToast(boards.error, "error");
+      } else {
+        setUserBoards(boards);
+      }
     } catch (e: any) {
       console.error(e);
       showToast("Failed to load user boards.", "error");
