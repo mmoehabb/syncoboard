@@ -68,7 +68,12 @@ export function MemberManagement({ userId }: { userId: string }) {
   const handleRoleChange = async (memberId: string, newRole: Role) => {
     if (!selectedType || !selectedId) return;
     try {
-      const res = await updateMemberRole(selectedType, selectedId, memberId, newRole);
+      const res = await updateMemberRole(
+        selectedType,
+        selectedId,
+        memberId,
+        newRole,
+      );
       if (res?.error) {
         showToast(res.error, "error");
         return;
@@ -118,7 +123,11 @@ export function MemberManagement({ userId }: { userId: string }) {
     setAdding(true);
     setError(null);
     try {
-      const res = await addMemberByEmail(selectedType, selectedId, newMemberEmail);
+      const res = await addMemberByEmail(
+        selectedType,
+        selectedId,
+        newMemberEmail,
+      );
       if (res?.error) {
         showToast(res.error, "error");
         return;

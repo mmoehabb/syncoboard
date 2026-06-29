@@ -171,7 +171,8 @@ export async function addMemberByEmail(
     const admin = await prisma.workspaceMember.findUnique({
       where: { workspaceId_userId: { workspaceId: id, userId } },
     });
-    if (admin?.role !== "ADMIN") return { error: "Unauthorized to add members" };
+    if (admin?.role !== "ADMIN")
+      return { error: "Unauthorized to add members" };
 
     const existing = await prisma.workspaceMember.findUnique({
       where: { workspaceId_userId: { workspaceId: id, userId: targetUser.id } },
@@ -190,7 +191,8 @@ export async function addMemberByEmail(
     const admin = await prisma.boardMember.findUnique({
       where: { boardId_userId: { boardId: id, userId } },
     });
-    if (admin?.role !== "ADMIN") return { error: "Unauthorized to add members" };
+    if (admin?.role !== "ADMIN")
+      return { error: "Unauthorized to add members" };
 
     const existing = await prisma.boardMember.findUnique({
       where: { boardId_userId: { boardId: id, userId: targetUser.id } },
