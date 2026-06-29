@@ -85,7 +85,9 @@ export function SettingsTabs({
         <div className="hidden md:flex justify-end mb-4">
           <FocusedLabel />
         </div>
-        {activeTab === "add-board" && <BoardManagement workspaces={workspaces} userId={userId} />}
+        {activeTab === "add-board" && (
+          <BoardManagement workspaces={workspaces} userId={userId} />
+        )}
         {activeTab === "account" && (
           <AccountSettings
             userId={userId}
