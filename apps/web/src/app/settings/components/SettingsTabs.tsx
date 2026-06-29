@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { AddBoard } from "./AddBoard";
+import { BoardManagement } from "./BoardManagement";
 import { AccountSettings } from "./AccountSettings";
+import { MemberManagement } from "./MemberManagement";
 import { FocusedLabel } from "@/components/ui/FocusedLabel";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -20,9 +21,9 @@ export function SettingsTabs({
   isActive,
   subscription,
 }: SettingsTabsProps) {
-  const [activeTab, setActiveTab] = useState<"add-board" | "account">(
-    "add-board",
-  );
+  const [activeTab, setActiveTab] = useState<
+    "add-board" | "account" | "members"
+  >("add-board");
 
   return (
     <>
@@ -52,7 +53,18 @@ export function SettingsTabs({
                 : "border-transparent text-syntax-grey hover:bg-white/5 hover:text-white"
             } [&.cmd-selected]:bg-white/10 [&.cmd-selected]:text-white`}
           >
-            Add Board
+            Board Management
+          </button>
+
+          <button
+            onClick={() => setActiveTab("members")}
+            className={`whitespace-nowrap md:w-full text-center md:text-left px-3 py-2 border-b-2 md:border-b-0 md:border-l-2 text-sm transition-colors cmd-selectable ${
+              activeTab === "members"
+                ? "bg-white/10 border-git-green text-white"
+                : "border-transparent text-syntax-grey hover:bg-white/5 hover:text-white"
+            } [&.cmd-selected]:bg-white/10 [&.cmd-selected]:text-white`}
+          >
+            Member Management
           </button>
 
           <button
@@ -73,7 +85,9 @@ export function SettingsTabs({
         <div className="hidden md:flex justify-end mb-4">
           <FocusedLabel />
         </div>
-        {activeTab === "add-board" && <AddBoard workspaces={workspaces} />}
+        {activeTab === "add-board" && (
+          <BoardManagement workspaces={workspaces} userId={userId} />
+        )}
         {activeTab === "account" && (
           <AccountSettings
             userId={userId}
@@ -81,6 +95,7 @@ export function SettingsTabs({
             subscription={subscription}
           />
         )}
+        {activeTab === "members" && <MemberManagement userId={userId} />}
       </div>
     </>
   );

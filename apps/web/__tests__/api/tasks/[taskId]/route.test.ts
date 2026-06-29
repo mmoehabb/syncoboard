@@ -72,7 +72,7 @@ describe("PATCH/DELETE /api/tasks/[taskId] (IDOR Fix)", () => {
       });
       expect(response.status).toBe(404);
       const data = await response.json();
-      expect(data.error).toBe("Task not found");
+      expect(data.error).toBe("Task or Insufficient permissions not found");
     });
 
     it("should allow task update if user has access", async () => {
@@ -107,7 +107,7 @@ describe("PATCH/DELETE /api/tasks/[taskId] (IDOR Fix)", () => {
       });
       expect(response.status).toBe(404);
       const data = await response.json();
-      expect(data.error).toBe("Task not found");
+      expect(data.error).toBe("Task or Insufficient permissions not found");
     });
 
     it("should allow task deletion if user has access", async () => {

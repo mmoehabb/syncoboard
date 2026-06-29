@@ -55,10 +55,22 @@ export async function PATCH(
         id: BigInt(taskId),
         board: {
           OR: [
-            { members: { some: { userId: userId } } },
+            {
+              members: {
+                some: {
+                  userId: userId,
+                  role: { in: ["ADMIN", "MODERATOR"] },
+                },
+              },
+            },
             {
               workspace: {
-                members: { some: { userId: userId, role: "ADMIN" } },
+                members: {
+                  some: {
+                    userId: userId,
+                    role: { in: ["ADMIN", "MODERATOR"] },
+                  },
+                },
               },
             },
           ],
@@ -68,7 +80,9 @@ export async function PATCH(
     });
 
     if (!existingTask) {
-      return apiError(API_ERRORS.customNotFound("Task"));
+      return apiError(
+        API_ERRORS.customNotFound("Task or Insufficient permissions"),
+      );
     }
 
     const dataToUpdate: any = {};
@@ -138,10 +152,22 @@ export async function DELETE(
         id: BigInt(taskId),
         board: {
           OR: [
-            { members: { some: { userId: userId } } },
+            {
+              members: {
+                some: {
+                  userId: userId,
+                  role: { in: ["ADMIN", "MODERATOR"] },
+                },
+              },
+            },
             {
               workspace: {
-                members: { some: { userId: userId, role: "ADMIN" } },
+                members: {
+                  some: {
+                    userId: userId,
+                    role: { in: ["ADMIN", "MODERATOR"] },
+                  },
+                },
               },
             },
           ],
@@ -151,7 +177,9 @@ export async function DELETE(
     });
 
     if (!task) {
-      return apiError(API_ERRORS.customNotFound("Task"));
+      return apiError(
+        API_ERRORS.customNotFound("Task or Insufficient permissions"),
+      );
     }
 
     await prisma.task.delete({

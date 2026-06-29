@@ -52,22 +52,32 @@ export async function POST(req: Request) {
       return apiError(API_ERRORS.customNotFound("Board"));
     }
 
-    // Check workspace access if not direct board member
-    if (!boardMember) {
-      const workspaceMember = await prisma.workspaceMember.findUnique({
-        where: {
-          workspaceId_userId: {
-            workspaceId: board.workspaceId,
-            userId: userId,
-          },
+    const workspaceMember = await prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: {
+          workspaceId: board.workspaceId,
+          userId: userId,
         },
-      });
+      },
+    });
 
-      if (workspaceMember?.role !== "ADMIN") {
-        return apiError(
-          API_ERRORS.customForbidden("Unauthorized access to this board"),
-        );
-      }
+    const hasAccess = boardMember || workspaceMember;
+    if (!hasAccess) {
+      return apiError(
+        API_ERRORS.customForbidden("Unauthorized access to this board"),
+      );
+    }
+
+    const hasPermission =
+      boardMember?.role === "ADMIN" ||
+      boardMember?.role === "MODERATOR" ||
+      workspaceMember?.role === "ADMIN" ||
+      workspaceMember?.role === "MODERATOR";
+
+    if (!hasPermission) {
+      return apiError(
+        API_ERRORS.customForbidden("Insufficient permissions to create tasks"),
+      );
     }
 
     const task = await prisma.task.create({

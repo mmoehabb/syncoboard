@@ -163,6 +163,7 @@ model Subscription {
 }
 
 enum Role {
+  MODERATOR
   ADMIN
   MEMBER
 }
