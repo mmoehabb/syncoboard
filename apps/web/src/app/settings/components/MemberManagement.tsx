@@ -9,8 +9,10 @@ import {
   addMemberByEmail,
 } from "../memberActions";
 import { Role } from "@prisma/client";
+import { useToast } from "@/context/ToastContext";
 
-export function MemberManagement() {
+export function MemberManagement({ userId }: { userId: string }) {
+  const { showToast } = useToast();
   const [contexts, setContexts] = useState<{
     workspaces: { id: string; name: string }[];
     boards: { id: string; name: string; workspaceId: string }[];
@@ -44,26 +46,28 @@ export function MemberManagement() {
     }
   }, [selectedType, selectedId]);
 
-  const handleRoleChange = async (userId: string, newRole: Role) => {
+  const handleRoleChange = async (memberId: string, newRole: Role) => {
     if (!selectedType || !selectedId) return;
     try {
-      await updateMemberRole(selectedType, selectedId, userId, newRole);
+      await updateMemberRole(selectedType, selectedId, memberId, newRole);
       const updated = await getMembers(selectedType, selectedId);
       setMembers(updated);
+      showToast("Role updated successfully", "success");
     } catch (e: any) {
-      setError(e.message);
+      showToast(e.message, "error");
     }
   };
 
-  const handleRemove = async (userId: string) => {
+  const handleRemove = async (memberId: string) => {
     if (!selectedType || !selectedId) return;
     if (confirm("Are you sure you want to remove this member?")) {
       try {
-        await removeMember(selectedType, selectedId, userId);
+        await removeMember(selectedType, selectedId, memberId);
         const updated = await getMembers(selectedType, selectedId);
         setMembers(updated);
+        showToast("Member removed successfully", "success");
       } catch (e: any) {
-        setError(e.message);
+        showToast(e.message, "error");
       }
     }
   };
@@ -77,8 +81,9 @@ export function MemberManagement() {
       const updated = await getMembers(selectedType, selectedId);
       setMembers(updated);
       setNewMemberEmail("");
+      showToast("Member added successfully", "success");
     } catch (e: any) {
-      setError(e.message);
+      showToast(e.message, "error");
     } finally {
       setAdding(false);
     }
@@ -192,12 +197,14 @@ export function MemberManagement() {
                   <option value="MODERATOR">Moderator</option>
                   <option value="ADMIN">Admin</option>
                 </select>
-                <button
-                  onClick={() => handleRemove(member.id)}
-                  className="px-2 py-1.5 text-xs bg-git-red/20 text-git-red rounded hover:bg-git-red/40 transition-colors"
-                >
-                  Remove
-                </button>
+                {member.id !== userId && (
+                  <button
+                    onClick={() => handleRemove(member.id)}
+                    className="px-2 py-1.5 text-xs bg-git-red/20 text-git-red rounded hover:bg-git-red/40 transition-colors"
+                  >
+                    Remove
+                  </button>
+                )}
               </div>
             </div>
           ))}

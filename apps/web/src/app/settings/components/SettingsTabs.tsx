@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AddBoard } from "./AddBoard";
+import { BoardManagement } from "./BoardManagement";
 import { AccountSettings } from "./AccountSettings";
 import { MemberManagement } from "./MemberManagement";
 import { FocusedLabel } from "@/components/ui/FocusedLabel";
@@ -53,7 +53,7 @@ export function SettingsTabs({
                 : "border-transparent text-syntax-grey hover:bg-white/5 hover:text-white"
             } [&.cmd-selected]:bg-white/10 [&.cmd-selected]:text-white`}
           >
-            Add Board
+            Board Management
           </button>
 
           <button
@@ -85,7 +85,7 @@ export function SettingsTabs({
         <div className="hidden md:flex justify-end mb-4">
           <FocusedLabel />
         </div>
-        {activeTab === "add-board" && <AddBoard workspaces={workspaces} />}
+        {activeTab === "add-board" && <BoardManagement workspaces={workspaces} userId={userId} />}
         {activeTab === "account" && (
           <AccountSettings
             userId={userId}
@@ -93,7 +93,7 @@ export function SettingsTabs({
             subscription={subscription}
           />
         )}
-        {activeTab === "members" && <MemberManagement />}
+        {activeTab === "members" && <MemberManagement userId={userId} />}
       </div>
     </>
   );

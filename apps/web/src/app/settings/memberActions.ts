@@ -207,3 +207,29 @@ export async function addMemberByEmail(
   revalidatePath("/settings");
   return { success: true };
 }
+
+export async function getUserBoards(userId: string) {
+  const session = await auth();
+  if (!session?.user?.id || session.user.id !== userId) {
+    throw new Error("Unauthorized");
+  }
+
+  const boards = await prisma.board.findMany({
+    where: {
+      isDeleted: false,
+      members: { some: { userId } },
+    },
+    include: {
+      workspace: { select: { name: true } },
+      members: { where: { userId }, select: { role: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return boards.map((b) => ({
+    id: b.id,
+    name: b.name,
+    workspaceName: b.workspace.name,
+    role: b.members[0]?.role || "MEMBER",
+  }));
+}
