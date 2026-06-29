@@ -8,6 +8,7 @@ import {
 } from "../actions";
 import { useRouter } from "next/navigation";
 import { subscriptionApi } from "@syncoboard/api";
+import { useToast } from "@/context/ToastContext";
 
 interface AccountSettingsProps {
   userId: string;
@@ -21,6 +22,7 @@ export function AccountSettings({
   subscription,
 }: AccountSettingsProps) {
   const router = useRouter();
+  const { showToast } = useToast();
   const [isDeactivateDialogOpen, setIsDeactivateDialogOpen] = useState(false);
   const [deactivateCountdown, setDeactivateCountdown] = useState(5);
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
@@ -70,23 +72,38 @@ export function AccountSettings({
 
   const handleDeactivate = async () => {
     setIsSubmitting(true);
-    await deactivateAccount(userId);
+    const res = await deactivateAccount(userId);
+    if (res?.error) {
+      showToast(res.error, "error");
+    } else {
+      showToast("Account deactivated successfully", "success");
+      setIsDeactivateDialogOpen(false);
+    }
     setIsSubmitting(false);
-    setIsDeactivateDialogOpen(false);
   };
 
   const handleReactivate = async () => {
     setIsSubmitting(true);
-    await reactivateAccount(userId);
+    const res = await reactivateAccount(userId);
+    if (res?.error) {
+      showToast(res.error, "error");
+    } else {
+      showToast("Account reactivated successfully", "success");
+    }
     setIsSubmitting(false);
   };
 
   const handleCancelSubscription = async () => {
     if (subscription?.id) {
       setIsSubmitting(true);
-      await cancelSubscription(userId, subscription.id);
+      const res = await cancelSubscription(userId, subscription.id);
+      if (res?.error) {
+        showToast(res.error, "error");
+      } else {
+        showToast("Subscription cancelled successfully", "success");
+        setIsCancelDialogOpen(false);
+      }
       setIsSubmitting(false);
-      setIsCancelDialogOpen(false);
     }
   };
 

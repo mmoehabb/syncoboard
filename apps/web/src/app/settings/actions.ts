@@ -27,44 +27,54 @@ export async function getUserWorkspaces(userId: string) {
 export async function deactivateAccount(userId: string) {
   const session = await auth();
   if (!session?.user?.id || session.user.id !== userId) {
-    throw new Error("Unauthorized");
+    return { error: "Unauthorized" };
   }
 
-  await prisma.$transaction(async (tx) => {
-    await tx.user.update({
-      where: { id: userId },
-      data: { isActive: false },
-    });
+  try {
+    await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: userId },
+        data: { isActive: false },
+      });
 
-    // Deactivate all boards where the user is an ADMIN
-    await tx.board.updateMany({
-      where: {
-        members: {
-          some: {
-            userId: userId,
-            role: "ADMIN",
+      // Deactivate all boards where the user is an ADMIN
+      await tx.board.updateMany({
+        where: {
+          members: {
+            some: {
+              userId: userId,
+              role: "ADMIN",
+            },
           },
         },
-      },
-      data: { isActive: false },
+        data: { isActive: false },
+      });
     });
-  });
 
-  revalidatePath("/settings");
+    revalidatePath("/settings");
+    return { success: true };
+  } catch (e: any) {
+    return { error: "Failed to deactivate account" };
+  }
 }
 
 export async function reactivateAccount(userId: string) {
   const session = await auth();
   if (!session?.user?.id || session.user.id !== userId) {
-    throw new Error("Unauthorized");
+    return { error: "Unauthorized" };
   }
 
-  await prisma.user.update({
-    where: { id: userId },
-    data: { isActive: true },
-  });
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { isActive: true },
+    });
 
-  revalidatePath("/settings");
+    revalidatePath("/settings");
+    return { success: true };
+  } catch (e: any) {
+    return { error: "Failed to reactivate account" };
+  }
 }
 
 export async function cancelSubscription(
@@ -73,15 +83,20 @@ export async function cancelSubscription(
 ) {
   const session = await auth();
   if (!session?.user?.id || session.user.id !== userId) {
-    throw new Error("Unauthorized");
+    return { error: "Unauthorized" };
   }
 
-  await prisma.subscription.update({
-    where: { id: subscriptionId, userId },
-    data: { cancelAtPeriodEnd: true },
-  });
+  try {
+    await prisma.subscription.update({
+      where: { id: subscriptionId, userId },
+      data: { cancelAtPeriodEnd: true },
+    });
 
-  revalidatePath("/settings");
+    revalidatePath("/settings");
+    return { success: true };
+  } catch (e: any) {
+    return { error: "Failed to cancel subscription" };
+  }
 }
 
 export async function getUserDetails(userId: string) {

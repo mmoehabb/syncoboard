@@ -37,7 +37,13 @@ export function MemberManagement({ userId }: { userId: string }) {
   }>({ isOpen: false, message: "", action: null });
 
   useEffect(() => {
-    getAdminContexts().then(setContexts);
+    getAdminContexts().then((res: any) => {
+      if (res?.error) {
+        showToast(res.error, "error");
+      } else {
+        setContexts(res);
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -45,7 +51,13 @@ export function MemberManagement({ userId }: { userId: string }) {
       setLoading(true);
       setError(null);
       getMembers(selectedType, selectedId)
-        .then(setMembers)
+        .then((res: any) => {
+          if (res?.error) {
+            setError(res.error);
+          } else {
+            setMembers(res);
+          }
+        })
         .catch((err) => setError(err.message))
         .finally(() => setLoading(false));
     } else {
@@ -56,10 +68,23 @@ export function MemberManagement({ userId }: { userId: string }) {
   const handleRoleChange = async (memberId: string, newRole: Role) => {
     if (!selectedType || !selectedId) return;
     try {
-      await updateMemberRole(selectedType, selectedId, memberId, newRole);
-      const updated = await getMembers(selectedType, selectedId);
-      setMembers(updated);
-      showToast("Role updated successfully", "success");
+      const res = await updateMemberRole(
+        selectedType,
+        selectedId,
+        memberId,
+        newRole,
+      );
+      if (res?.error) {
+        showToast(res.error, "error");
+        return;
+      }
+      const updated: any = await getMembers(selectedType, selectedId);
+      if (updated?.error) {
+        showToast(updated.error, "error");
+      } else {
+        setMembers(updated);
+        showToast("Role updated successfully", "success");
+      }
     } catch (e: any) {
       showToast(e.message, "error");
     }
@@ -72,10 +97,18 @@ export function MemberManagement({ userId }: { userId: string }) {
       message: "Are you sure you want to remove this member?",
       action: async () => {
         try {
-          await removeMember(selectedType, selectedId, memberId);
-          const updated = await getMembers(selectedType, selectedId);
-          setMembers(updated);
-          showToast("Member removed successfully", "success");
+          const res = await removeMember(selectedType, selectedId, memberId);
+          if (res?.error) {
+            showToast(res.error, "error");
+            return;
+          }
+          const updated: any = await getMembers(selectedType, selectedId);
+          if (updated?.error) {
+            showToast(updated.error, "error");
+          } else {
+            setMembers(updated);
+            showToast("Member removed successfully", "success");
+          }
         } catch (e: any) {
           showToast(e.message, "error");
         } finally {
@@ -90,11 +123,23 @@ export function MemberManagement({ userId }: { userId: string }) {
     setAdding(true);
     setError(null);
     try {
-      await addMemberByEmail(selectedType, selectedId, newMemberEmail);
-      const updated = await getMembers(selectedType, selectedId);
-      setMembers(updated);
-      setNewMemberEmail("");
-      showToast("Member added successfully", "success");
+      const res = await addMemberByEmail(
+        selectedType,
+        selectedId,
+        newMemberEmail,
+      );
+      if (res?.error) {
+        showToast(res.error, "error");
+        return;
+      }
+      const updated: any = await getMembers(selectedType, selectedId);
+      if (updated?.error) {
+        showToast(updated.error, "error");
+      } else {
+        setMembers(updated);
+        setNewMemberEmail("");
+        showToast("Member added successfully", "success");
+      }
     } catch (e: any) {
       showToast(e.message, "error");
     } finally {
