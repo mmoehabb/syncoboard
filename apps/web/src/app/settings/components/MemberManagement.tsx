@@ -10,6 +10,7 @@ import {
 } from "../memberActions";
 import { Role } from "@prisma/client";
 import { useToast } from "@/context/ToastContext";
+import { SimpleConfirmationModal } from "@/components/modals/SimpleConfirmationModal";
 
 export function MemberManagement({ userId }: { userId: string }) {
   const { showToast } = useToast();
@@ -28,6 +29,12 @@ export function MemberManagement({ userId }: { userId: string }) {
   const [newMemberEmail, setNewMemberEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    message: string;
+    action: (() => Promise<void>) | null;
+  }>({ isOpen: false, message: "", action: null });
 
   useEffect(() => {
     getAdminContexts().then(setContexts);
@@ -60,16 +67,22 @@ export function MemberManagement({ userId }: { userId: string }) {
 
   const handleRemove = async (memberId: string) => {
     if (!selectedType || !selectedId) return;
-    if (confirm("Are you sure you want to remove this member?")) {
-      try {
-        await removeMember(selectedType, selectedId, memberId);
-        const updated = await getMembers(selectedType, selectedId);
-        setMembers(updated);
-        showToast("Member removed successfully", "success");
-      } catch (e: any) {
-        showToast(e.message, "error");
-      }
-    }
+    setConfirmModal({
+      isOpen: true,
+      message: "Are you sure you want to remove this member?",
+      action: async () => {
+        try {
+          await removeMember(selectedType, selectedId, memberId);
+          const updated = await getMembers(selectedType, selectedId);
+          setMembers(updated);
+          showToast("Member removed successfully", "success");
+        } catch (e: any) {
+          showToast(e.message, "error");
+        } finally {
+          setConfirmModal({ isOpen: false, message: "", action: null });
+        }
+      },
+    });
   };
 
   const handleAddMember = async () => {
@@ -91,6 +104,14 @@ export function MemberManagement({ userId }: { userId: string }) {
 
   return (
     <div className="flex flex-col gap-6 max-w-3xl">
+      <SimpleConfirmationModal
+        isOpen={confirmModal.isOpen}
+        message={confirmModal.message}
+        onConfirm={confirmModal.action || (() => {})}
+        onCancel={() =>
+          setConfirmModal({ isOpen: false, message: "", action: null })
+        }
+      />
       <div className="flex flex-col gap-2">
         <h2 className="text-xl font-bold text-white">Member Management</h2>
         <p className="text-sm text-syntax-grey">
@@ -98,59 +119,99 @@ export function MemberManagement({ userId }: { userId: string }) {
         </p>
       </div>
 
-      <div className="flex gap-4 items-center">
-        <select
-          className="p-2 bg-void-grey border border-white/10 text-white rounded text-sm outline-none"
-          value={selectedType || ""}
-          onChange={(e) => {
-            setSelectedType(e.target.value as "workspace" | "board");
-            setSelectedId("");
-          }}
-        >
-          <option value="" disabled>
+      <div className="flex flex-col gap-4">
+        <div className="flex gap-4 items-center">
+          <label className="text-sm font-mono text-syntax-grey w-24">
             Select Type
-          </option>
-          <option value="workspace">Workspace</option>
-          <option value="board">Board</option>
-        </select>
+          </label>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                setSelectedType("workspace");
+                setSelectedId("");
+              }}
+              className={`px-4 py-2 text-sm font-mono transition-colors border ${
+                selectedType === "workspace"
+                  ? "bg-white/10 border-git-green text-white"
+                  : "bg-void-grey border-white/10 text-syntax-grey hover:text-white"
+              }`}
+            >
+              Workspace
+            </button>
+            <button
+              onClick={() => {
+                setSelectedType("board");
+                setSelectedId("");
+              }}
+              className={`px-4 py-2 text-sm font-mono transition-colors border ${
+                selectedType === "board"
+                  ? "bg-white/10 border-git-green text-white"
+                  : "bg-void-grey border-white/10 text-syntax-grey hover:text-white"
+              }`}
+            >
+              Board
+            </button>
+          </div>
+        </div>
 
         {selectedType === "workspace" && (
-          <select
-            className="p-2 bg-void-grey border border-white/10 text-white rounded text-sm outline-none"
-            value={selectedId}
-            onChange={(e) => setSelectedId(e.target.value)}
-          >
-            <option value="" disabled>
-              Select Workspace
-            </option>
-            {contexts.workspaces.map((w) => (
-              <option key={w.id} value={w.id}>
-                {w.name}
-              </option>
-            ))}
-          </select>
+          <div className="flex gap-4 items-center">
+            <label className="text-sm font-mono text-syntax-grey w-24">
+              Workspace
+            </label>
+            <div className="flex flex-wrap gap-2 flex-1">
+              {contexts.workspaces.map((w) => (
+                <button
+                  key={w.id}
+                  onClick={() => setSelectedId(w.id)}
+                  className={`px-3 py-1.5 text-xs font-mono transition-colors border rounded-full ${
+                    selectedId === w.id
+                      ? "bg-git-green/20 border-git-green text-git-green"
+                      : "bg-obsidian-night border-white/10 text-syntax-grey hover:text-white"
+                  }`}
+                >
+                  {w.name}
+                </button>
+              ))}
+              {contexts.workspaces.length === 0 && (
+                <span className="text-syntax-grey text-sm">
+                  No workspaces available
+                </span>
+              )}
+            </div>
+          </div>
         )}
 
         {selectedType === "board" && (
-          <select
-            className="p-2 bg-void-grey border border-white/10 text-white rounded text-sm outline-none"
-            value={selectedId}
-            onChange={(e) => setSelectedId(e.target.value)}
-          >
-            <option value="" disabled>
-              Select Board
-            </option>
-            {contexts.boards.map((b) => (
-              <option key={b.id} value={b.id}>
-                {b.name}
-              </option>
-            ))}
-          </select>
+          <div className="flex gap-4 items-center">
+            <label className="text-sm font-mono text-syntax-grey w-24">
+              Board
+            </label>
+            <div className="flex flex-wrap gap-2 flex-1">
+              {contexts.boards.map((b) => (
+                <button
+                  key={b.id}
+                  onClick={() => setSelectedId(b.id)}
+                  className={`px-3 py-1.5 text-xs font-mono transition-colors border rounded-full ${
+                    selectedId === b.id
+                      ? "bg-git-green/20 border-git-green text-git-green"
+                      : "bg-obsidian-night border-white/10 text-syntax-grey hover:text-white"
+                  }`}
+                >
+                  {b.name}
+                </button>
+              ))}
+              {contexts.boards.length === 0 && (
+                <span className="text-syntax-grey text-sm">
+                  No boards available
+                </span>
+              )}
+            </div>
+          </div>
         )}
       </div>
 
       {error && <div className="text-git-red text-sm">{error}</div>}
-
       {selectedType && selectedId && (
         <div className="flex gap-2">
           <input

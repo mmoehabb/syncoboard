@@ -57,17 +57,6 @@ export function SettingsTabs({
           </button>
 
           <button
-            onClick={() => setActiveTab("account")}
-            className={`whitespace-nowrap md:w-full text-center md:text-left px-3 py-2 border-b-2 md:border-b-0 md:border-l-2 text-sm transition-colors cmd-selectable ${
-              activeTab === "account"
-                ? "bg-white/10 border-git-green text-white"
-                : "border-transparent text-syntax-grey hover:bg-white/5 hover:text-white"
-            } [&.cmd-selected]:bg-white/10 [&.cmd-selected]:text-white`}
-          >
-            Account Settings
-          </button>
-
-          <button
             onClick={() => setActiveTab("members")}
             className={`whitespace-nowrap md:w-full text-center md:text-left px-3 py-2 border-b-2 md:border-b-0 md:border-l-2 text-sm transition-colors cmd-selectable ${
               activeTab === "members"
@@ -76,6 +65,17 @@ export function SettingsTabs({
             } [&.cmd-selected]:bg-white/10 [&.cmd-selected]:text-white`}
           >
             Member Management
+          </button>
+
+          <button
+            onClick={() => setActiveTab("account")}
+            className={`whitespace-nowrap md:w-full text-center md:text-left px-3 py-2 border-b-2 md:border-b-0 md:border-l-2 text-sm transition-colors cmd-selectable ${
+              activeTab === "account"
+                ? "bg-white/10 border-git-green text-white"
+                : "border-transparent text-syntax-grey hover:bg-white/5 hover:text-white"
+            } [&.cmd-selected]:bg-white/10 [&.cmd-selected]:text-white`}
+          >
+            Account Settings
           </button>
         </div>
       </div>

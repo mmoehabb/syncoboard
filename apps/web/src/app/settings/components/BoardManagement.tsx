@@ -7,6 +7,7 @@ import { boardApi } from "@syncoboard/api";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/context/ToastContext";
 import { getUserBoards } from "../memberActions";
+import { SimpleConfirmationModal } from "@/components/modals/SimpleConfirmationModal";
 
 interface BoardManagementProps {
   workspaces: { id: string; name: string }[];
@@ -31,6 +32,11 @@ export function BoardManagement({ workspaces, userId }: BoardManagementProps) {
     { id: string; name: string; workspaceName: string; role: string }[]
   >([]);
   const [loadingBoards, setLoadingBoards] = useState(true);
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    message: string;
+    action: (() => Promise<void>) | null;
+  }>({ isOpen: false, message: "", action: null });
 
   const fetchBoards = async () => {
     try {
@@ -106,41 +112,60 @@ export function BoardManagement({ workspaces, userId }: BoardManagementProps) {
   };
 
   const handleLeaveBoard = async (workspaceName: string, boardName: string) => {
-    if (confirm(`Are you sure you want to leave ${boardName}?`)) {
-      try {
-        await boardApi.leaveBoard(workspaceName, boardName);
-        showToast("Successfully left board", "success");
-        fetchBoards();
-      } catch (e: any) {
-        showToast(e?.response?.data?.error || "Failed to leave board", "error");
-      }
-    }
+    setConfirmModal({
+      isOpen: true,
+      message: `Are you sure you want to leave ${boardName}?`,
+      action: async () => {
+        try {
+          await boardApi.leaveBoard(workspaceName, boardName);
+          showToast("Successfully left board", "success");
+          fetchBoards();
+        } catch (e: any) {
+          showToast(
+            e?.response?.data?.error || "Failed to leave board",
+            "error",
+          );
+        } finally {
+          setConfirmModal({ isOpen: false, message: "", action: null });
+        }
+      },
+    });
   };
 
   const handleDeleteBoard = async (
     workspaceName: string,
     boardName: string,
   ) => {
-    if (
-      confirm(
-        `Are you sure you want to delete ${boardName}? This action is irreversible.`,
-      )
-    ) {
-      try {
-        await boardApi.deleteBoard(workspaceName, boardName);
-        showToast("Successfully deleted board", "success");
-        fetchBoards();
-      } catch (e: any) {
-        showToast(
-          e?.response?.data?.error || "Failed to delete board",
-          "error",
-        );
-      }
-    }
+    setConfirmModal({
+      isOpen: true,
+      message: `Are you sure you want to delete ${boardName}? This action is irreversible.`,
+      action: async () => {
+        try {
+          await boardApi.deleteBoard(workspaceName, boardName);
+          showToast("Successfully deleted board", "success");
+          fetchBoards();
+        } catch (e: any) {
+          showToast(
+            e?.response?.data?.error || "Failed to delete board",
+            "error",
+          );
+        } finally {
+          setConfirmModal({ isOpen: false, message: "", action: null });
+        }
+      },
+    });
   };
 
   return (
     <div className="max-w-xl mx-auto flex flex-col gap-8">
+      <SimpleConfirmationModal
+        isOpen={confirmModal.isOpen}
+        message={confirmModal.message}
+        onConfirm={confirmModal.action || (() => {})}
+        onCancel={() =>
+          setConfirmModal({ isOpen: false, message: "", action: null })
+        }
+      />
       {/* Create Board Section */}
       <div className="border border-white/10 bg-void-grey p-6 shadow-xl">
         <h2 className="text-xl font-bold font-mono text-white mb-6">
