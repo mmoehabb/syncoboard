@@ -211,23 +211,30 @@ export function MemberManagement({ userId }: { userId: string }) {
         )}
       </div>
 
-      {error && <div className="text-git-red text-sm">{error}</div>}
       {selectedType && selectedId && (
-        <div className="flex gap-2">
-          <input
-            type="email"
-            className="flex-1 p-2 bg-obsidian-night border border-white/10 text-white rounded text-sm outline-none"
-            placeholder="Add member by email..."
-            value={newMemberEmail}
-            onChange={(e) => setNewMemberEmail(e.target.value)}
-          />
-          <button
-            onClick={handleAddMember}
-            disabled={adding || !newMemberEmail}
-            className="px-4 py-2 bg-git-green text-black font-semibold rounded hover:bg-git-green/80 disabled:opacity-50 text-sm"
-          >
-            {adding ? "Adding..." : "Add"}
-          </button>
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2">
+            <input
+              type="email"
+              className="flex-1 p-2 bg-obsidian-night border border-white/10 text-white rounded text-sm outline-none focus:border-git-green transition-colors"
+              placeholder="Add member by email..."
+              value={newMemberEmail}
+              onChange={(e) => setNewMemberEmail(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleAddMember();
+                }
+              }}
+            />
+            <button
+              onClick={handleAddMember}
+              disabled={adding || !newMemberEmail}
+              className="px-4 py-2 bg-git-green text-black font-semibold rounded hover:bg-git-green/80 disabled:opacity-50 text-sm transition-colors"
+            >
+              {adding ? "Adding..." : "Add"}
+            </button>
+          </div>
         </div>
       )}
 

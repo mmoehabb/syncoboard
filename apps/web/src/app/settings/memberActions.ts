@@ -162,7 +162,9 @@ export async function addMemberByEmail(
   });
 
   if (!targetUser) {
-    throw new Error("User with this email not found.");
+    throw new Error(
+      `We couldn't find a user with the email address ${email}. Please check the email and try again.`,
+    );
   }
 
   if (type === "workspace") {
