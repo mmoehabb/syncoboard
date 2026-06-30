@@ -39,15 +39,16 @@ syncoboard/
 
 ### Architectural Boundaries
 
-*   **Apps** consume packages and services but do not depend on each other. `apps/web` acts as the central source of truth for the REST API.
-*   **Packages** encapsulate reusable code (`api`, `db`, `payment`, etc.) and enforce strict boundaries. They never import from `apps/` or `services/`.
-*   **Services** are independent, long-running processes that utilize `packages/` to perform their duties (e.g., cron jobs, websocket connections).
+- **Apps** consume packages and services but do not depend on each other. `apps/web` acts as the central source of truth for the REST API.
+- **Packages** encapsulate reusable code (`api`, `db`, `payment`, etc.) and enforce strict boundaries. They never import from `apps/` or `services/`.
+- **Services** are independent, long-running processes that utilize `packages/` to perform their duties (e.g., cron jobs, websocket connections).
 
 For a deep dive into each component, refer to:
-*   [Monorepo Architecture](../.agents/architecture.md)
-*   [Apps Documentation](../.agents/apps.md)
-*   [Packages Documentation](../.agents/packages.md)
-*   [Services Documentation](../.agents/services.md)
+
+- [Monorepo Architecture](../.agents/architecture.md)
+- [Apps Documentation](../.agents/apps.md)
+- [Packages Documentation](../.agents/packages.md)
+- [Services Documentation](../.agents/services.md)
 
 ## Contributor Workflows and Conventions
 

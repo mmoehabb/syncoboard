@@ -18,8 +18,8 @@ This directory contains vital context and instructions that will guide subsequen
 
 ## Available Documentation
 
-* **[Memory](./memory.md):** The most critical file. Contains categorized historical context, testing strategies, execution rules, coding conventions, and architectural nuances. You MUST review this to avoid past mistakes.
-* **[Architecture](./architecture.md):** An overview of the monorepo architecture, data flow, and interactions between different components.
-* **[Apps](./apps.md):** Documentation for the applications in the `apps/` directory (`dashboard`, `maintenance`, `tui`, `web`).
-* **[Packages](./packages.md):** Documentation for the shared packages in the `packages/` directory (`api`, `db`, `payment`, `shared`, `types`, `utils`).
-* **[Services](./services.md):** Documentation for the background processes and workers in the `services/` directory (`cron`, `deployer`, `webhook`, `websocket`).
+- **[Memory](./memory.md):** The most critical file. Contains categorized historical context, testing strategies, execution rules, coding conventions, and architectural nuances. You MUST review this to avoid past mistakes.
+- **[Architecture](./architecture.md):** An overview of the monorepo architecture, data flow, and interactions between different components.
+- **[Apps](./apps.md):** Documentation for the applications in the `apps/` directory (`dashboard`, `maintenance`, `tui`, `web`).
+- **[Packages](./packages.md):** Documentation for the shared packages in the `packages/` directory (`api`, `db`, `payment`, `shared`, `types`, `utils`).
+- **[Services](./services.md):** Documentation for the background processes and workers in the `services/` directory (`cron`, `deployer`, `webhook`, `websocket`).
