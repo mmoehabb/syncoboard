@@ -1,6 +1,6 @@
 ![cova_icon_v2 1](./apps/web/public/splash.png)
 
-[![Static Badge](https://img.shields.io/badge/v0.1.11-blue?logo=GitHub&label=Release)](https://github.com/mmoehabb/syncoboard/releases/tag/v0.1.13)
+[![Static Badge](https://img.shields.io/badge/v0.1.13-blue?logo=GitHub&label=Release)](https://github.com/mmoehabb/syncoboard/releases/tag/v0.1.13)
 [![Static Badge](https://img.shields.io/badge/MIT-silver?label=License)](https://github.com/mmoehabb/syncoboard/blob/main/LICENSE)
 
 # Syncoboard
