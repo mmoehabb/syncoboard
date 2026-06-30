@@ -2,48 +2,52 @@
 
 Welcome to the Syncoboard project! This document is intended to help developers understand the architecture, directory structure, and development workflows to make contributing as smooth as possible.
 
+## 🤖 Agents & LLM Assistants
+
+If you are an AI, Agent, or LLM Assistant working on this codebase, you **MUST** read the documentation located in the root `AGENTS.md` and the `.agents/` directory before proceeding with any modifications. The `.agents/memory.md` file contains critical learned context that will prevent you from making historical mistakes.
+
+For human developers, the `.agents/` directory is also highly recommended reading as it contains the most up-to-date architectural boundaries and coding conventions.
+
 ## Directory Structure & Monorepo Architecture
 
-Syncoboard is structured as a monorepo managed with [Bun](https://bun.sh/). The codebase is divided into **Apps**, **Packages**, and **Services**.
+Syncoboard is structured as a modern monorepo managed with [Bun](https://bun.sh/). The codebase is strictly divided into distinct domains:
 
 ```text
 syncoboard/
+├── .agents/            # Agent guidelines, memory, and architecture rules
 ├── apps/               # End-user facing applications
-│   ├── tui/            # The text-based terminal user interface (CLI app)
-│   └── web/            # The main Next.js web application and REST API
+│   ├── dashboard/      # Secondary dashboard interface
+│   ├── maintenance/    # Maintenance mode application
+│   ├── tui/            # Text-based terminal user interface (CLI app)
+│   └── web/            # Main Next.js web application and central REST API
 ├── packages/           # Shared libraries, utilities, and core logic
-│   ├── api/            # Shared API client for network requests
+│   ├── api/            # Universal API client
 │   ├── db/             # Database schemas, migrations, and Prisma client
-│   ├── payment/        # Payment processing and subscription logic (PayPal, etc.)
-│   ├── shared/         # Shared constants, enums, and cross-boundary logic
-│   ├── types/          # Centralized TypeScript interfaces and type definitions
-│   └── utils/          # Shared utility functions (e.g., entity cleanup, rate limiting)
+│   ├── payment/        # Payment processing and subscription logic
+│   ├── shared/         # Shared constants, loggers, and types
+│   ├── types/          # Centralized TypeScript definitions
+│   └── utils/          # Cross-cutting business logic
 ├── services/           # Background processes and worker tasks
-│   └── cron/           # Scheduled background jobs (e.g., cleanup scripts)
-└── docs/               # Project documentation
+│   ├── cron/           # Scheduled background jobs
+│   ├── deployer/       # Deployment orchestration
+│   ├── webhook/        # Webhook listener and processor
+│   └── websocket/      # Real-time signaling and WebRTC
+├── sdks/               # Software Development Kits for external integration
+│   └── go/             # Go SDK
+└── docs/               # General project documentation
 ```
 
-### Apps
+### Architectural Boundaries
 
-- **`apps/web`**: The core Next.js application. It serves dual purposes:
-  - **Frontend:** Provides the dark-mode, terminal-inspired user dashboard and web UI.
-  - **Backend (API):** Hosts the standard REST API routes (`/api/*`) used by the web app itself, the TUI, and other potential clients. It handles authentication (via NextAuth v5), database interactions, and business logic.
-- **`apps/tui`**: A command-line interface built with the [Ink](https://github.com/vadimdemedes/ink) React framework. It consumes the API provided by `apps/web` using Personal Access Tokens (PATs) to allow users to manage their boards and tasks directly from their terminal.
+*   **Apps** consume packages and services but do not depend on each other. `apps/web` acts as the central source of truth for the REST API.
+*   **Packages** encapsulate reusable code (`api`, `db`, `payment`, etc.) and enforce strict boundaries. They never import from `apps/` or `services/`.
+*   **Services** are independent, long-running processes that utilize `packages/` to perform their duties (e.g., cron jobs, websocket connections).
 
-### Packages
-
-Packages encapsulate reusable code, enforcing modularity and clean architectural boundaries across the monorepo:
-
-- **`@syncoboard/api`**: A universal API client used by `apps/tui` and potentially other services. It handles base URL resolution (supporting both client-side Next.js via `NEXT_PUBLIC_API_URL` and standard node environments) and standardized error handling.
-- **`@syncoboard/db`**: The single source of truth for the database. Contains the `schema.prisma` file, migration history, and exports the generated Prisma Client. Used by `apps/web`, `services/cron`, and anywhere database access is required.
-- **`@syncoboard/payment`**: Abstracts payment processing gateways. It defines interfaces for handling checkouts, subscriptions, and webhooks, allowing seamless integration with providers like PayPal. Used primarily by `apps/web`.
-- **`@syncoboard/shared`**: Contains generic constants, validation regexes, and lightweight logic shared between the frontend, backend, and CLI.
-- **`@syncoboard/types`**: Centralizes TypeScript type definitions to avoid duplication. It defines complex relational types (e.g., via `Prisma.GetPayload`) and domain-specific models. **Note:** This package is permitted to depend directly on `@syncoboard/db` to extract generated Prisma types.
-- **`@syncoboard/utils`**: Contains cross-cutting business logic and utility functions. Examples include permanent deletion of soft-deleted entities (e.g., boards/workspaces marked deleted for over 3 months) and rate-limiting utilities. Used by background jobs and API routes.
-
-### Services
-
-- **`services/cron`**: Background worker processes that run scheduled tasks, such as purging old soft-deleted data or cleaning up rate-limit memory stores.
+For a deep dive into each component, refer to:
+*   [Monorepo Architecture](../.agents/architecture.md)
+*   [Apps Documentation](../.agents/apps.md)
+*   [Packages Documentation](../.agents/packages.md)
+*   [Services Documentation](../.agents/services.md)
 
 ## Contributor Workflows and Conventions
 
@@ -69,23 +73,18 @@ To maintain a clean and performant codebase, please adhere to the following work
 ### Testing
 
 - We use **`bun test`** and the `bun:test` module as our primary test runner across all apps and packages.
-- **Location:** Tests are typically located in a `__tests__` directory at the package or app root.
-- **Mocking:** When mocking dependencies (especially `@syncoboard/db`), use `bun:test`'s `mock.module()`. Import the module-under-test dynamically inside your `beforeEach` or `it` block to ensure the mock is applied correctly before execution.
-- **TypeScript `any`:** The codebase strictly forbids the use of the `any` type, even in test files. Use `unknown` and type assertions where necessary (e.g., `mock as unknown as AxiosInstance`).
+- Tests should be run scoped to specific packages (e.g., `bun test packages/api/`) to avoid Bun segmentation faults at the root level.
+- When mocking Prisma in `bun:test`, use `mock.module("@syncoboard/db", ...)` globally.
+- The codebase strictly forbids the use of the `any` type, even in test files. Use `unknown` and type assertions where necessary.
 
 ### Code Formatting and Linting
 
 - We use **Prettier** for formatting.
-- Before committing, ensure your code passes the format check. The CI pipeline enforces this via the `bun check` script.
+- Before committing, ensure your code passes the format check.
 - To format your code automatically, run:
   ```bash
   bun x prettier --write .
   ```
-
-### General Conventions
-
-- **Database Queries:** Prefer database-level filtering (e.g., `prisma.findFirst`, `updateMany`) over fetching large datasets and filtering them in memory with JavaScript.
-- **API Security:** API route handlers must include authorization checks directly within resource lookup queries (e.g., `where: { id: boardId, members: { some: { userId } } }`) to return generic "Not Found" errors instead of unauthorized errors, preventing resource enumeration.
-- **Dependencies:** If you are building packages via `tsc`, ensure upstream dependencies are built first (`bun run build` in the respective packages) and the Prisma client is generated to prevent type declaration errors.
+- Formatting the Prisma schema must be done explicitly via `bun x prisma format`.
 
 Thank you for your interest in contributing to Syncoboard!
